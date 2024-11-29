@@ -3,6 +3,7 @@ import  AuthProvider  from "react-auth-kit";
 import { AllRoutes } from "./config/routeMgt/AllRoutes";
 import createStore from "react-auth-kit/createStore";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "./components/shared/theme-provider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +30,9 @@ function App() {
         position="top-right"
         expand={true}
       />
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <AllRoutes />
+      </ThemeProvider>
       </QueryClientProvider>
     </AuthProvider>
   );
