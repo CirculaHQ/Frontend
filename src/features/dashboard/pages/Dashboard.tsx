@@ -1,9 +1,10 @@
+import Layout from "@/components/shared/dashboard-layout"
 
 const Dashboard = () => {
   return (
-    <div>
-      Dashboard
-    </div>
+    <Layout>
+      <h1>Dashboard</h1>
+    </Layout>
   )
 }
 
