@@ -7,7 +7,6 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
-
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

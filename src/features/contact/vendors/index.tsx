@@ -1,4 +1,4 @@
-import { FilterModule, ModuleHeader } from '@/components/shared';
+import { FilterModule, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Avatar,
   AvatarFallback,
@@ -33,21 +33,32 @@ const Vendors = () => {
 
   return (
     <div>
-      <ModuleHeader title="Vendors">
-        <div className="flex flex-row items-center gap-3">
+      <ModuleHeader title='Vendors'>
+        <div className='flex flex-row items-center gap-3'>
           <Button>Show archive</Button>
           <Button>Export</Button>
-          <Button variant="secondary">Add vendor</Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='secondary'>Add vendor</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align='end'
+              className='text-sm font-medium text-secondary rounded-[8px] px-1'
+            >
+              <DropdownMenuItem className='py-2  rounded-[8px] justify-between'>Business <TextBadge text='B'/></DropdownMenuItem>
+              <DropdownMenuItem className='py-2 rounded-[8px] justify-between'>Individual <TextBadge text='I'/></DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </ModuleHeader>
-      <FilterModule containerClass="mt-8" />
+      <FilterModule containerClass='mt-8' />
 
-      <div className="mt-2">
+      <div className='mt-2'>
         {!isMobile ? (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Name</TableHead>
+                <TableHead className='w-[100px]'>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone number</TableHead>
                 <TableHead>Region</TableHead>
@@ -57,54 +68,50 @@ const Vendors = () => {
             </TableHeader>
             <TableBody>
               {templates.map((_, index) => (
-                <TableRow className="cursor-pointer" key={index}>
-                  <TableCell className="w-[300px]">
-                    <div className="flex flex-row items-center gap-3 justify-start">
-                      <Avatar className="w-6 h-6 rounded-full">
-                        <AvatarImage src="https://github.com/shadcn.png" />
+                <TableRow className='cursor-pointer' key={index}>
+                  <TableCell className='w-[300px]'>
+                    <div className='flex flex-row items-center gap-3 justify-start'>
+                      <Avatar className='w-6 h-6 rounded-full'>
+                        <AvatarImage src='https://github.com/shadcn.png' />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-sm text-primary">
-                        Circular HQ
-                      </span>
+                      <span className='font-medium text-sm text-primary'>Circular HQ</span>
                     </div>
                   </TableCell>
-                  <TableCell className="w-[300px] text-tertiary font-normal text-sm">
+                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     admin@circulahq.com
                   </TableCell>
-                  <TableCell className="w-[300px] text-tertiary font-normal text-sm">
+                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     +2348012345679
                   </TableCell>
-                  <TableCell className="w-[300px] text-tertiary font-normal text-sm">
+                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     Lagos, NG
                   </TableCell>
-                  <TableCell className="w-[300px] text-tertiary font-normal text-sm">
+                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     Individual
                   </TableCell>
-                  <TableCell className="w-7">
+                  <TableCell className='w-7'>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <div className="w-4 h-4">
+                        <div className='w-4 h-4'>
                           <Icon
-                            name="horizontal-dots"
-                            className="w-4 h-4 text-quaternary"
-                            fill="none"
+                            name='horizontal-dots'
+                            className='w-4 h-4 text-quaternary'
+                            fill='none'
                           />
                         </div>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
-                        align="end"
-                        className="text-sm font-medium text-secondary rounded-[8px] px-1"
+                        align='end'
+                        className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className="py-2  rounded-[8px]">
+                        <DropdownMenuItem className='py-2  rounded-[8px]'>
                           Edit details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="py-2 rounded-[8px]">
+                        <DropdownMenuItem className='py-2 rounded-[8px]'>
                           Assign inventory
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="py-2 rounded-[8px]">
-                          Archive
-                        </DropdownMenuItem>
+                        <DropdownMenuItem className='py-2 rounded-[8px]'>Archive</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -116,48 +123,47 @@ const Vendors = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Name</TableHead>
+                <TableHead className='w-[100px]'>Name</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {templates.map((_, index) => (
-                <TableRow className="cursor-pointer" key={index}>
-                  <TableCell className="w-[300px]">
-                    <div className="flex flex-row items-center gap-3 justify-start">
-                      <Avatar className="w-6 h-6 rounded-full">
-                        <AvatarImage src="https://github.com/shadcn.png" />
+                <TableRow className='cursor-pointer' key={index}>
+                  <TableCell className='w-[300px]'>
+                    <div className='flex flex-row items-center gap-3 justify-start'>
+                      <Avatar className='w-6 h-6 rounded-full'>
+                        <AvatarImage src='https://github.com/shadcn.png' />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
-                      <span className="font-medium text-sm text-primary">
-                        Circular HQ
-                      </span>
+                      <div className='flex flex-col items-start'>
+                      <span className='font-medium text-sm text-primary'>Circular HQ</span>
+                      <h4 className='font-normal text-sm text-tertiary'>admin@circulahq.com</h4>
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell className="w-7">
+                  <TableCell className='w-7'>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <div className="w-4 h-4">
+                        <div className='w-4 h-4'>
                           <Icon
-                            name="horizontal-dots"
-                            className="w-4 h-4 text-quaternary"
-                            fill="none"
+                            name='horizontal-dots'
+                            className='w-4 h-4 text-quaternary'
+                            fill='none'
                           />
                         </div>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
-                        align="end"
-                        className="text-sm font-medium text-secondary rounded-[8px] px-1"
+                        align='end'
+                        className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className="py-2  rounded-[8px]">
+                        <DropdownMenuItem className='py-2  rounded-[8px]'>
                           Edit details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="py-2 rounded-[8px]">
+                        <DropdownMenuItem className='py-2 rounded-[8px]'>
                           Assign inventory
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="py-2 rounded-[8px]">
-                          Archive
-                        </DropdownMenuItem>
+                        <DropdownMenuItem className='py-2 rounded-[8px]'>Archive</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { Icon } from '../ui';
+import { TextBadge } from './text-badge';
 
 interface FilterModuleProps {
   containerClass?: string;
@@ -16,9 +17,7 @@ const FilterModule = ({containerClass}: FilterModuleProps) => {
         />
       </div>
       <div className="hidden md:flex flex-row items-center justify-end ">
-        <div className="border border-[#E9EAEB] rounded-[4px] px-[2px] leading-3">
-          <span className="text-quaternary font-medium text-xs">M</span>
-        </div>
+        <TextBadge text='M'/>
         <div className="gap-2 flex flex-row items-center justify-center px-3">
           <span className='text-placeholder font-normal text-sm'>All types</span>
           <Icon name="chevron-down" className="w-5 h-5 text-quaternary" fill='none'/>
