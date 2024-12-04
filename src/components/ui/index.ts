@@ -3,3 +3,7 @@ export * from './button';
 export * from './collapsible';
 export * from './sidebar';
 export * from './icon';
+export * from './table';
+export * from './pagination';
+export * from './avatar';
+export * from './dropdown-menu';

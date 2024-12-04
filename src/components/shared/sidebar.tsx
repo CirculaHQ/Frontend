@@ -16,12 +16,13 @@ import {
   CollapsibleTrigger,
   Icon,
 } from '@/components/ui';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronDown } from 'lucide-react';
 // Menu items unchanged
 const items = [
   {
     title: 'Dashboard',
-    url: '#',
+    url: '/dashboard',
     icon: 'dashboard',
   },
   {
@@ -46,11 +47,11 @@ const items = [
     subItems: [
       {
         title: 'Vendors',
-        url: '#',
+        url: '/vendors',
       },
       {
         title: 'Customers',
-        url: '#',
+        url: '/customers',
       },
     ],
   },
@@ -67,8 +68,9 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const isMobile = useIsMobile();
   return (
-    <Sidebar className="bg-white border-l border-l-[#E9EAEB]">
+    <Sidebar className="bg-white border-l border-l-[#E9EAEB]" side={isMobile ? 'right' : 'left'}>
       <SidebarContent className="pt-5 pr-5 bg-white">
         <SidebarGroup>
           <SidebarGroupLabel className="mb-6">
