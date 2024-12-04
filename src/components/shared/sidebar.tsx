@@ -1,6 +1,7 @@
 import Logo from '@/assets/images/logo.png';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
+  useSidebar,
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -28,7 +29,7 @@ const items = [
   },
   {
     title: 'Operations',
-    url: '#',
+    url: 'operations',
     icon: 'operations',
   },
   {
@@ -69,6 +70,7 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { toggleSidebar } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -128,10 +130,19 @@ export function AppSidebar() {
                           {item.subItems.map((subItem) => (
                             <SidebarMenuSubItem
                               key={subItem.title}
-                              onClick={() => handleNavigation(subItem.url)}
-                              className={cn('text-tertiary font-inter text-sm w-full justify-between px-2 py-1.5 cursor-pointer', isActive(subItem.url) && ' bg-[#FAFAFA] rounded-[4px] text-secondary_hover font-medium')}
+                              onClick={() => {
+                                handleNavigation(subItem.url), 
+                                isMobile && toggleSidebar();
+                              }}
+                              className={cn(
+                                'text-tertiary font-inter text-sm w-full justify-between px-2 py-1.5 cursor-pointer',
+                                isActive(subItem.url) &&
+                                  ' bg-[#FAFAFA] rounded-[4px] text-secondary_hover font-medium'
+                              )}
                             >
-                              {isActive(subItem.url) && <div className='absolute bg-[#2C6000] w-[2px] h-2 rounded-full mt-2 left-0 ml-[-1.5px]'/>}
+                              {isActive(subItem.url) && (
+                                <div className='absolute bg-[#2C6000] w-[2px] h-2 rounded-full mt-2 left-0 ml-[-1.5px]' />
+                              )}
                               {subItem.title}
                             </SidebarMenuSubItem>
                           ))}
@@ -142,7 +153,10 @@ export function AppSidebar() {
                 ) : (
                   <SidebarMenuItem key={item.title} className='w-full'>
                     <SidebarMenuButton
-                      onClick={() => handleNavigation(item.url)}
+                      onClick={() => {
+                        handleNavigation(item.url), 
+                        isMobile && toggleSidebar();
+                      }}
                       className={`text-tertiary font-inter text-sm w-full`}
                       isActive={isActive(item.url)}
                     >

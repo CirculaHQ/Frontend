@@ -115,7 +115,7 @@ const ForwardedIcon = forwardRef<SVGSVGElement, IconProps>(
           ref={ref}
           style={{
             ...style,
-            fill: fill || 'currentColor',
+            fill: fill || 'none',
             stroke: stroke || 'none',
           }}
           {...rest}
