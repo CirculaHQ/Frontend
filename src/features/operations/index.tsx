@@ -25,7 +25,7 @@ type MetricCardProps = {
 
 const MetricCard = memo(({ title, count }: MetricCardProps) => {
   return (
-    <div className='h-[106px] md:max-w-[320px] flex gap-2 w-full flex-col items-start justify-center  border border-[#D5D7DA] px-5 rounded-xl shadow-sm'>
+    <div className='h-[106px] flex gap-2 w-full flex-col items-start justify-center  border border-[#D5D7DA] px-5 rounded-xl shadow-sm'>
       <h4 className='text-tertiary text-sm font-medium'>{title}</h4>
       <h1 className='text-primary font-semibold md:text-[30px] md:leading-[38px]'>{count}</h1>
     </div>
@@ -110,7 +110,7 @@ const Operations = () => {
                   </TableCell>
 
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    <Badge variant='overdue'>Completed</Badge>
+                    <Badge variant='failed'>Completed</Badge>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     690 kg
@@ -153,7 +153,6 @@ const Operations = () => {
               <TableRow>
                 <TableHead>Material</TableHead>
                 <TableHead>Activity</TableHead>
-
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
