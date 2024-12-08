@@ -1,7 +1,10 @@
-import { appRoute } from "@/config/routeMgt/routePaths";
-import request from "@/utils/api";
+// import { appRoute } from "@/config/routeMgt/routePaths";
+import CONFIG from "@/utils/config";
+import { showToast } from "@/utils/toast";
+import axios from "axios";
+// import request from "@/utils/api";
 import { useMutation } from "react-query";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 
 interface SignupResponse {
@@ -18,24 +21,23 @@ interface SignupPayload {
 }
 
 const useSignup = () => {
-  const navigate = useNavigate();
-
   return useMutation<SignupResponse, Error, SignupPayload>(
     async (data: SignupPayload) => {
-      return await request('POST', '/auth/register', data, false, true);
+      const response = await axios.post(`${CONFIG.API_BASE_URL}/auth/register`, data);
+      console.log('API Response:', response.data);
+      return response.data;
     },
     {
       onSuccess: (data) => {
-        if (data?.email) {
-          navigate(appRoute.sign_up_confirmation, { state: { email: data.email } });
-        }
+        showToast('Account created successfully! Please verify your email.', 'success');
+        console.log('Mutation success data:', data);
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         console.error('Signup error:', error);
+        showToast('Failed to create account. Please try again.', 'error');
       },
     }
   );
 };
 
 export default useSignup;
-

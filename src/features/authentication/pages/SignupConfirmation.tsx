@@ -3,18 +3,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import mail from '../../../assets/icons/mail.svg';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { useLocation} from 'react-router-dom';
+import { useLocation, useNavigate} from 'react-router-dom';
 import useVerifySignup from '../hooks/useVerifySignup';
+import useResendCode from '../hooks/useResendCode';
 
 
 const SignupConfirmation = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || 'your-email@example.com';
   const [verificationCode, setVerificationCode] = useState('');
   const [timer, setTimer] = useState(40);
 
   const { mutate: verifySignup } = useVerifySignup();
-
+  const { mutate: resendCode } = useResendCode();
+  
   // Resend code timer logic
   React.useEffect(() => {
     if (timer === 0) return;
@@ -26,7 +29,19 @@ const SignupConfirmation = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    verifySignup({ email, otp: verificationCode });
+
+    verifySignup(
+      { email, otp: verificationCode },
+      {
+        onSuccess: (data) => {
+          localStorage.setItem('user-token', data.access);
+          navigate(appRoute.home);
+        },
+        onError: (error) => {
+          console.error('Verification error:', error);
+        },
+      }
+    );
   };
 
   return (
@@ -76,7 +91,10 @@ const SignupConfirmation = () => {
 
           <Button
             type="button"
-            onClick={() => setTimer(40)}
+            onClick={() => {
+              resendCode(email);
+              setTimer(40);
+            }}
             className="w-full mt-3 border border-gray-300 bg-white text-sm text-gray-400 font-medium py-2 rounded-md hover:bg-gray-100 transition"
           >
             Resend code

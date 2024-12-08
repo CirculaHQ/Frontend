@@ -10,14 +10,35 @@ import {
 } from '@/components/ui/card';
 import { useState } from 'react';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import useLogin from '../hooks/useLogin';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const { mutate: login, isLoading } = useLogin();
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    login({ email, password }, {
+      onSuccess: (data) => {
+        if (data) {
+          navigate(appRoute.login_confirmation, { state: { email: email } });
+        }
+      },
+      onError: (error) => {
+        console.error('Signup error:', error);
+      },
+    }
+
+    );
   };
 
   return (
@@ -56,7 +77,7 @@ const Login = () => {
           </CardHeader>
 
           <CardContent>
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="email" className="font-normal">
                   Email
@@ -65,6 +86,8 @@ const Login = () => {
                   id="email"
                   type="email"
                   placeholder="johndoe@circulahq.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -90,7 +113,7 @@ const Login = () => {
                 </div>
                 <p className="text-xs mt-4 text-gray-600">
                   <a
-                    href="/terms"
+                    href={appRoute.forgot_password}
                     className="text-[var(--color-success-primary)] hover:text-[var(--color-brand-tertiary-alt)]"
                   >
                     Forgot your password?
@@ -102,7 +125,7 @@ const Login = () => {
                 type="submit"
                 className="w-full text-white mt-3 hover:bg-[var(--color-brand-tertiary-alt)]"
               >
-                Continue →
+                {isLoading ? 'Logging in...' : 'Continue →'}
               </Button>
             </form>
 

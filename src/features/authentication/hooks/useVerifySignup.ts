@@ -1,25 +1,35 @@
-import request from '@/utils/api';
+// import request from '@/utils/api';
+import CONFIG from '@/utils/config';
+import { showToast } from '@/utils/toast';
+import axios from 'axios';
 import { useMutation } from 'react-query';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 interface VerifySignupPayload {
   email: string;
   otp: string;
 }
 
-const useVerifySignup = () => {
-  const navigate = useNavigate();
+interface VerifySignupResponse {
+  access: string;
+  message: string;
+}
 
-  return useMutation(
+const useVerifySignup = () => {
+  return useMutation<VerifySignupResponse, Error, VerifySignupPayload>(
     async (data: VerifySignupPayload) => {
-      return await request('POST', '/signup/verify', data, false, true);
+      const response = await axios.post(`${CONFIG.API_BASE_URL}/auth/validate-otp`, data);
+      console.log('API Response:', response.data);
+      return response.data;
     },
     {
-      onSuccess: () => {
-        navigate('/dashboard');
+      onSuccess: (data) => {
+        showToast('Account verified successfully!', 'success');
+        console.log('Mutation success data:', data);
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         console.error('Verification error:', error);
+        showToast('Verification failed. Please try again.', 'error');
       },
     }
   );

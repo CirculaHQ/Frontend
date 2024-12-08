@@ -3,14 +3,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import mail from '../../../assets/icons/mail.svg';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useLocation } from 'react-router-dom';
+import useLoginConfirmation from '../hooks/useLoginConfirmation';
+import useResendCode from '../hooks/useResendCode';
 
 // type EmailVerificationPageProps = {
 //   email: string;
 // };
 
 const LoginConfirmation = () => {
-  const [verificationCode, setVerificationCode] = useState('');
+  const location = useLocation();
+  const email = location.state?.email || '';
+  const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(40);
+
+  const { mutate: confirmCode, isLoading } = useLoginConfirmation();
+  const { mutate: resendCode } = useResendCode();
 
   // Resend code timer logic
   React.useEffect(() => {
@@ -25,7 +33,7 @@ const LoginConfirmation = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Verification code submitted:', verificationCode);
+    confirmCode({ email, otp });
   };
 
   return (
@@ -41,7 +49,7 @@ const LoginConfirmation = () => {
         </div>
 
         <p className="text-base text-gray-600 text-center sm:text-left mb-6">
-          You're logging in as <span className="font-medium">email</span>.{' '}
+          You're logging in as <span className="font-medium">{email}</span>.{' '}
           <a
             href={appRoute.login_in}
             className="text-[var(--color-success-primary)] hover:text-[var(--color-brand-tertiary-alt)]"
@@ -52,30 +60,33 @@ const LoginConfirmation = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-5">
-            <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
               Security code
             </label>
             <Input
-              id="verificationCode"
+              id="otp"
               type="text"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
               placeholder="e.g. 123456"
               className="mt-2 block w-full p-2 border border-gray-300 rounded-md focus:ring-[var(color-brand-secondary)] sm:text-sm"
             />
           </div>
 
           <p className="text-sm text-gray-500 mt-2">
-            Enter the verification code we sent to email.
+            Enter the verification code we sent to {email}.
           </p>
 
           <Button type="submit" className="w-full mt-7 bg-black text-white text-sm font-medium py-2 rounded-md hover:bg-[var(--color-brand-tertiary-alt)]">
-            Confirm code
+           {isLoading ? 'Verifying...' : 'Confirm Code'}
           </Button>
 
           <Button
             type="button"
-            onClick={() => setTimer(40)}
+            onClick={() => {
+              resendCode(email);
+              setTimer(40);
+            }}
             className="w-full mt-3 border border-gray-300 bg-white text-sm text-gray-400 font-medium py-2 rounded-md hover:bg-gray-100 transition"
           >
             Resend code

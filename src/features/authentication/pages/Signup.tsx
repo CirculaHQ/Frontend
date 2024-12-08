@@ -12,12 +12,24 @@ import MultiSelect from '../components/MultiSelect';
 import { useState } from 'react';
 import { CheckCircle } from 'lucide-react';
 import useSignup from '../hooks/useSignup';
+import { useNavigate } from 'react-router-dom';
+import { appRoute } from '@/config/routeMgt/routePaths';
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLengthValid, setIsLengthValid] = useState(false);
   const [hasSpecialChar, setHasSpecialChar] = useState(false);
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    organization: '',
+    commodities: [] as string[],
+    password: '',
+  });
+  const { mutate: signup, isLoading } = useSignup();
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -28,16 +40,6 @@ const Signup = () => {
      setIsLengthValid(value.length >= 8);
      setHasSpecialChar(/[!@#$%^&*(),.?":{}|<>]/.test(value));
   };
-
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    organization: '',
-    commodities: [] as string[],
-    password: '',
-  });
-  const { mutate: signup, isLoading } = useSignup();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -53,7 +55,16 @@ const Signup = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    signup(formData);
+    signup(formData, {
+      onSuccess: (data) => {
+        if (data) {
+          navigate(appRoute.sign_up_confirmation, { state: { email: formData.email } });
+        }
+      },
+      onError: (error) => {
+        console.error('Signup error:', error);
+      },
+    });
   };
 
   return (
