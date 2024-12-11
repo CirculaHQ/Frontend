@@ -36,7 +36,7 @@ export default defineConfig({
       include: '**/*.svg',
     }),
   ],
-
+  base: '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
