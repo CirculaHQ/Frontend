@@ -33,7 +33,7 @@ export function DateRangePicker({ className }: React.HTMLAttributes<HTMLDivEleme
                   format(date.from, 'LLL dd, y')
                 )
               ) : (
-                <span>Select dates</span>
+                <span className='text-secondary text-sm'>Select dates</span>
               )}
             </span>
           </Button>

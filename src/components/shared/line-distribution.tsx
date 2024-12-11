@@ -1,13 +1,13 @@
 import React from 'react';
 import { InfoIcon, X } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { DonutChart, TooltipProps } from '../ui/DonutChart';
+import { TooltipProps } from '../ui/DonutChart';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 import BGpatter from '@/assets/images/bg-pattern.png';
 import { Icon } from '../ui';
@@ -95,7 +95,6 @@ const LineDistribution = ({
     : [];
 
   return (
-    <TooltipProvider>
       <div className={`w-full flex flex-col gap-4 ${className}`}>
         {/* Distribution bars */}
         <div className='w-full flex gap-1' style={{ height: `${height}px` }}>
@@ -210,7 +209,6 @@ const LineDistribution = ({
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </TooltipProvider>
   );
 };
 

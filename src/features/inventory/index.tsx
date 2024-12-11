@@ -160,7 +160,7 @@ const Operations = () => {
                 Inventory in <TextBadge text='I' />
               </DropdownMenuItem>
               <DropdownMenuItem className='py-2 rounded-[8px] justify-between'>
-              Inventory out <TextBadge text='0' />
+                Inventory out <TextBadge text='0' />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

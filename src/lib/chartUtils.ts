@@ -15,6 +15,18 @@ export const chartColors = {
     fill: 'fill-emerald-500',
     text: 'text-emerald-500',
   },
+  green: {
+    bg: 'bg-[#2C6000]',
+    stroke: 'stroke-[#2C6000]',
+    fill: 'fill-[#2C6000]',
+    text: 'text-[#2C6000]',
+  },
+  lightGreen: {
+    bg: 'bg-[#B9CAAA]',
+    stroke: 'stroke-[#B9CAAA]',
+    fill: 'fill-[#B9CAAA]',
+    text: 'text-[#B9CAAA]',
+  },
   violet: {
     bg: 'bg-violet-500',
     stroke: 'stroke-violet-500',
@@ -62,6 +74,31 @@ export const chartColors = {
     [key in ColorUtility]: string;
   };
 };
+
+export const getYAxisDomain = (
+  autoMinValue: boolean,
+  minValue: number | undefined,
+  maxValue: number | undefined
+) => {
+  const minDomain = autoMinValue ? 'auto' : (minValue ?? 0);
+  const maxDomain = maxValue ?? 'auto';
+  return [minDomain, maxDomain];
+};
+
+export function hasOnlyOneValueForKey(array: any[], keyToCheck: string): boolean {
+  const val: any[] = [];
+
+  for (const obj of array) {
+    if (Object.prototype.hasOwnProperty.call(obj, keyToCheck)) {
+      val.push(obj[keyToCheck]);
+      if (val.length > 1) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
 
 export type AvailableChartColorsKeys = keyof typeof chartColors;
 
