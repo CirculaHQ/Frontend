@@ -97,9 +97,9 @@ const request = async <T>(
   showErrorMessage: boolean = true,
   customMessage: string = "",
   isFormData: boolean = false,
-  isFileDownload: boolean = false, // New parameter
+  isFileDownload: boolean = false,
   fileName?: string,
-  show404Error: boolean = false // New parameter
+  show404Error: boolean = false
 ): Promise<T> => {
   try {
     let requestData = data;

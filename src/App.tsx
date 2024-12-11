@@ -30,7 +30,7 @@ function App() {
         position="top-right"
         expand={true}
       />
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <AllRoutes />
       </ThemeProvider>
       </QueryClientProvider>
