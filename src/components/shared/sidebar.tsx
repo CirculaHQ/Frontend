@@ -34,7 +34,7 @@ const items = [
   },
   {
     title: 'Inventory',
-    url: '#',
+    url: '/inventory',
     icon: 'inventory',
   },
   {

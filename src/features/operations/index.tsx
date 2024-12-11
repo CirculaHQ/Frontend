@@ -2,6 +2,7 @@ import { FilterModule, ModuleHeader } from '@/components/shared';
 import {
   Badge,
   Button,
+  DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -61,10 +62,7 @@ const Operations = () => {
           <Icon name='filter' className='w-5 h-5 text-secondary' />
           Filter
         </Button>
-        <Button>
-          <Icon name='calendar' className='w-5 h-5 text-secondary' />
-          <span className='text-placeholder'>Select dates</span>
-        </Button>
+        <DateRangePicker />
       </div>
 
       <div className='flex flex-col md:flex-row  items-center justify-between w-full mt-8 gap-6'>

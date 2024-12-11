@@ -1,7 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Login from '@/features/authentication/pages/Login';
 import Dashboard from '@/features/dashboard/pages/Dashboard';
-import Inventory from '@/features/inventory/pages/Inventory';
+import Inventory from '@/features/inventory';
 import Invoice from '@/features/invoice/pages/Invoice';
 import Settings from '@/features/settings/pages/Settings';
 import { GlobalContextProvider } from '@/stateManagement/GlobalContext';

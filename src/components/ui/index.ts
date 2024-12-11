@@ -8,3 +8,4 @@ export * from './pagination';
 export * from './avatar';
 export * from './dropdown-menu';
 export * from './badge';
+export * from './date-picker';
