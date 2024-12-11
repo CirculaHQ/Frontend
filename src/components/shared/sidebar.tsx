@@ -168,7 +168,7 @@ export function AppSidebar() {
                       <Icon
                         name={item.icon}
                         className={`w-[18px] h-[18px] font-medium ${
-                          isActive(item.url) ? 'text-[#717680]' : ''
+                          isActive(item.url) ? 'text-secondary_hover' : ''
                         }`}
                         fill='none'
                       />
