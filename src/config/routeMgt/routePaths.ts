@@ -1,15 +1,15 @@
 export const appRoute = {
-    home: `/`,
-    login_in: `/login`,
-  
-    operations: `/operations`,
-  
-    settings: `/settings`,
+  home: `/`,
+  login_in: `/login`,
 
-    inventory: `/inventory`,
-  
-    customers: `/customers`,
+  operations: `/operations`,
 
-    invoice: `/invoice`,
-  };
-  
+  settings: `/settings`,
+
+  inventory: `/inventory`,
+
+  customers: `/customers`,
+  vendors: `/vendors`,
+
+  invoice: `/invoice`,
+};
