@@ -1,6 +1,7 @@
-import { FilterModule, ModuleHeader } from '@/components/shared';
+import { ModuleHeader } from '@/components/shared';
 import {
   Badge,
+  BarChart,
   Button,
   DateRangePicker,
   DropdownMenu,
@@ -8,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Icon,
+  LineChart,
   Table,
   TableBody,
   TableCell,
@@ -19,20 +21,70 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { memo, useState } from 'react';
 
-type MetricCardProps = {
-  title: string;
-  count: string;
-};
+const lineChartData = [
+  {
+    date: 'Jan 23',
+    SolarPanels: 2890,
+    Inverters: 2338,
+  },
+  {
+    date: 'Feb 23',
+    SolarPanels: 2756,
+    Inverters: 2103,
+  },
+  {
+    date: 'Mar 23',
+    SolarPanels: 3322,
+    Inverters: 2194,
+  },
+  {
+    date: 'Apr 23',
+    SolarPanels: 3470,
+    Inverters: 2108,
+  },
+  {
+    date: 'May 23',
+    SolarPanels: 3475,
+    Inverters: 1812,
+  },
+  {
+    date: 'Jun 23',
+    SolarPanels: 3129,
+    Inverters: 1726,
+  },
+  {
+    date: 'Jul 23',
+    SolarPanels: 3490,
+    Inverters: 1982,
+  },
+  {
+    date: 'Aug 23',
+    SolarPanels: 2903,
+    Inverters: 2012,
+  },
+  {
+    date: 'Sep 23',
+    SolarPanels: 2643,
+    Inverters: 2342,
+  },
+  {
+    date: 'Oct 23',
+    SolarPanels: 2837,
+    Inverters: 2473,
+  },
+  {
+    date: 'Nov 23',
+    SolarPanels: 2954,
+    Inverters: 3848,
+  },
+  {
+    date: 'Dec 23',
+    SolarPanels: 3239,
+    Inverters: 3736,
+  },
+];
 
-const MetricCard = memo(({ title, count }: MetricCardProps) => {
-  return (
-    <div className='h-[106px] flex gap-2 w-full flex-col items-start justify-center  border border-[#D5D7DA] px-5 rounded-xl shadow-sm'>
-      <h4 className='text-tertiary text-sm font-medium'>{title}</h4>
-      <h1 className='text-primary font-semibold md:text-[30px] md:leading-[38px]'>{count}</h1>
-    </div>
-  );
-});
-const Operations = () => {
+const Dashboard = () => {
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
@@ -44,35 +96,126 @@ const Operations = () => {
   const templates = Array(5).fill(null);
 
   return (
-    <div>
-      <ModuleHeader title='Operations'>
-        <div className='flex flex-row items-center gap-3'>
-          <Button>
-            <Icon name='arrow-up-right' className='w-5 h-5 text-secondary' />
-            Export report
-          </Button>
-          <Button variant='secondary'>
-            <Icon name='plus' className='w-5 h-5 text-[#FAFAFA]' />
-            New operation
-          </Button>
+    <div className='mb-10'>
+      <ModuleHeader title='Dashboard' />
+
+      <div className='grid grid-cols-1 md:grid-cols-2 w-full gap-10 mt-8'>
+        {/* Line Chart Container */}
+        <div className='flex flex-col w-full'>
+          <div className='flex flex-row justify-between items-center w-full mb-6'>
+            <h2 className='text-primary font-semibold text-lg'>Operations</h2>
+            <div className='flex flex-row gap-3'>
+              <DateRangePicker />
+              <Button>
+                <Icon name='filter' className='w-5 h-5 text-secondary' />
+                Sorting
+              </Button>
+            </div>
+          </div>
+
+          <div className='w-full h-[400px] min-h-[300px]'>
+            <LineChart
+              data={lineChartData}
+              index='date'
+              categories={['Inverters']}
+              colors={['green']}
+              valueFormatter={(number: number) =>
+                `${Intl.NumberFormat('us').format(number).toString()}kg`
+              }
+              showLegend={true}
+              showXAxis={true}
+              showYAxis={true}
+              showGridLines={true}
+              showTooltip={true}
+              startEndOnly={false}
+              enableLegendSlider={true}
+              yAxisWidth={65}
+              className='h-full w-full'
+            />
+          </div>
         </div>
-      </ModuleHeader>
-      <div className='flex flex-row items-center w-full justify-between mt-8'>
-        <Button>
-          <Icon name='filter' className='w-5 h-5 text-secondary' />
-          Filter
-        </Button>
-        <DateRangePicker />
+
+        {/* Bar Chart Container */}
+        <div className='flex flex-col w-full'>
+          <div className='flex flex-row justify-between items-center w-full mb-6'>
+            <h2 className='text-primary font-semibold text-lg'>Inventory</h2>
+            <div className='flex flex-row gap-3'>
+              <DateRangePicker />
+              <Button>
+                <Icon name='filter' className='w-5 h-5 text-secondary' />
+                Inventory in
+              </Button>
+            </div>
+          </div>
+
+          <div className='w-full h-[400px] min-h-[300px]'>
+            <BarChart
+              data={lineChartData}
+              index='date'
+              categories={['SolarPanels', 'Inverters']}
+              valueFormatter={(number: number) =>
+                `$${Intl.NumberFormat('us').format(number).toString()}`
+              }
+              onValueChange={(v) => console.log(v)}
+              colors={['green', 'lightGreen']}
+              showLegend={true}
+              showXAxis={true}
+              showYAxis={true}
+              showGridLines={true}
+              showTooltip={true}
+              startEndOnly={false}
+              enableLegendSlider={true}
+              yAxisWidth={65}
+              className='h-full w-full'
+              type='stacked'
+              // Add these properties to control bar width
+              barCategoryGap={30} // Controls gap between bar groups
+              tickGap={50} // Controls spacing of x-axis ticks
+            />
+          </div>
+        </div>
       </div>
 
-      <div className='flex flex-col md:flex-row  items-center justify-between w-full mt-8 gap-6'>
-        <MetricCard title='Quantity' count='200,000kg' />
-        <MetricCard title='Number of operations' count='12,440' />
-        <MetricCard title='Waste yield' count='96,345kg' />
-      </div>
-      <FilterModule containerClass='mt-8' />
+      <div className='flex flex-col w-full mt-10'>
+        <div className='flex flex-row justify-between items-center w-full mb-6'>
+          <h2 className='text-primary font-semibold text-lg'>Sales</h2>
+          <div className='flex flex-row gap-3'>
+            <DateRangePicker />
+            <Button>
+              <Icon name='flag' className='w-5 h-5 text-secondary' />
+              Nigerian Naira
+            </Button>
+          </div>
+        </div>
 
-      <div className='mt-2'>
+        <div className='w-full h-[400px] min-h-[300px]'>
+          <LineChart
+            data={lineChartData}
+            index='date'
+            categories={['SolarPanels', 'Inverters']}
+            colors={['green', 'lightGreen']}
+            valueFormatter={(number: number) =>
+              `${Intl.NumberFormat('us').format(number).toString()}kg`
+            }
+            showLegend={true}
+            showXAxis={true}
+            showYAxis={true}
+            showGridLines={true}
+            showTooltip={true}
+            startEndOnly={false}
+            enableLegendSlider={true}
+            yAxisWidth={65}
+            className='h-full w-full'
+          />
+        </div>
+      </div>
+
+      <div className='flex flex-row w-full items-center justify-between mt-10'>
+        <h2 className='text-primary font-semibold text-lg'>Recent activities</h2>
+        <span className='text-tertiary font-semibold text-sm cursor-pointer'>View all</span>
+      </div>
+
+      <div className='mt-5'>
         {!isMobile ? (
           <Table>
             <TableHeader>
@@ -82,8 +225,6 @@ const Operations = () => {
                 <TableHead>Material</TableHead>
                 <TableHead>Activity</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Quantity produced</TableHead>
-                <TableHead>Waste produced</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -109,12 +250,6 @@ const Operations = () => {
 
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     <Badge variant='failed'>Completed</Badge>
-                  </TableCell>
-                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    690 kg
-                  </TableCell>
-                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    1,000 kg
                   </TableCell>
                   <TableCell className='w-7'>
                     <DropdownMenu>
@@ -208,4 +343,4 @@ const Operations = () => {
   );
 };
 
-export default Operations;
+export default Dashboard;

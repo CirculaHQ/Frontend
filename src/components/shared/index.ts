@@ -5,3 +5,4 @@ export * from './module-header';
 export * from './filter-module';
 export * from './text-badge';
 export * from './empty-state';
+export * from './line-distribution';

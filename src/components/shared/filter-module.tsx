@@ -4,8 +4,9 @@ import { TextBadge } from './text-badge';
 
 interface FilterModuleProps {
   containerClass?: string;
+  includeRegion?: boolean;
 }
-const FilterModule = ({containerClass}: FilterModuleProps) => {
+const FilterModule = ({containerClass, includeRegion = true}: FilterModuleProps) => {
   return (
     <div className={cn("flex flex-row items-center justify-between py-2", containerClass && containerClass)}>
       <div className="flex flex-row items-center gap-2">
@@ -22,10 +23,10 @@ const FilterModule = ({containerClass}: FilterModuleProps) => {
           <span className='text-placeholder font-normal text-sm'>All types</span>
           <Icon name="chevron-down" className="w-5 h-5 text-quaternary" fill='none'/>
         </div>
-        <div className="gap-2 flex flex-row items-center justify-center px-3">
+       {includeRegion && <div className="gap-2 flex flex-row items-center justify-center px-3">
           <span className='text-placeholder font-normal text-sm'>All regions</span>
           <Icon name="chevron-down" className="w-5 h-5 text-quaternary" fill='none'/>
-        </div>
+        </div>}
       </div>
     </div>
   );

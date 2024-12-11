@@ -16,9 +16,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
   Icon,
+  SidebarFooter,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from '@/components/ui';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const items = [
@@ -29,12 +34,12 @@ const items = [
   },
   {
     title: 'Operations',
-    url: 'operations',
+    url: '/operations',
     icon: 'operations',
   },
   {
     title: 'Inventory',
-    url: '#',
+    url: '/inventory',
     icon: 'inventory',
   },
   {
@@ -59,7 +64,7 @@ const items = [
   },
   {
     title: 'Reports',
-    url: '#',
+    url: '/reports',
     icon: 'reports',
   },
   {
@@ -163,7 +168,7 @@ export function AppSidebar() {
                       <Icon
                         name={item.icon}
                         className={`w-[18px] h-[18px] font-medium ${
-                          isActive(item.url) ? 'text-blue-500' : ''
+                          isActive(item.url) ? 'text-secondary_hover' : ''
                         }`}
                         fill='none'
                       />
@@ -176,6 +181,34 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton>
+                     Username
+                    <ChevronUp className="ml-auto" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side="top"
+                  className="w-[--radix-popper-anchor-width]"
+                >
+                  <DropdownMenuItem>
+                    <span>Account</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <span>Billing</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <span>Sign out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
     </Sidebar>
   );
 }
