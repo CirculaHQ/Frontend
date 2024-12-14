@@ -8,4 +8,5 @@ export const appRoute = {
   customers: `/customers`,
   vendors: `/vendors`,
   invoice: `/invoice`,
+  add_vendor: `/add-vendor`,
 };

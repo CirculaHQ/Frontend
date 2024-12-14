@@ -11,6 +11,7 @@ import Vendors from '@/features/contact/vendors';
 import Operations from '@/features/operations';
 import Reports from '@/features/reports';
 import Dashboard from '@/features/dashboard';
+import AddVendor from '@/features/contact/vendors/AddVendor';
 
 export const AllRoutes = () => {
   return (
@@ -27,6 +28,7 @@ export const AllRoutes = () => {
             <Route path={appRoute.inventory} element={<Inventory />} />
             <Route path={appRoute.reports} element={<Reports />} />
             <Route path={appRoute.settings} element={<Settings />} />
+            <Route path={appRoute.add_vendor} element={<AddVendor />} />
         </Routes>
       </GlobalContextProvider>
       </Layout>
