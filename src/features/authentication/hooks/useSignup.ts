@@ -1,10 +1,7 @@
-// import { appRoute } from "@/config/routeMgt/routePaths";
 import CONFIG from "@/utils/config";
 import { showToast } from "@/utils/toast";
 import axios from "axios";
-// import request from "@/utils/api";
 import { useMutation } from "react-query";
-// import { useNavigate } from "react-router-dom";
 
 
 interface SignupResponse {

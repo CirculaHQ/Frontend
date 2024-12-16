@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from "react-query";
-import  AuthProvider  from "react-auth-kit";
+import  {AuthProvider}   from "react-auth-kit";
 import { AllRoutes } from "./config/routeMgt/AllRoutes";
-import createStore from "react-auth-kit/createStore";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./components/shared/theme-provider";
 
@@ -15,15 +14,12 @@ const queryClient = new QueryClient({
   },
 });
 
-const store = createStore({
-  authName: "circula", 
-  authType: "localstorage", 
-});
+
 
 function App() {
 
   return (
-    <AuthProvider store={store}>
+    <AuthProvider authType="localstorage" authName="circula">
       <QueryClientProvider client={queryClient}>
       <Toaster
         richColors

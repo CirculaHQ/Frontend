@@ -1,33 +1,32 @@
-import { appRoute } from "@/config/routeMgt/routePaths";
 import CONFIG from "@/utils/config";
-import { showToast } from "@/utils/toast";
 import axios from "axios";
 import { useMutation } from "react-query";
-import { useNavigate } from "react-router-dom";
 
+interface VerifySignupPayload {
+  email: string;
+  otp: string;
+}
+
+interface VerifySignupResponse {
+  refresh: string;
+  access: string;
+  user: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+  };
+  message: string;
+}
 
 const useLoginConfirmation = () => {
-    const navigate = useNavigate();
-  
-    return useMutation(
-      async ({ email, otp }: { email: string; otp: string }) => {
-        const response = await axios.post(`${CONFIG.API_BASE_URL}/otp/validate`, {
-          email,
-          otp,
-        });
-        return response.data;
-      },
-      {
-        onSuccess: () => {
-          showToast('Verification successful!', 'success');
-          navigate(appRoute.home);
-        },
-        onError: (error: Error) => {
-          console.error('Verification error:', error);
-          showToast('Invalid verification code. Please try again.', 'error');
-        },
-      }
-    );
-  };
-  
-  export default useLoginConfirmation;
+
+  return useMutation<VerifySignupResponse, Error, VerifySignupPayload>(
+    async (data: VerifySignupPayload) => {
+      const response = await axios.post(`${CONFIG.API_BASE_URL}/auth/validate-otp`, data);
+      return response.data;
+    },
+  );
+};
+
+export default useLoginConfirmation;
