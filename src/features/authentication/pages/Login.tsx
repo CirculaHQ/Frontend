@@ -45,21 +45,21 @@ const Login = () => {
     <div className="min-h-screen flex flex-col md:flex-row m-2">
       {/* Left side - Background Image */}
       <div className="hidden md:block w-full md:w-1/2 h-28 md:h-auto bg-cover bg-center">
-        <img src="/src/assets/Frame 8.png" alt="Logo" />
+        <img src="/src/assets/images/login.png" alt="Logo" />
       </div>
 
       {/* Right side - Form */}
       <div
         className="w-full md:w-1/2 flex items-center justify-center py-12 px-6 md:px-12"
         style={{
-          backgroundImage: "url('/src/assets/Background.png')",
+          backgroundImage: "url('/src/assets/images/Background.png')",
         }}
       >
         <Card className="w-full max-w-lg md:max-w-xl border-none">
           <CardHeader className="text-center md:text-left">
             <div className="mb-4">
               <img
-                src="/src/assets/Logo.png"
+                src="/src/assets/images/Logo-small.png"
                 alt="Logo"
                 className="w-10 h-10 mx-auto md:mx-0"
               />
@@ -123,7 +123,7 @@ const Login = () => {
 
               <Button
                 type="submit"
-                className="w-full text-white mt-3 hover:bg-[var(--color-brand-tertiary-alt)]"
+                className="w-full bg-black text-white mt-3 hover:bg-[var(--color-brand-tertiary-alt)]"
               >
                 {isLoading ? 'Logging in...' : 'Continue →'}
               </Button>

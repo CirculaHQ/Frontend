@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Check, ChevronDown } from "lucide-react";
+import React, { useState } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
 
 type MultiSelectProps = {
   options: { label: string; value: string }[];
@@ -11,7 +11,7 @@ type MultiSelectProps = {
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
   options,
-  placeholder = "Select options",
+  placeholder = 'Select options',
   onChange,
 }) => {
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -28,8 +28,8 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     setSelectedValues(updatedValues);
 
     // Pass the selected options back to the parent component
-    const selectedOptions = updatedValues.map((val) =>
-      options.find((option) => option.value === val)!
+    const selectedOptions = updatedValues.map(
+      (val) => options.find((option) => option.value === val)!
     );
     onChange?.(selectedOptions);
   };
@@ -38,28 +38,30 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     <div>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-between">
+          <Button variant='outline' className='w-full justify-between font-normal text-gray-700'>
             {selectedValues.length > 0
               ? selectedValues
                   .map((val) => options.find((option) => option.value === val)?.label)
-                  .join(", ")
+                  .join(', ')
               : placeholder}
-            <ChevronDown className="ml-2 h-4 w-4" />
+            <ChevronDown className='ml-2 h-4 w-4' />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full light">
-          <div className="space-y-2">
+        <PopoverContent className='w-full light'>
+          <div className='space-y-2'>
             {options.map((option) => (
-              <div
+              <label
                 key={option.value}
-                className="flex items-center px-2 py-1 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleSelect(option.value)}
+                className='flex items-center px-2 py-1 hover:bg-gray-100 cursor-pointer'
               >
-                {selectedValues.includes(option.value) && (
-                  <Check className="h-4 w-4 text-green-500 pr-1" />
-                )}
-                <span>{option.label}</span>
-              </div>
+                <input
+                  type='checkbox'
+                  className='h-4 w-4 rounded border-gray-300 text-green-500 checked:bg-green-500!important focus:ring-0'
+                  checked={selectedValues.includes(option.value)}
+                  onChange={() => handleSelect(option.value)}
+                />
+                <span className='ml-2 font-normal text-gray-700'>{option.label}</span>
+              </label>
             ))}
           </div>
         </PopoverContent>

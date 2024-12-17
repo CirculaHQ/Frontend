@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import mail from '../../../assets/icons/mail.svg';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { Navigate, useLocation } from 'react-router-dom';
 import useLoginConfirmation from '../hooks/useLoginConfirmation';
 import useResendCode from '../hooks/useResendCode';
 import { useIsAuthenticated, useSignIn } from 'react-auth-kit';
 import { showToast } from '@/utils/toast';
+import { Icon } from '@/components/ui';
 
 const LoginConfirmation = () => {
   const isAuthenticated = useIsAuthenticated();
@@ -62,14 +62,14 @@ const LoginConfirmation = () => {
       <div
         className='min-h-screen flex items-center justify-center'
         style={{
-          backgroundImage: "url('/src/assets/Background.png')",
+          backgroundImage: "url('/src/assets/images/Background.png')",
         }}
       >
         {/* Container */}
         <div className='w-full max-w-lg p-6'>
           {/* Icon */}
           <div className='flex flex-col items-center sm:items-start sm:text-left mb-6 sm:mb-8'>
-            <img src={mail} alt='Email Icon' className='w-12 h-12 mb-3' />
+            <Icon name='mail' className='w-12 h-12 mb-3' fill='none' />
             <h1 className='text-2xl font-bold text-center sm:text-left'>
               We just sent you an email
             </h1>
