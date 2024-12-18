@@ -29,7 +29,7 @@ const Login = () => {
         { email: values.email, password:values.password },
         {
           onSuccess: () => {
-              navigate(appRoute.forgot_password, { state: { email: values.email } });
+              navigate(appRoute.login_confirmation, { state: { email: values.email } });
           },
         }
       );
