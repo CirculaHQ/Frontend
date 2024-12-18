@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import MultiSelect from '../components/MultiSelect';
 import { useState } from 'react';
 import { CheckCircle } from 'lucide-react';
-import useSignup from '../hooks/useSignup';
 import { useNavigate } from 'react-router-dom';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useSignup } from '@/hooks/api/mutations/authentication';
 
 const Signup = () => {
   const navigate = useNavigate();

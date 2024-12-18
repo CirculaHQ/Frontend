@@ -15,5 +15,5 @@ export const appRoute = {
   reports: '/reports',
   customers: `/customers`,
   vendors: `/vendors`,
-  invoice: `/invoice`,
+  invoice: `/invoices`,
 };

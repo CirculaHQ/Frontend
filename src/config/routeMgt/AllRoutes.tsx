@@ -15,11 +15,11 @@ import SignupConfirmation from '@/features/authentication/pages/SignupConfirmati
 import LoginConfirmation from '@/features/authentication/pages/LoginConfirmation';
 import ForgotPassword from '@/features/authentication/pages/ForgotPassword';
 import ResetPassword from '@/features/authentication/pages/ResetPassword';
-import {RequireAuth} from 'react-auth-kit'
+import { RequireAuth } from 'react-auth-kit';
 import Invoice from '@/features/invoice';
 
-
-const routesArray: any[] = [
+// Separate arrays for authenticated and public routes
+const authenticatedRoutes = [
   {
     path: appRoute.home,
     element: <Dashboard />,
@@ -54,36 +54,55 @@ const routesArray: any[] = [
   },
 ];
 
+const publicRoutes = [
+  {
+    path: appRoute.login_in,
+    element: <Login />,
+  },
+  {
+    path: appRoute.sign_up,
+    element: <Signup />,
+  },
+  {
+    path: appRoute.sign_up_confirmation,
+    element: <SignupConfirmation />,
+  },
+  {
+    path: appRoute.login_confirmation,
+    element: <LoginConfirmation />,
+  },
+  {
+    path: appRoute.forgot_password,
+    element: <ForgotPassword />,
+  },
+  {
+    path: appRoute.reset_password,
+    element: <ResetPassword />,
+  },
+];
 
 export const AllRoutes = () => {
   return (
     <Router>
-          
       <GlobalContextProvider>
         <Routes>
-          {routesArray.map((route, index) => (
-              <Route
-                key={index}
-                path={route.path}
-                element={
-                  route.path === appRoute.login_in ? (
-                    route.element
-                  ) : (
-                    <Layout>
-                    <RequireAuth loginPath={appRoute.login_in}>
-                      {route.element}
-                    </RequireAuth>
-                    </Layout>
-                  )
-                }
-              />
-            ))}
-          <Route path={appRoute.sign_up} element={<Signup />} />
-          <Route path={appRoute.sign_up_confirmation} element={<SignupConfirmation />} />
-          <Route path={appRoute.login_confirmation} element={<LoginConfirmation />} />
-          <Route path={appRoute.forgot_password} element={<ForgotPassword />} />
-          <Route path={appRoute.reset_password} element={<ResetPassword />} />
-          <Route path={appRoute.login_in} element={<Login />} />
+          {/* Public Routes */}
+          {publicRoutes.map((route, index) => (
+            <Route key={`public-${index}`} path={route.path} element={route.element} />
+          ))}
+
+          {/* Protected Routes */}
+          {authenticatedRoutes.map((route, index) => (
+            <Route
+              key={`protected-${index}`}
+              path={route.path}
+              element={
+                <Layout>
+                  <RequireAuth loginPath={appRoute.login_in}>{route.element}</RequireAuth>
+                </Layout>
+              }
+            />
+          ))}
         </Routes>
       </GlobalContextProvider>
     </Router>

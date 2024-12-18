@@ -1,6 +1,6 @@
-import CONFIG from "@/utils/config";
-import axios from "axios";
-import { useMutation } from "react-query";
+import CONFIG from '@/utils/config';
+import axios from 'axios';
+import { useMutation } from 'react-query';
 
 interface VerifySignupPayload {
   email: string;
@@ -20,13 +20,12 @@ interface VerifySignupResponse {
 }
 
 const useLoginConfirmation = () => {
-
   return useMutation<VerifySignupResponse, Error, VerifySignupPayload>(
     async (data: VerifySignupPayload) => {
       const response = await axios.post(`${CONFIG.API_BASE_URL}/auth/validate-otp`, data);
       return response.data;
-    },
+    }
   );
 };
 
-export default useLoginConfirmation;
+export { useLoginConfirmation };
