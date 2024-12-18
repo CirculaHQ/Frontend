@@ -16,4 +16,5 @@ export const appRoute = {
   customers: `/customers`,
   vendors: `/vendors`,
   invoice: `/invoices`,
+  add_vendor: `/vendors/add-vendor`,
 };

@@ -26,16 +26,15 @@ const Login = () => {
     validationSchema: LoginSchema,
     onSubmit: (values) => {
       login(
-        { email: values.email, password:values.password },
+        { email: values.email, password: values.password },
         {
           onSuccess: () => {
-              navigate(appRoute.login_confirmation, { state: { email: values.email } });
+            navigate(appRoute.login_confirmation, { state: { email: values.email } });
           },
         }
       );
     },
   });
-
 
   return (
     <div className='h-screen flex flex-col md:flex-row m-2'>
@@ -72,40 +71,34 @@ const Login = () => {
 
           <CardContent>
             <form className='space-y-4' onSubmit={formik.handleSubmit}>
-              <div>
+              <Input
+                id='email'
+                type='email'
+                placeholder='johndoe@circulahq.com'
+                label='Email'
+                name='email'
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.email}
+                errorMessage={
+                  formik.errors.email && formik.touched.email ? formik.errors.email : ''
+                }
+              />
+
+              <div className='relative'>
                 <Input
-                  id='email'
-                  type='email'
-                  placeholder='johndoe@circulahq.com'
-                  label='Email'
-                  name='email'
+                  label='Password'
+                  id='password'
+                  name='password'
+                  type='password'
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  value={formik.values.email}
+                  value={formik.values.password}
                   errorMessage={
-                    formik.errors.email && formik.touched.email ? formik.errors.email : ''
+                    formik.errors.password && formik.touched.password ? formik.errors.password : ''
                   }
+                  placeholder='Enter your password'
                 />
-              </div>
-
-              <div>
-                <div className='relative'>
-                  <Input
-                    label='Password'
-                    id='password'
-                    name='password'
-                    type='password'
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.password}
-                    errorMessage={
-                      formik.errors.password && formik.touched.password
-                        ? formik.errors.password
-                        : ''
-                    }
-                    placeholder='Enter your password'
-                  />
-                </div>
                 <div
                   onClick={() => {
                     navigate(appRoute.forgot_password);

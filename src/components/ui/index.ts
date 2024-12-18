@@ -16,3 +16,5 @@ export * from './tooltip';
 export * from './card';
 export * from './label';
 export * from './input';
+export * from './select';
+export * from './textarea';

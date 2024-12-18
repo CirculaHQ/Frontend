@@ -8,6 +8,7 @@ import Vendors from '@/features/contact/vendors';
 import Operations from '@/features/operations';
 import Reports from '@/features/reports';
 import Dashboard from '@/features/dashboard';
+import AddVendor from '@/features/contact/vendors/AddVendor';
 import { GlobalContextProvider } from '@/stateManagement/GlobalContext';
 import { appRoute } from './routePaths';
 import Signup from '@/features/authentication/pages/Signup';
@@ -51,6 +52,10 @@ const authenticatedRoutes = [
   {
     path: appRoute.reports,
     element: <Reports />,
+  },
+  {
+    path: appRoute.add_vendor,
+    element: <AddVendor />,
   },
 ];
 
