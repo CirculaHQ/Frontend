@@ -25,6 +25,8 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSignOut } from 'react-auth-kit';
+import { appRoute } from '@/config/routeMgt/routePaths';
 
 const items = [
   {
@@ -44,7 +46,7 @@ const items = [
   },
   {
     title: 'Invoices',
-    url: '#',
+    url: '/invoices',
     icon: 'invoices',
   },
   {
@@ -79,6 +81,7 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const signOut = useSignOut();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -95,6 +98,11 @@ export function AppSidebar() {
     if (url !== '#') {
       navigate(url);
     }
+  };
+
+  const handleSignOut = () => {
+    signOut(); 
+    navigate(appRoute.login_in, { replace: true });
   };
 
   return (
@@ -201,7 +209,7 @@ export function AppSidebar() {
                   <DropdownMenuItem>
                     <span>Billing</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
                     <span>Sign out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
