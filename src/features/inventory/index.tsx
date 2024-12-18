@@ -27,7 +27,7 @@ type MetricCardProps = {
   count: string;
 };
 
-const Operations = () => {
+const Inventory = () => {
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
@@ -326,4 +326,4 @@ const Operations = () => {
   );
 };
 
-export default Operations;
+export default Inventory;

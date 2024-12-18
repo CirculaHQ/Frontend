@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Icon } from '../../../components/ui';
+import { Icon, Input, Button } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { Navigate, useLocation } from 'react-router-dom';
-import useResendCode from '../hooks/useResendCode';
 import { showToast } from '@/utils/toast';
 import { useIsAuthenticated, useSignIn } from 'react-auth-kit';
-import useLoginConfirmation from '../hooks/useLoginConfirmation';
+import { useLoginConfirmation, useResendCode } from '@/hooks/api/mutations/authentication';
 
 const SignupConfirmation = () => {
   const isAuthenticated = useIsAuthenticated();

@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { Navigate, useLocation } from 'react-router-dom';
-import useLoginConfirmation from '../hooks/useLoginConfirmation';
-import useResendCode from '../hooks/useResendCode';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useIsAuthenticated, useSignIn } from 'react-auth-kit';
 import { showToast } from '@/utils/toast';
 import { Icon } from '@/components/ui';
+import { useLoginConfirmation, useResendCode } from '@/hooks/api/mutations/authentication';
 
 const LoginConfirmation = () => {
-  const isAuthenticated = useIsAuthenticated();
+  const navigate = useNavigate();
   const signIn = useSignIn();
   const location = useLocation();
   const email = location.state?.email || '';
@@ -58,7 +57,6 @@ const LoginConfirmation = () => {
 
   return (
     <>
-      {isAuthenticated() && <Navigate to={appRoute.home} replace={true} />}
       <div
         className='min-h-screen flex items-center justify-center'
         style={{
@@ -77,12 +75,14 @@ const LoginConfirmation = () => {
 
           <p className='text-base text-gray-600 text-center sm:text-left mb-6'>
             You're logging in as <span className='font-medium'>{email}</span>.{' '}
-            <a
-              href={appRoute.login_in}
-              className='text-[var(--color-success-primary)] hover:text-[var(--color-brand-tertiary-alt)]'
+            <span
+              onClick={() => {
+                navigate(appRoute.login_in);
+              }}
+              className='text-[#2C6000] text-base font-semibold cursor-pointer'
             >
               Back to log in
-            </a>
+            </span>
           </p>
 
           <form onSubmit={handleSubmit}>
