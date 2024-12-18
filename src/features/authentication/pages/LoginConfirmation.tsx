@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useIsAuthenticated, useSignIn } from 'react-auth-kit';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useSignIn } from 'react-auth-kit';
 import { showToast } from '@/utils/toast';
 import { Icon } from '@/components/ui';
 import { useLoginConfirmation, useResendCode } from '@/hooks/api/mutations/authentication';
@@ -48,6 +48,7 @@ const LoginConfirmation = () => {
               expiresIn: 180,
             })
           ) {
+            navigate(appRoute.home);
             showToast('Account verified successfully!', 'success');
           }
         },
@@ -66,14 +67,14 @@ const LoginConfirmation = () => {
         {/* Container */}
         <div className='w-full max-w-lg p-6'>
           {/* Icon */}
-          <div className='flex flex-col items-center sm:items-start sm:text-left mb-6 sm:mb-8'>
+          <div className='flex flex-col items-center sm:items-start sm:text-left mb-2 sm:mb-2'>
             <Icon name='mail' className='w-12 h-12 mb-3' fill='none' />
-            <h1 className='text-2xl font-bold text-center sm:text-left'>
+            <h1 className='text-xl font-bold text-center sm:text-left text-primary'>
               We just sent you an email
             </h1>
           </div>
 
-          <p className='text-base text-gray-600 text-center sm:text-left mb-6'>
+          <p className='text-base text-tertiary font-normal text-center sm:text-left mb-8'>
             You're logging in as <span className='font-medium'>{email}</span>.{' '}
             <span
               onClick={() => {
@@ -81,33 +82,24 @@ const LoginConfirmation = () => {
               }}
               className='text-[#2C6000] text-base font-semibold cursor-pointer'
             >
-              Back to log in
+              Back to login
             </span>
           </p>
 
           <form onSubmit={handleSubmit}>
-            <div className='mb-5'>
-              <label htmlFor='otp' className='block text-sm font-medium text-gray-700'>
-                Security code
-              </label>
-              <Input
-                id='otp'
-                type='text'
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder='e.g. 123456'
-                className='mt-2 block w-full p-2 border border-gray-300 rounded-md focus:ring-[var(color-brand-secondary)] sm:text-sm'
-              />
-            </div>
-
-            <p className='text-sm text-gray-500 mt-2'>
+            <Input
+              label='Security code'
+              id='otp'
+              type='text'
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder='e.g. 123456'
+            />
+            <p className='text-sm text-tertiary mt-1.5'>
               Enter the verification code we sent to {email}.
             </p>
 
-            <Button
-              type='submit'
-              className='w-full mt-7 bg-black text-white text-sm font-medium py-2 rounded-md hover:bg-[var(--color-brand-tertiary-alt)]'
-            >
+            <Button type='submit' variant='secondary' className='w-full mt-8' isLoading={isLoading} disabled={isLoading || otp.length < 6}>
               {isLoading ? 'Verifying...' : 'Confirm Code'}
             </Button>
 
