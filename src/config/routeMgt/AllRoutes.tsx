@@ -8,7 +8,7 @@ import Vendors from '@/features/contact/vendors';
 import Operations from '@/features/operations';
 import Reports from '@/features/reports';
 import Dashboard from '@/features/dashboard';
-import AddVendor from '@/features/contact/vendors/AddVendor';
+import AddVendor from '@/features/contact/vendors/add-vendor';
 import { GlobalContextProvider } from '@/stateManagement/GlobalContext';
 import { appRoute } from './routePaths';
 import Signup from '@/features/authentication/pages/Signup';
@@ -22,6 +22,8 @@ import VendorDetails from '@/features/contact/vendors/VendorDetails';
 import CustomerDetails from '@/features/contact/customers/CustomerDetails';
 import InventoryDetails from '@/features/inventory/InventoryDetails';
 import OperationsDetails from '@/features/operations/OperationsDetails';
+import AddInventory from '@/features/inventory/add-inventory';
+import AddOperation from '@/features/operations/add-operation';
 
 // Separate arrays for authenticated and public routes
 const authenticatedRoutes = [
@@ -36,6 +38,11 @@ const authenticatedRoutes = [
   {
     path: appRoute.operations,
     element: <Operations />,
+  },
+
+  {
+    path: appRoute.add_operation,
+    element: <AddOperation />,
   },
   {
     path: appRoute.operations_details,
@@ -55,7 +62,10 @@ const authenticatedRoutes = [
   },
   {
     path: appRoute.inventory_details,
-    element: <InventoryDetails />,
+    element: <InventoryDetails />},
+  {
+    path: appRoute.add_inventory,
+    element: <AddInventory />,
   },
   {
     path: appRoute.vendors,

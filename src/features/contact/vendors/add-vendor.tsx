@@ -10,14 +10,20 @@ import {
   SelectTrigger,
   SelectValue,
   Textarea,
+  DatePicker,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFormik } from 'formik';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const AddBusinessVendor = () => {
+const AddVendor = () => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const type = searchParams.get('type');
+  const isBusiness = type === 'business';
+
+  console.log(type);
   const formik = useFormik({
     initialValues: {
       businessName: '',
@@ -26,10 +32,11 @@ const AddBusinessVendor = () => {
       lga: '',
       accountNumber: '',
       accountName: '',
+      firstName: '',
+      lastName: '',
+      nickname: '',
     },
-    onSubmit: (values) => {
-     
-    },
+    onSubmit: (values) => {},
   });
 
   return (
@@ -40,7 +47,7 @@ const AddBusinessVendor = () => {
       >
         <Icon name='arrow-left' className='w-5 h-5' /> Back to customers
       </button>
-      <ModuleHeader title='Add Business Vendor' className='mb-6'>
+      <ModuleHeader title={`Add ${isBusiness ? 'Business' : 'Individual'} Vendor`} className='mb-10'>
         <div className='flex flex-row items-center gap-3'>
           <Button variant='outline' onClick={() => navigate(appRoute.vendors)}>
             Cancel
@@ -50,10 +57,14 @@ const AddBusinessVendor = () => {
       </ModuleHeader>
 
       <form>
-        <FormSection title='Business Information' description='Supporting text goes here'>
+        <FormSection
+          title={`${isBusiness ? 'Business' : 'Personal'} Information`}
+          description='Supporting text goes here'
+        >
           <div className='flex flex-col gap-2'>
             <Label>
-              Business Logo <span className='text-quaternary'>(Optional)</span>
+              {isBusiness ? 'Business Logo' : 'Image'}{' '}
+              <span className='text-quaternary'>(Optional)</span>
             </Label>
             <div className='flex items-center gap-4'>
               <div className='bg-white p-[3px] rounded-2xl shadow-md'>
@@ -71,22 +82,82 @@ const AddBusinessVendor = () => {
             </div>
           </div>
 
-          <Input
-            id='business-name'
-            type='text'
-            placeholder='e.g. Circula'
-            label='Business name'
-            name='businessName'
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.businessName}
-            errorMessage={
-              formik.errors.businessName && formik.touched.businessName
-                ? formik.errors.businessName
-                : ''
-            }
-          />
+          {!isBusiness && (
+            <div className='flex flex-col md:flex-row items-start md:items-center md:justify-between gap-4 w-full'>
+              <Input
+                id='first-name'
+                type='text'
+                placeholder='e.g. John'
+                label='First name'
+                name='firstName'
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.firstName}
+                errorMessage={
+                  formik.errors.firstName && formik.touched.firstName ? formik.errors.firstName : ''
+                }
+              />
 
+              <Input
+                id='last-name'
+                type='text'
+                placeholder='e.g. Doe'
+                label='Last name'
+                name='lastName'
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.lastName}
+                errorMessage={
+                  formik.errors.lastName && formik.touched.lastName ? formik.errors.lastName : ''
+                }
+              />
+            </div>
+          )}
+
+          {!isBusiness && (
+            <div className='w-full'>
+              <Input
+                id='nick-name'
+                type='text'
+                placeholder='e.g. Johnny'
+                label='Nickname(Optional)'
+                name='nickname'
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.nickname}
+                errorMessage={
+                  formik.errors.nickname && formik.touched.nickname ? formik.errors.nickname : ''
+                }
+              />
+              <span className='text-tertiary font-normal text-sm mt-1.5'>
+                A personal name to help differentiate this vendor from others.
+              </span>
+            </div>
+          )}
+          {isBusiness && (
+            <Input
+              id='business-name'
+              type='text'
+              placeholder='e.g. Circula'
+              label='Business name'
+              name='businessName'
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.businessName}
+              errorMessage={
+                formik.errors.businessName && formik.touched.businessName
+                  ? formik.errors.businessName
+                  : ''
+              }
+            />
+          )}
+
+          {!isBusiness && (
+            <div className='w-full'>
+              <Label className='mb-1.5'>Date of birth</Label>
+              <DatePicker />
+            </div>
+          )}
           <Input
             id='phone-number'
             type='text'
@@ -129,12 +200,18 @@ const AddBusinessVendor = () => {
           </div>
         </FormSection>
 
-        <FormSection title='Business Address' description='Supporting text goes here'>
+        <FormSection
+          title={`${isBusiness ? 'Business' : 'Personal'} Address`}
+          description='Supporting text goes here'
+        >
           <div className='w-full flex flex-col gap-1.5'>
             <Label>Country</Label>
             <Select>
               <SelectTrigger>
-                <SelectValue placeholder='Select role' className='text-placeholder font-normal' />
+                <SelectValue
+                  placeholder='Select country'
+                  className='text-placeholder font-normal'
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='m@example.com'>Nigeria</SelectItem>
@@ -158,7 +235,7 @@ const AddBusinessVendor = () => {
           />
 
           <div className='w-full flex flex-col gap-1.5'>
-            <Label>Country</Label>
+            <Label>State</Label>
             <Select>
               <SelectTrigger>
                 <SelectValue placeholder='Select state' className='text-placeholder font-normal' />
@@ -220,7 +297,11 @@ const AddBusinessVendor = () => {
             }
           />
 
-          <Textarea id='notes' placeholder='SWIFT code, Routing number, etc.' label='Additional notes (Optional)'/>
+          <Textarea
+            id='notes'
+            placeholder='SWIFT code, Routing number, etc.'
+            label='Additional notes (Optional)'
+          />
         </FormSection>
 
         <div className='flex justify-end gap-4 mt-8'>
@@ -236,4 +317,4 @@ const AddBusinessVendor = () => {
   );
 };
 
-export default AddBusinessVendor;
+export default AddVendor;

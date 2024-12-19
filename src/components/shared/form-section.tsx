@@ -9,7 +9,7 @@ interface FormSectionProps {
 
 const FormSection: React.FC<FormSectionProps> = ({ title, description, children }) => {
   return (
-    <div className='mb-10 grid grid-cols-1 md:grid-cols-[300px_1fr] w-full md:max-w-[90%] gap-8'>
+    <div className='mb-10 grid grid-cols-1 md:grid-cols-[300px_1fr] w-full md:max-w-[85%] gap-8'>
       {/* Section Header */}
       <div>
         <h3 className='text-sm text-secondary font-semibold'>{title}</h3>

@@ -8,18 +8,21 @@ export const appRoute = {
   reset_password: `/reset-password`,
 
   operations: `/operations`,
- operations_details: `/operations/operations-details`,
+  operations_details: `/operations/operations-details`,
+  add_operation: `/operations/add-operation`,
 
   settings: `/settings`,
 
   inventory: `/inventory`,
   inventory_details: `/inventory/inventory-details`,
+  add_inventory: `/inventory/add-inventory`,
 
   reports: '/reports',
   customers: `/customers`,
   vendors: `/vendors`,
+
   invoice: `/invoices`,
   add_vendor: `/vendors/add-vendor`,
   vendor_details: `/vendors/vendor-details`,
-  customer_details: `/customers/customer-details`
+  customer_details: `/customers/customer-details`,
 };

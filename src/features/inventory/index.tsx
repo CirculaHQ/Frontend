@@ -19,8 +19,10 @@ import {
   TablePagination,
   TableRow,
 } from '@/components/ui';
+import { appRoute } from '@/config/routeMgt/routePaths';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { memo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type MetricCardProps = {
   title: string;
@@ -28,6 +30,7 @@ type MetricCardProps = {
 };
 
 const Inventory = () => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
@@ -156,7 +159,9 @@ const Inventory = () => {
               align='end'
               className='text-sm font-medium text-secondary rounded-[8px] px-1'
             >
-              <DropdownMenuItem className='py-2  rounded-[8px] justify-between'>
+              <DropdownMenuItem className='py-2  rounded-[8px] justify-between' onClick={() => {
+                navigate(appRoute.add_inventory)
+              }}>
                 Inventory in <TextBadge text='I' />
               </DropdownMenuItem>
               <DropdownMenuItem className='py-2 rounded-[8px] justify-between'>

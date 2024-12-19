@@ -4,10 +4,11 @@ import { cn } from '@/lib/utils';
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   errorMessage?: string;
+  tag?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, errorMessage, ...props }, ref) => {
+  ({ className, type, label, tag, errorMessage, ...props }, ref) => {
     const [showPassword, setShowPassword] = React.useState(false);
     const isPassword = type === 'password';
 
@@ -28,13 +29,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           {...props}
         />
-        {isPassword && (
-          <div
-            onClick={togglePasswordVisibility}
-            className='absolute right-3 top-[2.9rem] transform -translate-y-1/2 text-sm text-[#2C6000] cursor-pointer'
-          >
-            {showPassword ? 'Hide' : 'Show'}
+        {tag ? (
+          <div className='absolute right-3 top-[2.9rem] transform -translate-y-1/2 text-sm text-quaternary'>
+            {tag}
           </div>
+        ) : (
+          isPassword && (
+            <div
+              onClick={togglePasswordVisibility}
+              className='absolute right-3 top-[2.9rem] transform -translate-y-1/2 text-sm text-[#2C6000] cursor-pointer'
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </div>
+          )
         )}
         {errorMessage && <p className='text-error_primary text-sm'>{errorMessage}</p>}
       </div>
