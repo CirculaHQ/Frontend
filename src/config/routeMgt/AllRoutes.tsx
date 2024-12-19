@@ -18,6 +18,10 @@ import ForgotPassword from '@/features/authentication/pages/ForgotPassword';
 import ResetPassword from '@/features/authentication/pages/ResetPassword';
 import { RequireAuth } from 'react-auth-kit';
 import Invoice from '@/features/invoice';
+import VendorDetails from '@/features/contact/vendors/VendorDetails';
+import CustomerDetails from '@/features/contact/customers/CustomerDetails';
+import InventoryDetails from '@/features/inventory/InventoryDetails';
+import OperationsDetails from '@/features/operations/OperationsDetails';
 
 // Separate arrays for authenticated and public routes
 const authenticatedRoutes = [
@@ -34,6 +38,10 @@ const authenticatedRoutes = [
     element: <Operations />,
   },
   {
+    path: appRoute.operations_details,
+    element: <OperationsDetails />,
+  },
+  {
     path: appRoute.settings,
     element: <Settings />,
   },
@@ -46,6 +54,10 @@ const authenticatedRoutes = [
     element: <Inventory />,
   },
   {
+    path: appRoute.inventory_details,
+    element: <InventoryDetails />,
+  },
+  {
     path: appRoute.vendors,
     element: <Vendors />,
   },
@@ -56,6 +68,14 @@ const authenticatedRoutes = [
   {
     path: appRoute.add_vendor,
     element: <AddVendor />,
+  },
+  {
+    path: appRoute.vendor_details,
+    element: <VendorDetails />,
+  },
+  {
+    path: appRoute.customer_details,
+    element: <CustomerDetails />,
   },
 ];
 
