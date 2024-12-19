@@ -58,10 +58,11 @@ export interface ButtonProps
   asChild?: boolean;
   isLoading?: boolean;
   loadingText?: string;
+  contentClassName?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, children, isLoading = false,
+  ({ className, variant, size, children,contentClassName, isLoading = false,
     loadingText, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (
@@ -70,7 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         {...props}
       >
-        <span className="flex items-center justify-center gap-2">
+        <span className={cn("flex items-center justify-center gap-2", contentClassName)}>
           {isLoading && <Spinner />}
           {isLoading && loadingText ? loadingText : children}
         </span>

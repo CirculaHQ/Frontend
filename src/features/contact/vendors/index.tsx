@@ -48,8 +48,8 @@ const Vendors = () => {
               align='end'
               className='text-sm font-medium text-secondary rounded-[8px] px-1'
             >
-              <DropdownMenuItem className='py-2  rounded-[8px] justify-between' onClick={() => navigate(appRoute.add_vendor)}>Business <TextBadge text='B'/></DropdownMenuItem>
-              <DropdownMenuItem className='py-2 rounded-[8px] justify-between'>Individual <TextBadge text='I'/></DropdownMenuItem>
+              <DropdownMenuItem className='py-2  rounded-[8px] justify-between' onClick={() => navigate(`${appRoute.add_vendor}?type=business`)}>Business <TextBadge text='B'/></DropdownMenuItem>
+              <DropdownMenuItem className='py-2 rounded-[8px] justify-between' onClick={() => navigate(`${appRoute.add_vendor}?type=individual`)}>Individual <TextBadge text='I'/></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -8,7 +8,7 @@ import Vendors from '@/features/contact/vendors';
 import Operations from '@/features/operations';
 import Reports from '@/features/reports';
 import Dashboard from '@/features/dashboard';
-import AddVendor from '@/features/contact/vendors/AddVendor';
+import AddVendor from '@/features/contact/vendors/add-vendor';
 import { GlobalContextProvider } from '@/stateManagement/GlobalContext';
 import { appRoute } from './routePaths';
 import Signup from '@/features/authentication/pages/Signup';
@@ -18,6 +18,8 @@ import ForgotPassword from '@/features/authentication/pages/ForgotPassword';
 import ResetPassword from '@/features/authentication/pages/ResetPassword';
 import { RequireAuth } from 'react-auth-kit';
 import Invoice from '@/features/invoice';
+import AddInventory from '@/features/inventory/add-inventory';
+import AddOperation from '@/features/operations/add-operation';
 
 // Separate arrays for authenticated and public routes
 const authenticatedRoutes = [
@@ -33,6 +35,11 @@ const authenticatedRoutes = [
     path: appRoute.operations,
     element: <Operations />,
   },
+
+  {
+    path: appRoute.add_operation,
+    element: <AddOperation />,
+  },
   {
     path: appRoute.settings,
     element: <Settings />,
@@ -44,6 +51,10 @@ const authenticatedRoutes = [
   {
     path: appRoute.inventory,
     element: <Inventory />,
+  },
+  {
+    path: appRoute.add_inventory,
+    element: <AddInventory />,
   },
   {
     path: appRoute.vendors,
