@@ -18,3 +18,4 @@ export * from './label';
 export * from './input';
 export * from './select';
 export * from './textarea';
+export * from './date-range-picker';

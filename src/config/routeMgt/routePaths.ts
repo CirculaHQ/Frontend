@@ -8,13 +8,17 @@ export const appRoute = {
   reset_password: `/reset-password`,
 
   operations: `/operations`,
+  add_operation: `/operations/add-operation`,
 
   settings: `/settings`,
 
   inventory: `/inventory`,
+  add_inventory: `/inventory/add-inventory`,
+
   reports: '/reports',
   customers: `/customers`,
   vendors: `/vendors`,
+
   invoice: `/invoices`,
   add_vendor: `/vendors/add-vendor`,
 };
