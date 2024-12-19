@@ -1413,6 +1413,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-tabs@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@radix-ui/react-tabs@npm:1.1.2"
+  dependencies:
+    "@radix-ui/primitive": 1.1.1
+    "@radix-ui/react-context": 1.1.1
+    "@radix-ui/react-direction": 1.1.0
+    "@radix-ui/react-id": 1.1.0
+    "@radix-ui/react-presence": 1.1.2
+    "@radix-ui/react-primitive": 2.0.1
+    "@radix-ui/react-roving-focus": 1.1.1
+    "@radix-ui/react-use-controllable-state": 1.1.0
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 21c9ed2e65538beebbde6c2d5d47c8e7f8279cacc87e34c7581109f9524a11860375958b65fe72e70cfb0ade9be71bbc27dd4d94b90465966c7875ca6d704116
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-toast@npm:^1.2.2":
   version: 1.2.4
   resolution: "@radix-ui/react-toast@npm:1.2.4"
@@ -2797,6 +2823,7 @@ __metadata:
     "@radix-ui/react-select": ^2.1.4
     "@radix-ui/react-separator": ^1.1.0
     "@radix-ui/react-slot": ^1.1.0
+    "@radix-ui/react-tabs": ^1.1.2
     "@radix-ui/react-toast": ^1.2.2
     "@radix-ui/react-tooltip": ^1.1.4
     "@remixicon/react": ^4.5.0
@@ -4103,9 +4130,9 @@ __metadata:
   linkType: hard
 
 "globals@npm:^15.11.0":
-  version: 15.13.0
-  resolution: "globals@npm:15.13.0"
-  checksum: 3f98514ce25a21150b246fbd63aeaeb271a93b3340cf7f4f6e9934d3b37dbb4b0fddef9c470183097dcfd2e8757bb86bbae701588f0e376667d8d9d6f665db3b
+  version: 15.14.0
+  resolution: "globals@npm:15.14.0"
+  checksum: fa993433a01bf4a118904fbafbcff34db487fce83f73da75fb4a8653afc6dcd72905e6208c49bab307ff0980928273d0ecd1cfc67e1a4782dabfbd92c234ab68
   languageName: node
   linkType: hard
 
@@ -4810,12 +4837,12 @@ __metadata:
   linkType: hard
 
 "match-sorter@npm:^6.0.2":
-  version: 6.3.4
-  resolution: "match-sorter@npm:6.3.4"
+  version: 6.4.0
+  resolution: "match-sorter@npm:6.4.0"
   dependencies:
     "@babel/runtime": ^7.23.8
     remove-accents: 0.5.0
-  checksum: 950c1600173a639e216947559a389b64258d52f33aea3a6ddb97500589888b83c976a028f731f40bc08d9d8af20de7916992fabb403f38330183a1df44c7634b
+  checksum: 13e71f5491fa8c59448559d1b7ecf0a176d48b7e41555623131c875488ee2706c4321e3d152535e555ed7726bca9b1dfad74f82b0d9338f6627323e02b18af96
   languageName: node
   linkType: hard
 

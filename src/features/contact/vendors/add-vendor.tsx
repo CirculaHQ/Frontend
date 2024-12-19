@@ -308,7 +308,7 @@ const AddVendor = () => {
           <Button variant='outline' onClick={() => navigate(appRoute.vendors)}>
             Cancel
           </Button>
-          <Button type='submit' variant='secondary'>
+          <Button type='submit' variant='secondary' onClick={() => navigate(appRoute.vendor_details)}>
             Add vendor
           </Button>
         </div>

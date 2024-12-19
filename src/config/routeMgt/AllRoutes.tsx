@@ -18,6 +18,10 @@ import ForgotPassword from '@/features/authentication/pages/ForgotPassword';
 import ResetPassword from '@/features/authentication/pages/ResetPassword';
 import { RequireAuth } from 'react-auth-kit';
 import Invoice from '@/features/invoice';
+import VendorDetails from '@/features/contact/vendors/VendorDetails';
+import CustomerDetails from '@/features/contact/customers/CustomerDetails';
+import InventoryDetails from '@/features/inventory/InventoryDetails';
+import OperationsDetails from '@/features/operations/OperationsDetails';
 import AddInventory from '@/features/inventory/add-inventory';
 import AddOperation from '@/features/operations/add-operation';
 
@@ -41,6 +45,10 @@ const authenticatedRoutes = [
     element: <AddOperation />,
   },
   {
+    path: appRoute.operations_details,
+    element: <OperationsDetails />,
+  },
+  {
     path: appRoute.settings,
     element: <Settings />,
   },
@@ -52,6 +60,9 @@ const authenticatedRoutes = [
     path: appRoute.inventory,
     element: <Inventory />,
   },
+  {
+    path: appRoute.inventory_details,
+    element: <InventoryDetails />},
   {
     path: appRoute.add_inventory,
     element: <AddInventory />,
@@ -67,6 +78,14 @@ const authenticatedRoutes = [
   {
     path: appRoute.add_vendor,
     element: <AddVendor />,
+  },
+  {
+    path: appRoute.vendor_details,
+    element: <VendorDetails />,
+  },
+  {
+    path: appRoute.customer_details,
+    element: <CustomerDetails />,
   },
 ];
 
