@@ -8,11 +8,11 @@ import { CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useSignup } from '@/hooks/api/mutations/authentication';
+import { Icon } from '@/components/ui';
 
 const Signup = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLengthValid, setIsLengthValid] = useState(false);
   const [hasSpecialChar, setHasSpecialChar] = useState(false);
   const [formData, setFormData] = useState({
@@ -79,11 +79,7 @@ const Signup = () => {
           <CardHeader className='text-center md:text-left'>
             {/* Logo */}
             <div className='mb-4'>
-              <img
-                src='/src/assets/images/Logo-small.png'
-                alt='Logo'
-                className='w-10 h-10 mx-auto md:mx-0'
-              />
+              <Icon name='logo' className='w-10 h-10 mx-auto md:mx-0' />
             </div>
             <CardTitle>Create an account</CardTitle>
             <CardDescription>
@@ -101,10 +97,8 @@ const Signup = () => {
             <form onSubmit={handleSubmit} className='space-y-4'>
               <div className='flex flex-col md:flex-row gap-4'>
                 <div className='w-full md:w-1/2'>
-                  <Label htmlFor='first_name' className='font-normal'>
-                    First name
-                  </Label>
                   <Input
+                    label='First name'
                     id='first_name'
                     placeholder='e.g. John'
                     value={formData.first_name}
@@ -112,10 +106,8 @@ const Signup = () => {
                   />
                 </div>
                 <div className='w-full md:w-1/2'>
-                  <Label htmlFor='last_name' className='font-normal'>
-                    Last name
-                  </Label>
                   <Input
+                    label='Last name'
                     id='last_name'
                     placeholder='e.g. Doe'
                     value={formData.last_name}
@@ -125,10 +117,8 @@ const Signup = () => {
               </div>
 
               <div>
-                <Label htmlFor='email' className='font-normal'>
-                  Work email
-                </Label>
                 <Input
+                  label='Work email'
                   id='email'
                   type='email'
                   placeholder='e.g. johndoe@circulahq.com'
@@ -138,10 +128,8 @@ const Signup = () => {
               </div>
 
               <div>
-                <Label htmlFor='organization' className='font-normal'>
-                  Organization name
-                </Label>
                 <Input
+                  label='Organization name'
                   id='organization'
                   placeholder='e.g. Circula'
                   value={formData.organization}
@@ -166,25 +154,15 @@ const Signup = () => {
               </div>
 
               <div>
-                <Label htmlFor='password' className='font-normal'>
-                  Password
-                </Label>
-                <div className='relative'>
-                  <Input
-                    id='password'
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder='Enter your password'
-                    value={password}
-                    onChange={handlePasswordChange}
-                  />
-                  <button
-                    type='button'
-                    onClick={() => setShowPassword(!showPassword)}
-                    className='absolute inset-y-0 right-0 px-3 text-sm text-[var(--color-success-primary)] hover:text-[var(--color-brand-tertiary-alt)]'
-                  >
-                    {showPassword ? 'Hide' : 'Show'}
-                  </button>
-                </div>
+                <Input
+                  label='Password'
+                  type='password'
+                  id='password'
+                  placeholder='Enter your password'
+                  value={password}
+                  onChange={handlePasswordChange}
+                />
+
                 <div className='text-sm mt-3 space-y-2'>
                   <div className='flex items-center gap-2'>
                     {isLengthValid ? (
