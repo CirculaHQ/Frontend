@@ -13,6 +13,7 @@ export const appRoute = {
 
   settings: `/settings`,
 
+  dashboard: `/dashboard`,
   inventory: `/inventory`,
   inventory_details: `/inventory/inventory-details`,
   add_inventory: `/inventory/add-inventory`,

@@ -33,6 +33,10 @@ const authenticatedRoutes = [
     element: <Dashboard />,
   },
   {
+    path: appRoute.dashboard,
+    element: <Dashboard />,
+  },
+  {
     path: appRoute.invoice,
     element: <Invoice />,
   },
