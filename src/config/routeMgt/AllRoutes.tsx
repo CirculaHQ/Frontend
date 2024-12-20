@@ -24,6 +24,7 @@ import InventoryDetails from '@/features/inventory/InventoryDetails';
 import OperationsDetails from '@/features/operations/OperationsDetails';
 import AddInventory from '@/features/inventory/add-inventory';
 import AddOperation from '@/features/operations/add-operation';
+import CreateInvoice from '@/features/invoice/create-invoices';
 
 // Separate arrays for authenticated and public routes
 const authenticatedRoutes = [
@@ -34,6 +35,10 @@ const authenticatedRoutes = [
   {
     path: appRoute.invoice,
     element: <Invoice />,
+  },
+  {
+    path: appRoute.create_invoice,
+    element: <CreateInvoice />,
   },
   {
     path: appRoute.operations,

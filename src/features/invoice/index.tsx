@@ -16,8 +16,10 @@ import {
   TablePagination,
   TableRow,
 } from '@/components/ui';
+import { appRoute } from '@/config/routeMgt/routePaths';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { memo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type MetricCardProps = {
   title: string;
@@ -41,6 +43,7 @@ const MetricCard = memo(({ title, count, amount, icon }: MetricCardProps) => {
   );
 });
 const Invoices = () => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
@@ -59,7 +62,7 @@ const Invoices = () => {
             <Icon name="arrow-up-right" className="w-5 h-5 text-secondary" />
             Export report
           </Button>
-          <Button variant="secondary">
+          <Button variant="secondary" onClick={() => {navigate(appRoute.create_invoice)}}>
             <Icon name="plus" className="w-5 h-5 text-[#FAFAFA]" />
             New invoice
           </Button>
