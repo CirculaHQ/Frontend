@@ -169,8 +169,8 @@ const Dashboard = () => {
               className='h-full w-full'
               type='stacked'
               // Add these properties to control bar width
-              barCategoryGap={30} // Controls gap between bar groups
-              tickGap={50} // Controls spacing of x-axis ticks
+              // barCategoryGap={30} // Controls gap between bar groups
+              // tickGap={50} // Controls spacing of x-axis ticks
             />
           </div>
         </div>
