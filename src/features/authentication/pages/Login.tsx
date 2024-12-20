@@ -37,7 +37,7 @@ const Login = () => {
   });
 
   return (
-    <div className='h-screen flex flex-col md:flex-row m-2'>
+    <div className='h-screen flex flex-col md:flex-row my-2 md:m-2'>
       {/* Left side - Background Image */}
       <div className='hidden md:block w-full md:w-1/2 h-fit bg-cover bg-center'>
         <img src='/src/assets/images/login.png' alt='Logo' />
@@ -45,7 +45,7 @@ const Login = () => {
 
       {/* Right side - Form */}
       <div
-        className='w-full md:w-1/2 flex items-center justify-center py-12 px-6 md:px-12'
+        className='w-full md:w-1/2 flex items-center justify-center py-12 px-4 md:px-12'
         style={{
           backgroundImage: "url('/src/assets/images/Background.png')",
         }}

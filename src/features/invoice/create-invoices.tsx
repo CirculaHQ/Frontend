@@ -116,7 +116,7 @@ const FormSection: React.FC<{
         <div key={item.id} className='flex flex-col gap-4 mb-2'>
           <div className='w-full grid grid-cols-12 items-start gap-3'>
             {/* Item Name - Takes up most space */}
-            <div className='col-span-7 md:col-span-7'>
+            <div className={items.length > 1?  'col-span-5 md:col-span-7' : 'col-span-7 md:col-span-7'}>
               <Input
                 type='text'
                 label='Item name'
@@ -138,7 +138,7 @@ const FormSection: React.FC<{
 
             {/* Unit Price - Medium fixed width */}
             <div
-              className={items.length > 1 ? 'col-span-2 md:col-span-2' : 'col-span-3 md:col-span-3'}
+              className={items.length > 1 ? 'col-span-3 md:col-span-2' : 'col-span-3 md:col-span-3'}
             >
               <Input
                 type='number'
@@ -151,7 +151,7 @@ const FormSection: React.FC<{
 
             {/* Delete Icon - Only show if there's more than one item */}
             {items.length > 1 && (
-              <div className='col-span-1 flex justify-center'>
+              <div className='col-span-2 md:col-span-1 flex justify-center'>
                 <div className='h-10 w-10 bg-[#FAFAFA] rounded-lg flex items-center justify-center mt-6'>
                   <Icon
                     name='trash'
