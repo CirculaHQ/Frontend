@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import security from '../../../assets/icons/security.svg';
+import { Icon } from '@/components/ui';
 
 // type EmailVerificationPageProps = {
 //   email: string;
@@ -21,7 +22,7 @@ const ForgotPassword = () => {
       }}>
       <div className="w-full max-w-lg p-6">
         <div className="flex flex-col items-center sm:items-start sm:text-left mb-4 sm:mb-8">
-          <img src={security} alt="Email Icon" className="w-12 h-12 mb-3" />
+          <Icon name='security-2' className="w-12 h-12 mb-3" />
           <h1 className="text-2xl font-bold text-center sm:text-left">Reset your password</h1>
         </div>
 
