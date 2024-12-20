@@ -9,7 +9,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Textarea,
   DatePicker,
   SelectSeparator,
   Avatar,
@@ -18,7 +17,7 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFormik } from 'formik';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const AddInventory = () => {
   const navigate = useNavigate();

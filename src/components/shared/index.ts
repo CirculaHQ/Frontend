@@ -7,3 +7,4 @@ export * from './text-badge';
 export * from './empty-state';
 export * from './line-distribution';
 export * from './form-section';
+export * from './invoice-preview';
