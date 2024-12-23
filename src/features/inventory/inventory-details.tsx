@@ -8,25 +8,32 @@ import {
   Icon,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { useNavigate } from 'react-router-dom';
+import { useFetchInventoryDetails } from '@/hooks/api/mutations/inventory/useFetchInventoryDetails';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const InventoryDetails = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const { data: inventory, loading, error } = useFetchInventoryDetails(id ?? '');
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!inventory) return <div>Inventory not found</div>;
 
   const vendorData = {
     'Basic information': {
-      'Inventory ID': 'ID-47890875',
-      Type: '2 November, 1989',
-      'Date received': '+2348012345678',
-      Vendor: 'zaidwartz@circulahq.com',
-      Material: 'Distributor',
-      'Material type': 'Polyethylene Terephthalate (PET)',
+      'Inventory ID': inventory.id,
+      Type: inventory.type,
+      'Date received': inventory.date_received,
+      Vendor: inventory.vendor,
+      Material: inventory.material,
+      'Material type': inventory.material_type,
       supportingText: 'Supporting text goes here',
     },
     'Specifications and details': {
-      'Material state': 'Loose',
-      Amount: '$56.88',
-      Quantity: '590kg',
+      'Material state': inventory.material_state,
+      Amount: inventory.amount,
+      Quantity: inventory.quantity + 'kg',
       supportingText: 'Supporting text goes here',
     },
   };
@@ -43,16 +50,22 @@ const InventoryDetails = () => {
     Quantity: 'scales',
   };
 
+  const handleEditClick = () => {
+    navigate(appRoute.add_inventory, {
+      state: { type: inventory.type, inventoryData: { ...inventory, id: inventory.id } },
+    });
+  };
+
   return (
     <div className='p-4'>
       <button
-        onClick={() => navigate(appRoute.vendors)}
+        onClick={() => navigate(appRoute.inventory)}
         className='text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4'
       >
-        <Icon name='arrow-left' className='w-5 h-5' /> Back to Customers
+        <Icon name='arrow-left' className='w-5 h-5' /> Back to Inventory
       </button>
       <div className='flex justify-between items-center mb-6'>
-        <ModuleHeader title={vendorData['Basic information']['Inventory ID']}>
+        <ModuleHeader title={inventory.id}>
           <div className='flex flex-row items-center gap-3'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -69,7 +82,7 @@ const InventoryDetails = () => {
                 <DropdownMenuItem className='py-2 rounded-[8px]'>Action three</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button>Edit details</Button>
+            <Button onClick={handleEditClick}>Edit details</Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant='secondary'>Generate report</Button>

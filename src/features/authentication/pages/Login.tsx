@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui';
+import backGRD from '@/assets/images/login.png';
 import { useLogin } from '@/hooks/api/mutations/authentication';
 import { LoginSchema } from '@/validation-schema/auth';
 
@@ -40,7 +41,7 @@ const Login = () => {
     <div className='h-screen flex flex-col md:flex-row my-2 md:m-2'>
       {/* Left side - Background Image */}
       <div className='hidden md:block w-full md:w-1/2 h-fit bg-cover bg-center'>
-        <img src='/src/assets/images/login.png' alt='Logo' />
+        <img src={backGRD} alt='Logo' />
       </div>
 
       {/* Right side - Form */}

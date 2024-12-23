@@ -182,7 +182,7 @@ const LineDistribution = ({
                     dataKey='amount'
                     nameKey='name'
                   >
-                    {selectedSegment?.subSegments?.map((_, index) => (
+                     {pieData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={colorVariants[index]} />
                     ))}
                   </Pie>

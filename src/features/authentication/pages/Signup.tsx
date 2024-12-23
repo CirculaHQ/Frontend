@@ -8,6 +8,7 @@ import { CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useSignup } from '@/hooks/api/mutations/authentication';
+import backGRD from '@/assets/images/login.png';
 import { Icon } from '@/components/ui';
 
 const Signup = () => {
@@ -65,7 +66,7 @@ const Signup = () => {
     <div className='min-h-screen flex flex-col md:flex-row my-2 md:m-2'>
       {/* Left side - Background Image */}
       <div className='hidden md:block w-full md:w-1/2 h-56 md:h-auto bg-cover bg-center'>
-        <img src='/src/assets/images/login.png' alt='Logo' />
+        <img src={backGRD} alt='Logo' />
       </div>
 
       {/* Right side - Form */}

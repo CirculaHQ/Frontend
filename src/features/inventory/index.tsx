@@ -1,9 +1,14 @@
-import { FilterModule, LineDistribution, ModuleHeader, TextBadge } from '@/components/shared';
+import {
+  EmptyState,
+  FilterModule,
+  LineDistribution,
+  ModuleHeader,
+  TextBadge,
+} from '@/components/shared';
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-  Badge,
   Button,
   DateRangePicker,
   DropdownMenu,
@@ -20,132 +25,84 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { deleteInventory } from '@/hooks/api/mutations/inventory/deleteInventory';
+import { useFetchInventory } from '@/hooks/api/mutations/inventory/useFetchInventory';
+import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { memo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-type MetricCardProps = {
-  title: string;
-  count: string;
-};
 
 const Inventory = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
-  const totalPages = Math.ceil(100 / reportsPerPage);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const data = [
-    {
-      color: '#181D27',
-      weight: 20,
-      label: 'Glass',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about glass recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#7F56D9',
-      weight: 25,
-      label: 'Paper/cardboard',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about paper recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#F04438',
-      weight: 15,
-      label: 'Plastics',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about plastic recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#F79009',
-      weight: 15,
-      label: 'Metals',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about metal recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#17B26A',
-      weight: 15,
-      label: 'E-wastes',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about e-waste recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#D444F1',
-      weight: 10,
-      label: 'Rubber',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about rubber recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-  ];
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 
+  const { data, loading, error, setQueryParams } = useFetchInventory({
+    limit: reportsPerPage,
+    offset: (currentPage - 1) * reportsPerPage,
+  });
+
+  const totalPages = data ? Math.ceil(data.count / reportsPerPage) : 0;
+
+  const handleSearchChange = (searchQuery: string) => {
+    setSearchQuery(searchQuery);
+  };
+
+  useEffect(() => {
+    setQueryParams((prev) => ({
+      ...prev,
+      search: searchQuery,
+      offset: 0,
+    }));
+  }, [searchQuery, setQueryParams]);
+  
   const onPageChange = (page: number) => {
     setCurrentPage(page);
+    setQueryParams((prev) => ({ ...prev, offset: (page - 1) * reportsPerPage }));
   };
-  const templates = Array(5).fill(null);
 
+  const handleDeleteInventory = async (id: string) => {
+    try {
+      await deleteInventory(id);
+      setQueryParams((prev) => ({ ...prev }));
+    } catch (error) {
+      console.error('Failed to delete inventory:', error);
+    }
+  };
+
+  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
+    useFetchInventoryBreakdown();
+
+  if (loadingInventoryBreakdown) {
+    return <div>Loading material distribution...</div>;
+  }
+
+  const lineDistributionSegments = inventoryBreakdown
+    ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
+        color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+        weight: quantity,
+        label: material,
+        value: `${quantity} kg`,
+        percentage: `${((quantity / inventoryBreakdown.total_quantity) * 100).toFixed(1)}%`,
+        subSegments: inventoryBreakdown.material_types[material]
+          ? Object.entries(inventoryBreakdown.material_types[material]).map(
+              ([type, subQuantity]) => ({
+                name: type,
+                amount: subQuantity,
+              })
+            )
+          : [],
+      }))
+    : [];
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
   return (
     <div className='mb-10'>
       <ModuleHeader title='Inventory'>
@@ -159,12 +116,20 @@ const Inventory = () => {
               align='end'
               className='text-sm font-medium text-secondary rounded-[8px] px-1'
             >
-              <DropdownMenuItem className='py-2  rounded-[8px] justify-between' onClick={() => {
-                navigate(appRoute.add_inventory)
-              }}>
+              <DropdownMenuItem
+                className='py-2  rounded-[8px] justify-between'
+                onClick={() => {
+                  navigate(appRoute.add_inventory, { state: { type: 'in' } });
+                }}
+              >
                 Inventory in <TextBadge text='I' />
               </DropdownMenuItem>
-              <DropdownMenuItem className='py-2 rounded-[8px] justify-between'>
+              <DropdownMenuItem
+                className='py-2 rounded-[8px] justify-between'
+                onClick={() => {
+                  navigate(appRoute.add_inventory, { state: { type: 'out' } });
+                }}
+              >
                 Inventory out <TextBadge text='0' />
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -185,14 +150,21 @@ const Inventory = () => {
         </div>
         <div className='mt-4'>
           <span className='text-sm font-normal text-tertiary'>Material distribution</span>
-          <LineDistribution segments={data} height={8} className='mt-4' />
+          <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
         </div>
       </div>
 
-      <FilterModule containerClass='mt-8' includeRegion={false} />
+      <FilterModule containerClass='mt-8' includeRegion={false} onSearchChange={handleSearchChange} />
 
       <div className='mt-2'>
-        {!isMobile ? (
+        {data?.results.length === 0 ? (
+          <EmptyState
+            icon='inventory-empty'
+            title='No items in your inventory'
+            description='Add or remove items from your inventory and they will show up here.'
+            className='mt-8'
+          />
+        ) : !isMobile ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -205,12 +177,12 @@ const Inventory = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
+              {data?.results.map((item) => (
+                <TableRow className='cursor-pointer' key={item.id}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>Clear Glass</span>
-                      <h4 className='font-normal text-sm text-tertiary'>Glass</h4>
+                      <span className='font-medium text-sm text-primary'>{capitalizeFirstLetter(item.material)}</span>
+                      <h4 className='font-normal text-sm text-tertiary'>{capitalizeFirstLetter(item.material_type)}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px]'>
@@ -219,19 +191,21 @@ const Inventory = () => {
                         <AvatarImage src='https://github.com/shadcn.png' />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
-                      <span className='text-sm text-tertiary'>Circular HQ</span>
+                      <span className='text-sm text-tertiary'>{item.vendor}</span>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    ₦1,593,775.80
+                    {item.currency} {item.amount}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    1,000 kg
+                    {item.quantity} kg
                   </TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>5 days ago</span>
-                      <h4 className='font-normal text-sm text-tertiary'>13/07/2020</h4>
+                      <span className='font-medium text-sm text-primary'>
+                        {new Date(item.date_received).toLocaleDateString()}
+                      </span>
+                      {/* <h4 className='font-normal text-sm text-tertiary'>13/07/2020</h4> */}
                     </div>
                   </TableCell>
 
@@ -246,14 +220,24 @@ const Inventory = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2  rounded-[8px]'
+                          onClick={() => {
+                            navigate(appRoute.add_inventory, {
+                              state: { type: item.type, inventoryData: { ...item, id: item.id } },
+                            });
+                          }}
+                        >
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>
                         <DropdownMenuItem className='py-2 rounded-[8px]'>
                           <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={() => handleDeleteInventory(item.id)}
+                        >
                           <Icon name='trash' className='w-4 h-4 text-quaternary' />
                           Delete operation
                         </DropdownMenuItem>
@@ -274,18 +258,20 @@ const Inventory = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
+              {data?.results.map((item) => (
+                <TableRow className='cursor-pointer' key={item.id}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>Clear Glass</span>
-                      <h4 className='font-normal text-sm text-tertiary'>Glass</h4>
+                      <span className='font-medium text-sm text-primary'>{item.material}</span>
+                      <h4 className='font-normal text-sm text-tertiary'>{item.material_type}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>1,000 kg</span>
-                      <h4 className='font-normal text-sm text-tertiary'>₦1,593,775.80</h4>
+                      <span className='font-medium text-sm text-primary'>{item.quantity} kg</span>
+                      <h4 className='font-normal text-sm text-tertiary'>
+                        {item.currency} {item.amount}
+                      </h4>
                     </div>
                   </TableCell>
 
@@ -319,13 +305,16 @@ const Inventory = () => {
             </TableBody>
           </Table>
         )}
-        <TablePagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-          totalReports={100}
-          reportsPerPage={reportsPerPage}
-        />
+
+        {data?.results.length !== 0 && (
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalReports={data?.count || 0}
+            reportsPerPage={reportsPerPage}
+          />
+        )}
       </div>
     </div>
   );
