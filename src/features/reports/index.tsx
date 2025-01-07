@@ -10,6 +10,7 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { memo, useState } from 'react';
 import GoogleMapReact from 'google-map-react';
+import { InfoIcon } from 'lucide-react';
 
 type MetricCardProps = {
   title: string;
@@ -19,24 +20,27 @@ type MetricCardProps = {
 
 const MetricCard = memo(({ title, count, icon }: MetricCardProps) => {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div className='flex gap-4 w-full flex-row items-start justify-start  border border-[#D5D7DA] p-5 rounded-xl shadow-sm'>
-          <div className='w-10 h-10 shadow-sm border border-[#E9EAEB] rounded-lg flex flex-row items-center justify-center'>
-            <Icon name={icon} className='w-5 h-5 text-black' />
-          </div>
-          <div>
-            <h4 className='text-tertiary text-sm font-medium'>{title}</h4>
-            <h1 className='text-primary font-semibold md:text-[30px] md:leading-[38px] mt-2'>
-              {count}
-            </h1>
-          </div>
+    <div className='flex gap-4 w-full flex-row items-start justify-start  border border-[#D5D7DA] p-5 rounded-xl shadow-sm'>
+      <div className='w-10 h-10 shadow-sm border border-[#E9EAEB] rounded-lg flex flex-row items-center justify-center'>
+        <Icon name={icon} className='w-5 h-5 text-black' />
+      </div>
+      <div>
+        <div className='flex flex-row items-center justify-start gap-1'>
+          <h4 className='text-tertiary text-sm font-medium'>{title}</h4>
+          <Tooltip>
+            <TooltipTrigger>
+              <InfoIcon className='w-3 h-3' color='#717680' />
+            </TooltipTrigger>
+            <TooltipContent>
+              Recovery rate is how much of the raw material was produced are processing
+            </TooltipContent>
+          </Tooltip>
         </div>
-      </TooltipTrigger>
-      <TooltipContent className='flex flex-col items-center max-w-[250px]' side='top' align='center'>
-        <span className='font-medium text-center'>Recovery rate is how much of the raw material was produced are processing</span>
-      </TooltipContent>
-    </Tooltip>
+        <h1 className='text-primary font-semibold md:text-[30px] md:leading-[38px] mt-2'>
+          {count}
+        </h1>
+      </div>
+    </div>
   );
 });
 

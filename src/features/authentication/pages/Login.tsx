@@ -103,7 +103,7 @@ const Login = () => {
                   onClick={() => {
                     navigate(appRoute.forgot_password);
                   }}
-                  className='text-[#2C6000] text-sm  mt-2 font-medium cursor-pointer mb-8'
+                  className='text-[#2C6000] text-sm  mt-2 font-medium cursor-pointer mb-8 w-fit'
                 >
                   Forgot your password?
                 </div>

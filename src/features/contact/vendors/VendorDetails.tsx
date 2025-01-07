@@ -113,32 +113,32 @@ const VendorDetails = () => {
       </div>
 
       <Tabs defaultValue='profile'>
-        <TabsList className='flex border-b mb-6 text-left justify-start'>
+        <TabsList className='flex border-b mb-6 text-left justify-start shadow-none py-0' >
           <TabsTrigger
             value='profile'
-            className='px-4 py-2 border-b-2 border-green-500 text-green-600 font-medium'
+            className='data-[state=active]:border-b-2 data-[state=active]:border-[#2C6000] data-[state=active]:text-[#2C6000] shadow-none rounded-none text-quaternary'
           >
             Profile details
           </TabsTrigger>
-          <TabsTrigger value='activity' className='px-4 py-2 text-gray-500 hover:text-gray-700'>
+          <TabsTrigger value='activity' className='data-[state=active]:border-b-2 data-[state=active]:border-[#2C6000] data-[state=active]:text-[#2C6000] rounded-none text-quaternary'>
             Activity
           </TabsTrigger>
         </TabsList>
-        <TabsContent value='profile'>
+        <TabsContent value='profile' className=''>
           {/* Profile details content goes here */}
           {Object.entries(vendorData).map(([sectionTitle, sectionData]) => (
-            <div key={sectionTitle} className='mb-6 mt-6'>
-              <h3 className='text-base font-bold text-secondary mb-2'>{sectionTitle}</h3>
-              <p className='text-xs text-quaternary mb-4'>{sectionData.supportingText}</p>
-              <div className='grid grid-cols-1 gap-4'>
+            <div key={sectionTitle} className='mt-10'>
+              <h3 className='text-base font-semibold text-secondary'>{sectionTitle}</h3>
+              <p className='text-sm font-normal text-tertiary'>{sectionData.supportingText}</p>
+              <div className='grid grid-cols-1 gap-6 mt-6'>
                 {Object.entries(sectionData)
                   .filter(([key]) => key !== 'supportingText')
                   .map(([key, value]) => (
                     <div key={key} className='flex flex-col sm:flex-row gap-3 sm:items-center'>
-                      <Icon name={icons[key]} className='w-4 h-4 text-quaternary hidden sm:block' />
+                      <Icon name={icons[key]} className='w-5 h-5 text-quaternary hidden sm:block' />
                       <div className='flex flex-col sm:flex-row sm:items-center w-full'>
-                        <p className='text-xs text-quaternary w-full sm:w-48'>{key}</p>
-                        <p className='text-sm font-medium text-secondary sm:flex-1'>{value}</p>
+                        <p className='text-base text-tertiary font-normal w-full sm:w-48'>{key}</p>
+                        <p className='text-base font-medium text-secondary sm:flex-1'>{value}</p>
                       </div>
                     </div>
                   ))}

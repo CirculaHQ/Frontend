@@ -1,4 +1,4 @@
-import { FilterModule, ModuleHeader } from '@/components/shared';
+import { FilterModule, LineDistribution, ModuleHeader } from '@/components/shared';
 import {
   Badge,
   Button,
@@ -18,17 +18,128 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+
+
+const data = [
+  {
+    color: '#181D27',
+    weight: 20,
+    label: 'Glass',
+    percentage: '34.4%',
+    value: '100kg',
+    info: 'Information about glass recycling',
+    subSegments: [
+      { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
+      { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
+      { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
+      { name: 'Polypropylene (PP)', amount: 34.4 },
+      { name: 'Polystyrene (PS)', amount: 34.4 },
+      { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
+      { name: 'Nylon', amount: 34.4 },
+    ],
+  },
+  {
+    color: '#7F56D9',
+    weight: 25,
+    label: 'Paper/cardboard',
+    percentage: '34.4%',
+    value: '100kg',
+    info: 'Information about paper recycling',
+    subSegments: [
+      { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
+      { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
+      { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
+      { name: 'Polypropylene (PP)', amount: 34.4 },
+      { name: 'Polystyrene (PS)', amount: 34.4 },
+      { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
+      { name: 'Nylon', amount: 34.4 },
+    ],
+  },
+  {
+    color: '#F04438',
+    weight: 15,
+    label: 'Plastics',
+    percentage: '34.4%',
+    value: '100kg',
+    info: 'Information about plastic recycling',
+    subSegments: [
+      { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
+      { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
+      { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
+      { name: 'Polypropylene (PP)', amount: 34.4 },
+      { name: 'Polystyrene (PS)', amount: 34.4 },
+      { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
+      { name: 'Nylon', amount: 34.4 },
+    ],
+  },
+  {
+    color: '#F79009',
+    weight: 15,
+    label: 'Metals',
+    percentage: '34.4%',
+    value: '100kg',
+    info: 'Information about metal recycling',
+    subSegments: [
+      { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
+      { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
+      { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
+      { name: 'Polypropylene (PP)', amount: 34.4 },
+      { name: 'Polystyrene (PS)', amount: 34.4 },
+      { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
+      { name: 'Nylon', amount: 34.4 },
+    ],
+  },
+  {
+    color: '#17B26A',
+    weight: 15,
+    label: 'E-wastes',
+    percentage: '34.4%',
+    value: '100kg',
+    info: 'Information about e-waste recycling',
+    subSegments: [
+      { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
+      { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
+      { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
+      { name: 'Polypropylene (PP)', amount: 34.4 },
+      { name: 'Polystyrene (PS)', amount: 34.4 },
+      { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
+      { name: 'Nylon', amount: 34.4 },
+    ],
+  },
+  {
+    color: '#D444F1',
+    weight: 10,
+    label: 'Rubber',
+    percentage: '34.4%',
+    value: '100kg',
+    info: 'Information about rubber recycling',
+    subSegments: [
+      { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
+      { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
+      { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
+      { name: 'Polypropylene (PP)', amount: 34.4 },
+      { name: 'Polystyrene (PS)', amount: 34.4 },
+      { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
+      { name: 'Nylon', amount: 34.4 },
+    ],
+  },
+];
+
 
 type MetricCardProps = {
   title: string;
   count: string;
+  className?: string;
 };
 
-const MetricCard = memo(({ title, count }: MetricCardProps) => {
+
+const MetricCard = memo(({ title, count, className }: MetricCardProps) => {
   return (
-    <div className='h-[106px] flex gap-2 w-full flex-col items-start justify-center  border border-[#D5D7DA] px-5 rounded-xl shadow-sm'>
+    <div className={cn('pt-6 flex gap-2 w-full flex-col items-start justify-center  border-t border-t-[#D5D7DA]', className)}>
       <h4 className='text-tertiary text-sm font-medium'>{title}</h4>
       <h1 className='text-primary font-semibold md:text-[30px] md:leading-[38px]'>{count}</h1>
     </div>
@@ -60,19 +171,26 @@ const Operations = () => {
           </Button>
         </div>
       </ModuleHeader>
-      <div className='flex flex-row items-center w-full justify-between mt-8'>
-        <Button>
-          <Icon name='filter' className='w-5 h-5 text-secondary' />
-          Filter
-        </Button>
+      
+      <div className='flex flex-row items-center w-full justify-start gap-5 mt-8'>
         <DateRangePicker />
+        <div className='flex flex-row items-center gap-1'>
+          <span className='text-tertiary font-semibold text-sm'>All material</span>
+          <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+        </div>
       </div>
 
-      <div className='flex flex-col md:flex-row  items-center justify-between w-full mt-8 gap-6'>
-        <MetricCard title='Quantity' count='200,000kg' />
-        <MetricCard title='Number of operations' count='12,440' />
-        <MetricCard title='Waste yield' count='96,345kg' />
+      <div className='flex flex-col md:flex-row  items-center justify-between w-full mt-8'>
+        <MetricCard title='Produced (Kilogram)' count='292,400' />
+        <MetricCard title='Waste yield (Kilogram)' count='2,899' className='border-l border-t-[#D5D7DA] pl-6' />
+        <MetricCard title='Total operations' count='500' className='border-l border-t-[#D5D7DA] pl-6'/>
       </div>
+
+       
+        <div className='mt-4'>
+          <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+          <LineDistribution segments={data} height={8} className='mt-4' />
+        </div>
       <FilterModule containerClass='mt-8' />
 
       <div className='mt-2'>

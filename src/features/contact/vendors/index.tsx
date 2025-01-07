@@ -18,11 +18,13 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useFetchVendors } from '@/hooks/api/mutations/dashboard/contact';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Vendors = () => {
+  const {data, isLoading} = useFetchVendors();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +34,7 @@ const Vendors = () => {
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
+
   const templates = Array(5).fill(null);
 
   return (
