@@ -2,7 +2,7 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { Layout } from '@/components/shared';
 import Login from '@/features/authentication/pages/Login';
 import Inventory from '@/features/inventory';
-import Settings from '@/features/settings/pages/Settings';
+import Settings from '@/features/settings';
 import Customers from '@/features/contact/customers';
 import Vendors from '@/features/contact/vendors';
 import Operations from '@/features/operations';

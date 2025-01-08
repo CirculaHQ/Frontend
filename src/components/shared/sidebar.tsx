@@ -31,7 +31,7 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 const items = [
   {
     title: 'Dashboard',
-    url: '/dashboard',
+    url: '/',
     icon: 'dashboard',
   },
   {
@@ -71,7 +71,7 @@ const items = [
   },
   {
     title: 'Settings',
-    url: '#',
+    url: '/settings',
     icon: 'settings',
   },
 ];
