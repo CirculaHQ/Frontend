@@ -27,6 +27,11 @@ import {
 import { Bank, deleteBank, getBanks, editBank, addBank } from '@/hooks/api/mutations/settings/bank';
 import { useFormik } from 'formik';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
+import {
+  getUserProfile,
+  updateUserProfile,
+  UserProfile,
+} from '@/hooks/api/mutations/settings/user-profile';
 
 interface ProfileSettingsProps {}
 
@@ -36,19 +41,86 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingBank, setEditingBank] = useState<Bank | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPersonalInfoEditing, setIsPersonalInfoEditing] = useState(false);
+  const [isOrgInfoEditing, setIsOrgInfoEditing] = useState(false);
 
   // Formik for user profile settings
   const formik = useFormik({
     initialValues: {
-      organisationName: '',
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
+      organization: '',
+      first_name: '',
+      last_name: '',
+      phone: '',
+      commodities: [] as string[],
+      picture: '',
+      company_logo: '',
     },
-    onSubmit: (values) => {
-      console.log('Done:', values);
+    onSubmit: async (values) => {
+      try {
+        const updatedData: Partial<UserProfile> = {
+          first_name: values.first_name,
+          last_name: values.last_name,
+          organization: values.organization,
+          phone: values.phone,
+          commodities: values.commodities,
+        };
+
+        await updateUserProfile(updatedData);
+      } catch (error) {
+        console.error('Error updating profile:', error);
+      }
     },
   });
+
+  // Function to check if any field in the personal info form has been modified
+  const checkPersonalInfoModified = () => {
+    const { initialValues } = formik;
+    const currentValues = formik.values;
+
+    return (
+      initialValues.first_name !== currentValues.first_name ||
+      initialValues.last_name !== currentValues.last_name ||
+      initialValues.phone !== currentValues.phone
+    );
+  };
+
+  // Function to check if any field in the organization info form has been modified
+  const checkOrgInfoModified = () => {
+    const { initialValues } = formik;
+    const currentValues = formik.values;
+
+    return (
+      initialValues.organization !== currentValues.organization ||
+      initialValues.commodities !== currentValues.commodities
+    );
+  };
+
+  // Update modified state whenever form values change
+  useEffect(() => {
+    setIsPersonalInfoEditing(checkPersonalInfoModified());
+    setIsOrgInfoEditing(checkOrgInfoModified());
+  }, [formik.values]);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const profileData = await getUserProfile();
+        formik.setValues({
+          organization: profileData.organization,
+          first_name: profileData.first_name,
+          last_name: profileData.last_name,
+          phone: profileData.phone || '',
+          commodities: profileData.commodities,
+          picture: profileData.picture,
+          company_logo: profileData.company_logo,
+        });
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   // Formik for bank settings
   const bankFormik = useFormik({
@@ -160,49 +232,83 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
           <div className='flex flex-col md:flex-row items-start md:items-center md:justify-between gap-4 w-full'>
             <Input
-              id='first-name'
+              id='first_name'
               type='text'
               placeholder='e.g. John'
               label='First name'
-              name='firstName'
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.firstName}
+              name='first_name'
+              onChange={(e) => {
+                formik.handleChange(e);
+                setIsPersonalInfoEditing(checkPersonalInfoModified());
+              }}
+              // onBlur={formik.handleBlur}
+              value={formik.values.first_name}
               errorMessage={
-                formik.errors.firstName && formik.touched.firstName ? formik.errors.firstName : ''
+                formik.errors.first_name && formik.touched.first_name
+                  ? formik.errors.first_name
+                  : ''
               }
+              onBlur={() => {
+                if (!checkPersonalInfoModified()) {
+                  setIsPersonalInfoEditing(false);
+                }
+              }}
             />
             <Input
-              id='last-name'
+              id='last_name'
               type='text'
               placeholder='e.g. Doe'
               label='Last name'
-              name='lastName'
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.lastName}
+              name='last_name'
+              onChange={(e) => {
+                formik.handleChange(e);
+                setIsPersonalInfoEditing(checkPersonalInfoModified());
+              }}
+              // onBlur={formik.handleBlur}
+              value={formik.values.last_name}
               errorMessage={
-                formik.errors.lastName && formik.touched.lastName ? formik.errors.lastName : ''
+                formik.errors.last_name && formik.touched.last_name ? formik.errors.last_name : ''
               }
+              // onFocus={() => setIsPersonalInfoEditing(true)}
+              onBlur={() => {
+                if (!checkPersonalInfoModified()) {
+                  setIsPersonalInfoEditing(false);
+                }
+              }}
             />
           </div>
 
           <Input
-            id='phone-number'
+            id='phone'
             type='text'
             placeholder='NG +2348012345678'
             label='Phone number'
-            name='phoneNumber'
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.phoneNumber}
-            errorMessage={
-              formik.errors.phoneNumber && formik.touched.phoneNumber
-                ? formik.errors.phoneNumber
-                : ''
-            }
+            name='phone'
+            onChange={(e) => {
+              formik.handleChange(e);
+              setIsPersonalInfoEditing(checkPersonalInfoModified());
+            }}
+            // onBlur={formik.handleBlur}
+            value={formik.values.phone}
+            errorMessage={formik.errors.phone && formik.touched.phone ? formik.errors.phone : ''}
+            // onFocus={() => setIsPersonalInfoEditing(true)}
+            onBlur={() => {
+              if (!checkPersonalInfoModified()) {
+                setIsPersonalInfoEditing(false);
+              }
+            }}
           />
         </FormSection>
+        {isPersonalInfoEditing && (
+          <div className='flex justify-end gap-4 mt-8'>
+            <Button variant='outline' onClick={() => setIsPersonalInfoEditing(false)}>
+              Cancel
+            </Button>
+            <Button type='submit' variant='secondary' onClick={() => formik.handleSubmit()}>
+              Update Information
+            </Button>
+          </div>
+        )}
 
         <FormSection title='Organisation information' description='Supporting text goes here'>
           <div className='flex flex-col gap-2'>
@@ -227,19 +333,27 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           </div>
 
           <Input
-            id='organisation-name'
+            id='organization'
             type='text'
             placeholder='Circula HQ'
             label='Organisation name'
-            name='organisation-name'
+            name='organization'
             onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.organisationName}
+            // onBlur={formik.handleBlur}
+            value={formik.values.organization}
             errorMessage={
-              formik.errors.organisationName && formik.touched.organisationName
-                ? formik.errors.organisationName
+              formik.errors.organization && formik.touched.organization
+                ? formik.errors.organization
                 : ''
             }
+            // onFocus={() => setIsOrgInfoEditing(true)}
+            onBlur={() => {
+              if (checkOrgInfoModified()) {
+                setIsOrgInfoEditing(true);
+              } else {
+                setIsOrgInfoEditing(false);
+              }
+            }}
           />
 
           <div className='w-full flex flex-col gap-1.5'>
@@ -252,13 +366,26 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='m@example.com'>Plastic</SelectItem>
-                <SelectItem value='m@google.com'>Paper/cardboard</SelectItem>
-                <SelectItem value='m@google.com'>Metal</SelectItem>
+                <SelectItem value='plastic'>Plastic</SelectItem>
+                <SelectItem value='paper'>Paper/cardboard</SelectItem>
+                <SelectItem value='metal'>Metal</SelectItem>
+                <SelectItem value='rubber'>Rubber</SelectItem>
+                <SelectItem value='glass'>Glass</SelectItem>
+                <SelectItem value='e-waste'>E-waste</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </FormSection>
+        {isOrgInfoEditing && (
+          <div className='flex justify-end gap-4 mt-8'>
+            <Button variant='outline' onClick={() => setIsOrgInfoEditing(false)}>
+              Cancel
+            </Button>
+            <Button type='submit' variant='secondary' onClick={() => formik.handleSubmit()}>
+              Update Information
+            </Button>
+          </div>
+        )}
 
         <FormSection title='Bank information' description='Supporting text goes here'>
           {banks.length === 0 ? (
