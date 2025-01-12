@@ -25,55 +25,53 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { deleteInventory } from '@/hooks/api/mutations/inventory/deleteInventory';
-import { useFetchInventory } from '@/hooks/api/mutations/inventory/useFetchInventory';
+import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
+import { useFetchInventory } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
+const capitalizeFirstLetter = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
 const Inventory = () => {
+  const deleteInventory = useDeleteInventory();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
   const [searchQuery, setSearchQuery] = useState('');
 
-  const capitalizeFirstLetter = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
-
-  const { data, loading, error, setQueryParams } = useFetchInventory({
+  const queryParams = {
     limit: reportsPerPage,
     offset: (currentPage - 1) * reportsPerPage,
-  });
+    search: searchQuery,
+  };
+
+  const { data, isLoading } = useFetchInventory(queryParams);
 
   const totalPages = data ? Math.ceil(data.count / reportsPerPage) : 0;
 
-  const handleSearchChange = (searchQuery: string) => {
-    setSearchQuery(searchQuery);
+  const handleSearchChange = (newSearchQuery: string) => {
+    setSearchQuery(newSearchQuery);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
-  useEffect(() => {
-    setQueryParams((prev) => ({
-      ...prev,
-      search: searchQuery,
-      offset: 0,
-    }));
-  }, [searchQuery, setQueryParams]);
-  
   const onPageChange = (page: number) => {
     setCurrentPage(page);
-    setQueryParams((prev) => ({ ...prev, offset: (page - 1) * reportsPerPage }));
   };
 
   const handleDeleteInventory = async (id: string) => {
-    try {
-      await deleteInventory(id);
-      setQueryParams((prev) => ({ ...prev }));
-    } catch (error) {
-      console.error('Failed to delete inventory:', error);
-    }
+    await deleteInventory.mutateAsync(
+      { id },
+      {
+        onSuccess: () => {
+          setCurrentPage(1); // Reset to first page after deletion
+        },
+      }
+    );
   };
 
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
@@ -101,8 +99,7 @@ const Inventory = () => {
       }))
     : [];
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (isLoading) return <div>Loading...</div>;
   return (
     <div className='mb-10'>
       <ModuleHeader title='Inventory'>
@@ -154,7 +151,11 @@ const Inventory = () => {
         </div>
       </div>
 
-      <FilterModule containerClass='mt-8' includeRegion={false} onSearchChange={handleSearchChange} />
+      <FilterModule
+        containerClass='mt-8'
+        includeRegion={false}
+        onSearchChange={handleSearchChange}
+      />
 
       <div className='mt-2'>
         {data?.results.length === 0 ? (
@@ -181,8 +182,12 @@ const Inventory = () => {
                 <TableRow className='cursor-pointer' key={item.id}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>{capitalizeFirstLetter(item.material)}</span>
-                      <h4 className='font-normal text-sm text-tertiary'>{capitalizeFirstLetter(item.material_type)}</h4>
+                      <span className='font-medium text-sm text-primary'>
+                        {capitalizeFirstLetter(item.material)}
+                      </span>
+                      <h4 className='font-normal text-sm text-tertiary'>
+                        {capitalizeFirstLetter(item.material_type)}
+                      </h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px]'>
