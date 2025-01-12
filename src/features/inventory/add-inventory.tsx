@@ -16,14 +16,15 @@ import {
   AvatarFallback,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { addInventory } from '@/hooks/api/mutations/inventory/addInventory';
-import { updateInventory } from '@/hooks/api/mutations/inventory/updateInventory';
+import { useAddInventory, useUpdateInventory } from '@/hooks/api/mutations/inventory';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import { useFormik } from 'formik';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const AddInventory = () => {
+  const updateInventory = useUpdateInventory();
+  const addInventory = useAddInventory();
   const { userID } = useGetUserInfo();
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,24 +65,31 @@ const AddInventory = () => {
       user: userID,
     },
     onSubmit: async (values) => {
-      try {
-        if (isEditMode) {
-          const response = await updateInventory({
+      if (isEditMode) {
+        await updateInventory.mutateAsync(
+          {
             ...values,
             quantity: Number(values.quantity),
             id: inventoryDataToEdit.id,
-          });
-          console.log('Updated Inventory ID:', response.id);
-          navigate(appRoute.inventory_details(inventoryDataToEdit.id).path);
-        } else {
-          const response = await addInventory({
+          },
+          {
+            onSuccess: () => {
+              navigate(appRoute.inventory_details(inventoryDataToEdit.id).path);
+            },
+          }
+        );
+      } else {
+        await addInventory.mutateAsync(
+          {
             ...values,
             quantity: Number(values.quantity),
-          });
-          navigate(appRoute.inventory_details(response.id).path);
-        }
-      } catch (error) {
-        console.error(error);
+          },
+          {
+            onSuccess: (data) => {
+              navigate(appRoute.inventory_details(data.id).path);
+            },
+          }
+        );
       }
     },
   });

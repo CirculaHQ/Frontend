@@ -13,6 +13,7 @@ export const appRoute = {
 
   settings: `/settings`,
 
+  dashboard: `/dashboard`,
   inventory: `/inventory`,
   inventory_details: (id?: number | string) => ({
     format: `/inventory/:id`,
