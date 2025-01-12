@@ -20,7 +20,7 @@ import { RequireAuth } from 'react-auth-kit';
 import Invoice from '@/features/invoice';
 import VendorDetails from '@/features/contact/vendors/VendorDetails';
 import CustomerDetails from '@/features/contact/customers/CustomerDetails';
-import InventoryDetails from '@/features/inventory/InventoryDetails';
+import InventoryDetails from '@/features/inventory/inventory-details';
 import OperationsDetails from '@/features/operations/OperationsDetails';
 import AddInventory from '@/features/inventory/add-inventory';
 import AddOperation from '@/features/operations/add-operation';
@@ -70,7 +70,7 @@ const authenticatedRoutes = [
     element: <Inventory />,
   },
   {
-    path: appRoute.inventory_details,
+    path: appRoute.inventory_details().format,
     element: <InventoryDetails />},
   {
     path: appRoute.add_inventory,

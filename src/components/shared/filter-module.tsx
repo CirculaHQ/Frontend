@@ -1,12 +1,25 @@
 import { cn } from '@/lib/utils';
 import { Icon } from '../ui';
 import { TextBadge } from './text-badge';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 interface FilterModuleProps {
   containerClass?: string;
   includeRegion?: boolean;
+  onSearchChange?: (searchQuery: string) => void;
 }
-const FilterModule = ({containerClass, includeRegion = true}: FilterModuleProps) => {
+const FilterModule = ({containerClass, includeRegion = true, onSearchChange, }: FilterModuleProps) => {
+  const [searchValue, setSearchValue] = useState('');
+
+  useEffect(() => {
+    if (onSearchChange) {
+      const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setSearchValue(event.target.value);
+        onSearchChange(event.target.value);
+      };
+    }
+  }, [onSearchChange]);
+
   return (
     <div className={cn("flex flex-row items-center justify-between py-2", containerClass && containerClass)}>
       <div className="flex flex-row items-center gap-2">
@@ -15,6 +28,9 @@ const FilterModule = ({containerClass, includeRegion = true}: FilterModuleProps)
           type="text"
           className="border-none w-full pr-3 py-2 text-sm font-normal rounded-md focus:outline-none placeholder:font-normal font-inter max-w-[200px] placeholder:font-inter placeholder:text-placeholder"
           placeholder="Search"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          onBlur={() => onSearchChange && onSearchChange(searchValue)}
         />
       </div>
       <div className="hidden md:flex flex-row items-center justify-end ">

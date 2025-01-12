@@ -11,7 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use(async (config) => {
   const headers = config.headers;
-  const accessToken = storageUtil.get('access_token');
+  const accessToken = storageUtil.get('circula');
   if (accessToken) {
     headers.authorization = `Bearer ${accessToken}`;
   } else {

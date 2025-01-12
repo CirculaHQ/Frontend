@@ -1,5 +1,5 @@
-import CONFIG from '@/utils/config';
-import axios from 'axios';
+import request from '@/utils/api';
+import { AxiosError, AxiosResponse } from 'axios';
 import { useMutation } from 'react-query';
 
 interface VerifySignupPayload {
@@ -19,12 +19,23 @@ interface VerifySignupResponse {
   message: string;
 }
 
+type ErrorType = { error: string; };
+
+const verifySignup = (data: VerifySignupPayload): Promise<AxiosResponse<VerifySignupResponse>> => {
+  return request(
+    'POST',
+    `/auth/validate-otp`,
+    {
+      email: data.email,
+      otp: data.otp,
+    },
+    false // don't need authorization for this endpoint
+  );
+};
+
 const useLoginConfirmation = () => {
-  return useMutation<VerifySignupResponse, Error, VerifySignupPayload>(
-    async (data: VerifySignupPayload) => {
-      const response = await axios.post(`${CONFIG.API_BASE_URL}/auth/validate-otp`, data);
-      return response.data;
-    }
+  return useMutation<AxiosResponse<VerifySignupResponse>, AxiosError<ErrorType>, VerifySignupPayload>(
+    (data: VerifySignupPayload) => verifySignup(data)
   );
 };
 

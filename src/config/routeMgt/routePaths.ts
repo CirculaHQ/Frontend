@@ -15,7 +15,10 @@ export const appRoute = {
 
   dashboard: `/dashboard`,
   inventory: `/inventory`,
-  inventory_details: `/inventory/inventory-details`,
+  inventory_details: (id?: number | string) => ({
+    format: `/inventory/:id`,
+    path: `/inventory/${id}`,
+  }),
   add_inventory: `/inventory/add-inventory`,
 
   reports: '/reports',
