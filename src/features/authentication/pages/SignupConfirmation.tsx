@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { Icon, Input, Button } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { showToast } from '@/utils/toast';
-import { useIsAuthenticated, useSignIn } from 'react-auth-kit';
+import { useSignIn } from 'react-auth-kit';
 import { useLoginConfirmation, useResendCode } from '@/hooks/api/mutations/authentication';
+import { updateEmail } from '@/hooks/api/mutations/settings/user-profile';
+import { useMutation } from 'react-query';
 
 const SignupConfirmation = () => {
-  const isAuthenticated = useIsAuthenticated();
+  const navigate = useNavigate();
+  // const isAuthenticated = useIsAuthenticated();
   const signIn = useSignIn();
   const location = useLocation();
   const email = location.state?.email || 'your-email@example.com';
+  const from = location.state?.from;
   const [verificationCode, setVerificationCode] = useState('');
   const [timer, setTimer] = useState(40);
 
@@ -26,8 +30,23 @@ const SignupConfirmation = () => {
     return () => clearInterval(interval);
   }, [timer]);
 
+  const { mutate: updateEmailAddress } = useMutation(updateEmail, {
+    onSuccess: () => {
+      if (from === 'accountSettings') {
+        navigate(appRoute.settings); 
+      } 
+    },
+    onError: (error: any) => {
+      console.error('Error updating email:', error);
+    }
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (from === 'accountSettings') {
+      updateEmailAddress({ email, otp: verificationCode });
+    } else {
     confirmCode(
       { email, otp: verificationCode },
       {
@@ -49,11 +68,10 @@ const SignupConfirmation = () => {
         },
       }
     );
-  };
+  };}
 
   return (
     <>
-      {isAuthenticated() && <Navigate to={appRoute.home} replace={true} />}
       <div
         className='min-h-screen flex items-center justify-center'
         style={{

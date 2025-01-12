@@ -27,11 +27,13 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSignOut } from 'react-auth-kit';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useEffect, useState } from 'react';
+import { getUserProfile, UserProfile } from '@/hooks/api/mutations/settings/user-profile';
 
 const items = [
   {
     title: 'Dashboard',
-    url: '/dashboard',
+    url: '/',
     icon: 'dashboard',
   },
   {
@@ -71,7 +73,7 @@ const items = [
   },
   {
     title: 'Settings',
-    url: '#',
+    url: '/settings',
     icon: 'settings',
   },
 ];
@@ -82,6 +84,21 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const signOut = useSignOut();
+
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const profile = await getUserProfile();
+        setUserProfile(profile);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -101,7 +118,7 @@ export function AppSidebar() {
   };
 
   const handleSignOut = () => {
-    signOut(); 
+    signOut();
     navigate(appRoute.login_in, { replace: true });
   };
 
@@ -144,8 +161,7 @@ export function AppSidebar() {
                             <SidebarMenuSubItem
                               key={subItem.title}
                               onClick={() => {
-                                handleNavigation(subItem.url), 
-                                isMobile && toggleSidebar();
+                                handleNavigation(subItem.url), isMobile && toggleSidebar();
                               }}
                               className={cn(
                                 'text-tertiary font-inter text-sm w-full justify-between px-2 py-1.5 cursor-pointer',
@@ -167,8 +183,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title} className='w-full'>
                     <SidebarMenuButton
                       onClick={() => {
-                        handleNavigation(item.url), 
-                        isMobile && toggleSidebar();
+                        handleNavigation(item.url), isMobile && toggleSidebar();
                       }}
                       className={`text-tertiary font-inter text-sm w-full`}
                       isActive={isActive(item.url)}
@@ -190,33 +205,47 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton>
-                     Username
-                    <ChevronUp className="ml-auto" />
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  side="top"
-                  className="w-[--radix-popper-anchor-width]"
-                >
-                  <DropdownMenuItem>
-                    <span>Account</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <span>Billing</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    <span>Sign out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  {userProfile ? (
+                    <>
+                      {/* <img 
+                        src={userProfile.picture} 
+                        alt="Profile" 
+                        className="w-6 h-6 rounded-full mr-2" 
+                      /> */}
+
+                      <div>
+                        <p className='text-primary font-semibold'>
+                          {userProfile.first_name} {userProfile.last_name}
+                        </p>
+                        <p className='text-tertiary font-normal text-sm'>{userProfile.email}</p>
+                      </div>
+                    </>
+                  ) : (
+                    'Username'
+                  )}
+                  <ChevronUp className='ml-auto' />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side='top' className='w-[--radix-popper-anchor-width]'>
+                <DropdownMenuItem>
+                  <span>Account</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>Billing</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
