@@ -19,7 +19,7 @@ export interface InventoryBreakdown {
     'GET',
     '/inventory/breakdown',
     null,
-    true,
+    false,
     false
   );
   return response;

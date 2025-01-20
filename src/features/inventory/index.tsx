@@ -32,7 +32,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
 const capitalizeFirstLetter = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
@@ -99,7 +98,7 @@ const Inventory = () => {
       }))
     : [];
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading Inventories...</div>;
   return (
     <div className='mb-10'>
       <ModuleHeader title='Inventory'>
@@ -196,7 +195,7 @@ const Inventory = () => {
                         <AvatarImage src='https://github.com/shadcn.png' />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
-                      <span className='text-sm text-tertiary'>{item.vendor}</span>
+                      <span className='text-sm text-tertiary'>{item.vendor.account_name}</span>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>

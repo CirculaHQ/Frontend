@@ -1,4 +1,4 @@
-import { FilterModule, ModuleHeader } from '@/components/shared';
+import { EmptyState, FilterModule, LineDistribution, ModuleHeader } from '@/components/shared';
 import {
   Badge,
   Button,
@@ -17,6 +17,8 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
+import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -34,18 +36,58 @@ const MetricCard = memo(({ title, count }: MetricCardProps) => {
     </div>
   );
 });
+
 const Operations = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
   const totalPages = Math.ceil(100 / reportsPerPage);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const queryParams = {
+    limit: reportsPerPage,
+    offset: (currentPage - 1) * reportsPerPage,
+    search: searchQuery,
+  };
+
+  const { data, isLoading } = useFetchOperations(queryParams);
+
+  const handleSearchChange = (newSearchQuery: string) => {
+    setSearchQuery(newSearchQuery);
+    setCurrentPage(1);
+  };
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
-  const templates = Array(5).fill(null);
 
+  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
+    useFetchInventoryBreakdown();
+
+  if (loadingInventoryBreakdown) {
+    return <div>Loading material distribution...</div>;
+  }
+
+  const lineDistributionSegments = inventoryBreakdown
+    ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
+        color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+        weight: quantity,
+        label: material,
+        value: `${quantity} kg`,
+        percentage: `${((quantity / inventoryBreakdown.total_quantity) * 100).toFixed(1)}%`,
+        subSegments: inventoryBreakdown.material_types[material]
+          ? Object.entries(inventoryBreakdown.material_types[material]).map(
+              ([type, subQuantity]) => ({
+                name: type,
+                amount: subQuantity,
+              })
+            )
+          : [],
+      }))
+    : [];
+
+  if (isLoading) return <div>Loading Operations...</div>;
   return (
     <div>
       <ModuleHeader title='Operations'>
@@ -73,10 +115,25 @@ const Operations = () => {
         <MetricCard title='Number of operations' count='12,440' />
         <MetricCard title='Waste yield' count='96,345kg' />
       </div>
-      <FilterModule containerClass='mt-8' />
+      <div className='mt-4'>
+        <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+        <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+      </div>
+      <FilterModule
+        containerClass='mt-8'
+        includeRegion={false}
+        onSearchChange={handleSearchChange}
+      />
 
       <div className='mt-2'>
-        {!isMobile ? (
+        {data?.results.length === 0 ? (
+          <EmptyState
+            icon='inventory-empty'
+            title='No operations started'
+            description='Begin your operations on Circula and they would show up here.'
+            className='mt-8'
+          />
+        ) : !isMobile ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -91,13 +148,13 @@ const Operations = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
-                  <TableCell className='w-[100px]'>OP - 182</TableCell>
+              {data?.results.map((item) => (
+                <TableRow className='cursor-pointer' key={item.id}>
+                  <TableCell className='w-[100px]'>{item.id}</TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>5 days ago</span>
-                      <h4 className='font-normal text-sm text-tertiary'>13/07/2020</h4>
+                      <span className='font-medium text-sm text-primary'>{item.start_time}</span>
+                      <h4 className='font-normal text-sm text-tertiary'>{item.start_date}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
@@ -107,17 +164,17 @@ const Operations = () => {
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    Sorting
+                    {item.operation_type}
                   </TableCell>
 
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     <Badge variant='failed'>Completed</Badge>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    690 kg
+                    {item.quantity_produced}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    1,000 kg
+                    {item.waste_produced}
                   </TableCell>
                   <TableCell className='w-7'>
                     <DropdownMenu>
@@ -158,8 +215,8 @@ const Operations = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
+              {data?.results.map((item) => (
+                <TableRow className='cursor-pointer' key={item.id}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
                       <span className='font-medium text-sm text-primary'>Clear Glass</span>
@@ -167,7 +224,7 @@ const Operations = () => {
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    Sorting
+                    {item.operation_type}
                   </TableCell>
                   <TableCell className='w-7'>
                     <DropdownMenu>

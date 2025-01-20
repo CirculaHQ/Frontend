@@ -2,42 +2,180 @@ import { FormSection, ModuleHeader } from '@/components/shared';
 import {
   Button,
   Icon,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Textarea,
-  DatePicker,
-  SelectSeparator,
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { OperationPayload, useAddOperation } from '@/hooks/api/mutations/operations/useAddOperation';
+import { UpdateOperationPayload, useUpdateOperation } from '@/hooks/api/mutations/operations/useUpdateOperation';
+import {
+  CustomOperation,
+  getCustomOperations,
+} from '@/hooks/api/mutations/settings/custom-operation';
+import { Inventory, useFetchInventory } from '@/hooks/api/queries/inventory/useFetchInventory';
+import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
+import { useGetUserInfo } from '@/hooks/useGetUserInfo';
+import { QUERYKEYS } from '@/utils/query-keys';
+import { showToast } from '@/utils/toast';
 import { useFormik } from 'formik';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useQueryClient } from 'react-query';
+import { useNavigate } from 'react-router-dom';
+import InventoryDetails from './components/inventory-details';
+import OperationsList from './components/operations-list';
+import OperationForm from './components/operation-form';
+import { format } from 'date-fns';
 
 const AddOperation = () => {
   const navigate = useNavigate();
+  const { userID } = useGetUserInfo();
+  const queryClient = useQueryClient();
+
+  const [selectedInventoryId, setSelectedInventoryId] = useState<string | null>(null);
+  const [selectedInventory, setSelectedInventory] = useState<Inventory | null>(null);
+  const [showOperationInputs, setShowOperationInputs] = useState(false);
+  const [editingOperationId, setEditingOperationId] = useState<string | null>(null); 
+  const [customOperations, setCustomOperations] = useState<CustomOperation[]>([]);
+
+  const { mutate, isLoading } = useAddOperation();
+  const { mutate: updateOperation, isLoading: isUpdating } = useUpdateOperation(); 
+  const { data } = useFetchInventory();
+  const { data: operationsData, isLoading: operationsLoading } = useFetchOperations({ inventory_id: selectedInventoryId }); 
+
+  const formatDate = (date: string | number | Date) => format(new Date(date), 'dd/MM/yyyy');
+  const formatTime = (time: any) => format(new Date(`1970/01/01T${time}:00`), 'h:mm a');
+
+
+  useEffect(() => {
+    if (selectedInventoryId && data?.results) {
+      const foundInventory = data.results.find((item) => item.id === selectedInventoryId);
+      setSelectedInventory(foundInventory || null);
+    } else {
+      setSelectedInventory(null);
+    }
+  }, [selectedInventoryId, data]);
+
+
+  useEffect(() => {
+    const fetchCustomOperations = async () => {
+      const response = await getCustomOperations(100, 0, '');
+      setCustomOperations(response.results);
+    };
+    fetchCustomOperations();
+  }, []);
+
+  const handleInventorySelect = (value: string) => {
+    setSelectedInventoryId(value);
+  };
+
+  const handleAddOperationClick = () => {
+    setShowOperationInputs(true);
+  };
+
+  const handleCancelClick = () => {
+    setShowOperationInputs(false);
+    formik.resetForm();
+  };
+
+  const handleAccordionClick = (operation: OperationPayload) => {
+    if (editingOperationId === operation.id) {
+      setEditingOperationId(null); 
+      formik.resetForm(); 
+    } else {
+      setEditingOperationId(operation.id);
+      setShowOperationInputs(true);
+      formik.setValues({
+        operation_type: operation.operation_type || '',
+        start_date: operation.start_date ? formatDate(operation.start_date) : '',
+        start_time: operation.start_time ? formatTime(operation.start_time) : '',
+        end_date: operation.end_date ? formatDate(operation.end_date) : '',
+        end_time: operation.end_time ? formatTime(operation.end_time) : '',
+        input_quantity: operation.input_quantity || 0,
+        quantity_produced: operation.quantity_produced || 0,
+        waste_produced: operation.waste_produced || 0,
+      });
+    }
+  };
+
+const handleUpdateOperation = async (values: any) => {
+  try {
+      if (!editingOperationId) return;
+
+      const payload: UpdateOperationPayload = { 
+          id: editingOperationId,
+          operation_type: values.operation_type,
+          start_date: values.start_date ? format(new Date(values.start_date), 'yyyy-MM-dd') : undefined,
+          start_time: values.start_time ? format(new Date(`1970-01-01T${values.start_time}:00`), 'HH:mm:ss') : undefined,
+          end_date: values.end_date ? format(new Date(values.end_date), 'yyyy-MM-dd') : undefined,
+          end_time: values.end_time ? format(new Date(`1970-01-01T${values.end_time}:00`), 'HH:mm:ss') : undefined,
+          input_quantity: values.input_quantity,
+          quantity_produced: values.quantity_produced,
+          waste_produced: values.waste_produced,
+
+      };
+      await updateOperation(payload);
+      queryClient.invalidateQueries(QUERYKEYS.FETCHOPERATIONS);
+      setEditingOperationId(null);
+      formik.resetForm();
+  } catch (error) {
+    console.error('Error updating operation:', error);
+        } 
+    };
+
+
+    const handleAddOperation = async (values: any) => {
+      try {
+        if (!selectedInventoryId) {
+          showToast('Please select an inventory');
+          return;
+        }
+    
+        const payload: OperationPayload = {
+          id: '',
+          ...values,
+          user: userID,
+          inventory: selectedInventoryId,
+          start_date: values.start_date ? format(new Date(values.start_date), 'yyyy-MM-dd') : undefined,
+          start_time: values.start_time ? format(new Date(`1970-01-01T${values.start_time}:00`), 'HH:mm:ss') : undefined,
+          end_date: values.end_date ? format(new Date(values.end_date), 'yyyy-MM-dd') : undefined,
+          end_time: values.end_time ? format(new Date(`1970-01-01T${values.end_time}:00`), 'HH:mm:ss') : undefined,
+        };
+    
+        await mutate(payload);
+        queryClient.invalidateQueries(QUERYKEYS.FETCHOPERATIONS);
+        navigate(appRoute.operations);
+        formik.resetForm();
+      } catch (err) {
+        console.error('Error adding operation:', err);
+      }
+    };
+
 
   const formik = useFormik({
     initialValues: {
-      businessName: '',
-      phoneNumber: '',
-      email: '',
-      amount: '',
-      quantity: '',
+      operation_type: '',
+      start_date: '',
+      start_time: '',
+      end_date: '',
+      end_time: '',
+      input_quantity: 0,
+      quantity_produced: 0,
+      waste_produced: 0,
     },
-    onSubmit: (values) => {},
-  });
+
+  onSubmit: async (values) => {
+    if (editingOperationId) {
+     await handleUpdateOperation(values);
+    } else {
+     await handleAddOperation(values);
+    }
+  },
+});
+
+
 
   return (
     <div className='md:p-6 mx-auto'>
       <button
-        onClick={() => navigate(appRoute.vendors)}
+        onClick={() => navigate(appRoute.operations)}
         className='text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4'
       >
         <Icon name='arrow-left' className='w-5 h-5' /> Back to Operations
@@ -48,43 +186,50 @@ const AddOperation = () => {
         className='mb-10'
       >
         <div className='flex flex-row items-center gap-3'>
-          <Button variant='outline' onClick={() => navigate(appRoute.operations)}>
+          <Button variant='outline' onClick={handleCancelClick}>
             Cancel
           </Button>
           <Button variant='outline' onClick={() => navigate(appRoute.operations)}>
             Save
           </Button>
-          <Button variant='secondary'>Add operation</Button>
+          <Button variant='secondary' onClick={handleAddOperationClick}>
+            {isLoading ? 'Adding...' : 'Add operation'}
+          </Button>
         </div>
       </ModuleHeader>
 
-      <form>
-        <FormSection title={`Inventory details`} description='Supporting text goes here'>
-          <div className='w-full flex flex-col gap-1.5'>
-            <Label>Inventory ID</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder='Select vendor' className='text-placeholder font-normal' />
-              </SelectTrigger>
-              <SelectContent>
-               
-                <SelectItem value='m@google.com'>INV 043</SelectItem>
-                <SelectItem value='m@google.com'>INV 083</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </FormSection>
+      <form onSubmit={formik.handleSubmit}>
+        <InventoryDetails
+          selectedInventory={selectedInventory}
+          selectedInventoryId={selectedInventoryId}
+          onSelect={handleInventorySelect}
+          data={data}
+        />
 
         <FormSection title={`Operations`} description='Supporting text goes here'>
-          <div className='w-full flex flex-col gap-1'>
-            <Label>You have not added an operation</Label>
-            <p className='text-tertiary font-normal text-sm'>Add an operation to this inventory and they will show up here.</p>
-          </div>
-          <Button variant='outline' onClick={() => navigate(appRoute.vendors)}>
-            Add operation
-          </Button>
-        </FormSection>
+       
+          <OperationsList
+            selectedInventory={selectedInventory}
+            operationsData={operationsData || { results: [] }}
+            operationsLoading={operationsLoading}
+            handleAccordionClick={handleAccordionClick}
+            formik={formik}
+            customOperations={customOperations}
+            handleUpdateOperation={handleUpdateOperation}
+            isUpdating={isUpdating}
+            editingOperationId={editingOperationId}
+          />
 
+          {showOperationInputs && (
+            <OperationForm 
+              formik={formik}
+              customOperations={customOperations}
+              handleUpdateOperation={handleUpdateOperation}
+              isUpdating={isUpdating} 
+              selectedInventory={selectedInventory}  
+              editingOperationId={editingOperationId}          />
+          )}
+        </FormSection>
       </form>
     </div>
   );
