@@ -25,6 +25,7 @@ import OperationsDetails from '@/features/operations/OperationsDetails';
 import AddInventory from '@/features/inventory/add-inventory';
 import AddOperation from '@/features/operations/add-operation';
 import CreateInvoice from '@/features/invoice/create-invoices';
+import AddCustomer from '@/features/contact/customers/AddCustomer';
 
 // Separate arrays for authenticated and public routes
 const authenticatedRoutes = [
@@ -95,6 +96,10 @@ const authenticatedRoutes = [
   {
     path: appRoute.customer_details,
     element: <CustomerDetails />,
+  },
+  {
+    path: appRoute.add_customer,
+    element: <AddCustomer />,
   },
 ];
 

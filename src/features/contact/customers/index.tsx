@@ -1,8 +1,16 @@
 import { EmptyState, ModuleHeader, TextBadge } from '@/components/shared'
 import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui'
-import React from 'react'
+import { appRoute } from '@/config/routeMgt/routePaths';
+import { useNavigate } from 'react-router-dom';
 
 const Customers = () => {
+  const navigate = useNavigate();
+
+  const customerTypes = [
+    { label: "business", icon: <TextBadge text='B' /> },
+    { label: "individual", icon: <TextBadge text='I' /> }
+  ]
+
   return (
     <div>
       <ModuleHeader title='Customers'>
@@ -17,13 +25,20 @@ const Customers = () => {
               align='end'
               className='text-sm font-medium text-secondary rounded-[8px] px-1'
             >
-              <DropdownMenuItem className='py-2  rounded-[8px] justify-between'>Business <TextBadge text='B'/></DropdownMenuItem>
-              <DropdownMenuItem className='py-2 rounded-[8px] justify-between'>Individual <TextBadge text='I'/></DropdownMenuItem>
+              {customerTypes.map((item) => (
+                <DropdownMenuItem
+                  key={item.label}
+                  className='py-2 rounded-[8px] justify-between capitalize'
+                  onClick={() => navigate(`${appRoute.add_customer}?type=${item.label}`)}
+                >
+                  {item.label} {item.icon}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </ModuleHeader>
-      <EmptyState icon='users-right' title='No customers yet' description='Add a customer and they will show up here.' className='mt-8'/>
+      <EmptyState icon='users-right' title='No customers yet' description='Add a customer and they will show up here.' className='mt-8' />
     </div>
   )
 }
