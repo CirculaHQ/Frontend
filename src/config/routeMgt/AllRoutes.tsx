@@ -94,7 +94,7 @@ const authenticatedRoutes = [
     element: <VendorDetails />,
   },
   {
-    path: appRoute.customer_details,
+    path: `${appRoute.customers}/:id`,
     element: <CustomerDetails />,
   },
   {

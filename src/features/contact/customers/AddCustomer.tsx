@@ -3,7 +3,11 @@ import { Button, DatePicker, Icon, Input, Label, Select, SelectContent, SelectIt
 import { appRoute } from "@/config/routeMgt/routePaths"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useFormik } from 'formik';
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import { useAddCustomer } from "@/hooks/api/mutations/contacts";
+import { useGetUserInfo } from "@/hooks/useGetUserInfo";
+import { banks, countries, states } from "@/mocks";
+import { AccountType } from "@/types";
 
 const INDIVIDUAL = "individual"
 const BUSINESS = "business"
@@ -11,26 +15,40 @@ const BUSINESS = "business"
 export default function AddCustomer() {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
+    const { userID } = useGetUserInfo();
     const [state, setState] = useState({
         selectedFile: "",
         preview: ""
     })
-    const customerType = searchParams.get("type")
+    const customerType = searchParams.get("type")?.toLowerCase() ?? INDIVIDUAL
     const isBusiness = customerType === BUSINESS
+    const { mutate: addCustomer, isLoading } = useAddCustomer((e) => navigate(e))
 
     const formik = useFormik({
         initialValues: {
-            businessName: '',
-            phoneNumber: '',
+            business_name: '',
+            phone_number: '',
             email: '',
             lga: '',
-            accountNumber: '',
-            accountName: '',
-            firstName: '',
-            lastName: '',
+            account_number: '',
+            account_name: '',
+            first_name: '',
+            last_name: '',
             nickname: '',
+            state: '',
+            bank_name: '',
+            country: '',
+            role: '',
+            notes: '',
+            address: ''
         },
-        onSubmit: (values) => { },
+        onSubmit: (values) => {
+            addCustomer({
+                ...values,
+                type: customerType as AccountType,
+                user: userID
+            })
+        },
     });
 
     const selectImage = (e: any) => {
@@ -38,23 +56,18 @@ export default function AddCustomer() {
         setState({ ...state, selectedFile: file, preview })
     }
 
-    const addCustommer = (e: FormEvent) => {
-        e.preventDefault()
-        console.log("submit")
-    }
-
     return (
         <div className='mx-auto'>
             <BackButton route={appRoute.customers} label="Back to customers" />
             <ModuleHeader title={`Add ${customerType} customer`} className='mb-10'>
                 <div className='flex flex-row items-center gap-3'>
-                    <Button type="button" variant='outline' onClick={() => navigate(appRoute.customers)}>
+                    <Button type="button" variant='outline' disabled={isLoading} onClick={() => navigate(appRoute.customers)}>
                         Cancel
                     </Button>
-                    <Button type="button" variant='secondary' onClick={addCustommer}>Add customer</Button>
+                    <Button disabled={isLoading} type="button" variant='secondary'>Add customer</Button>
                 </div>
             </ModuleHeader>
-            <form onSubmit={addCustommer}>
+            <form onSubmit={formik.handleSubmit}>
                 <FormSection
                     title={`${isBusiness ? 'Business' : 'Personal'} Information`}
                     description='Supporting text goes here'
@@ -91,12 +104,12 @@ export default function AddCustomer() {
                                 type='text'
                                 placeholder='e.g. John'
                                 label='First name'
-                                name='firstName'
+                                name='first_name'
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                value={formik.values.firstName}
+                                value={formik.values.first_name}
                                 errorMessage={
-                                    formik.errors.firstName && formik.touched.firstName ? formik.errors.firstName : ''
+                                    formik.errors.first_name && formik.touched.first_name ? formik.errors.first_name : ''
                                 }
                             />
                             <Input
@@ -104,12 +117,12 @@ export default function AddCustomer() {
                                 type='text'
                                 placeholder='e.g. Doe'
                                 label='Last name'
-                                name='lastName'
+                                name='last_name'
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                value={formik.values.lastName}
+                                value={formik.values.last_name}
                                 errorMessage={
-                                    formik.errors.lastName && formik.touched.lastName ? formik.errors.lastName : ''
+                                    formik.errors.last_name && formik.touched.last_name ? formik.errors.last_name : ''
                                 }
                             />
                         </div>
@@ -140,13 +153,13 @@ export default function AddCustomer() {
                             type='text'
                             placeholder='e.g. Circula'
                             label='Business name'
-                            name='businessName'
+                            name='business_name'
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
-                            value={formik.values.businessName}
+                            value={formik.values.business_name}
                             errorMessage={
-                                formik.errors.businessName && formik.touched.businessName
-                                    ? formik.errors.businessName
+                                formik.errors.business_name && formik.touched.business_name
+                                    ? formik.errors.business_name
                                     : ''
                             }
                         />
@@ -162,13 +175,13 @@ export default function AddCustomer() {
                         type='text'
                         placeholder='NG +2348012345678'
                         label='Phone number'
-                        name='phoneNumber'
+                        name='phone_number'
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        value={formik.values.phoneNumber}
+                        value={formik.values.phone_number}
                         errorMessage={
-                            formik.errors.phoneNumber && formik.touched.phoneNumber
-                                ? formik.errors.phoneNumber
+                            formik.errors.phone_number && formik.touched.phone_number
+                                ? formik.errors.phone_number
                                 : ''
                         }
                     />
@@ -185,7 +198,10 @@ export default function AddCustomer() {
                     />
                     <div className='w-full flex flex-col gap-1.5'>
                         <Label>Role in value chain</Label>
-                        <Select>
+                        <Select
+                            value={formik.values.role}
+                            onValueChange={(value) => formik.setFieldValue('role', value)}
+                        >
                             <SelectTrigger>
                                 <SelectValue placeholder='Select role' className='text-placeholder font-normal' />
                             </SelectTrigger>
@@ -202,7 +218,7 @@ export default function AddCustomer() {
                 >
                     <div className='w-full flex flex-col gap-1.5'>
                         <Label>Country</Label>
-                        <Select>
+                        <Select value={formik.values.country} onValueChange={(value) => formik.setFieldValue('country', value)}>
                             <SelectTrigger>
                                 <SelectValue
                                     placeholder='Select country'
@@ -210,12 +226,19 @@ export default function AddCustomer() {
                                 />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value='m@example.com'>Nigeria</SelectItem>
-                                <SelectItem value='m@google.com'>Ghana</SelectItem>
+                                {countries.map((country) => (
+                                    <SelectItem key={country.label} value={country.value}>{country.label}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
-                    <Textarea label='Address' placeholder='Your address' />
+                    <Textarea
+                        id='address'
+                        label='Address'
+                        placeholder='Your address'
+                        onChange={formik.handleChange}
+                        value={formik.values.address}
+                    />
                     <Input
                         id='lga'
                         type='text'
@@ -227,16 +250,16 @@ export default function AddCustomer() {
                         value={formik.values.lga}
                         errorMessage={formik.errors.lga && formik.touched.lga ? formik.errors.lga : ''}
                     />
-
                     <div className='w-full flex flex-col gap-1.5'>
                         <Label>State</Label>
-                        <Select>
+                        <Select value={formik.values.state} onValueChange={(value) => formik.setFieldValue('state', value)}>
                             <SelectTrigger>
                                 <SelectValue placeholder='Select state' className='text-placeholder font-normal' />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value='m@example.com'>Lagos</SelectItem>
-                                <SelectItem value='m@google.com'>Abuja</SelectItem>
+                                {states.map((state) => (
+                                    <SelectItem key={state.label} value={state.value}>{state.label}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
@@ -244,7 +267,7 @@ export default function AddCustomer() {
                 <FormSection title='Bank Details' description='Supporting text goes here'>
                     <div className='w-full flex flex-col gap-1.5'>
                         <Label>Bank name</Label>
-                        <Select>
+                        <Select value={formik.values.bank_name} onValueChange={(value) => formik.setFieldValue('bank_name', value)}>
                             <SelectTrigger>
                                 <SelectValue
                                     placeholder='Select your bank name'
@@ -252,8 +275,9 @@ export default function AddCustomer() {
                                 />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value='m@example.com'>First Bank</SelectItem>
-                                <SelectItem value='m@google.com'>GT Bank</SelectItem>
+                                {banks.map((bank) => (
+                                    <SelectItem key={bank.label} value={bank.value}>{bank.label}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
@@ -262,13 +286,13 @@ export default function AddCustomer() {
                         type='text'
                         placeholder='e.g. 0000000000'
                         label='Account number'
-                        name='accountNumber'
+                        name='account_number'
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        value={formik.values.accountNumber}
+                        value={formik.values.account_number}
                         errorMessage={
-                            formik.errors.accountNumber && formik.touched.accountNumber
-                                ? formik.errors.accountNumber
+                            formik.errors.account_number && formik.touched.account_number
+                                ? formik.errors.account_number
                                 : ''
                         }
                     />
@@ -277,13 +301,13 @@ export default function AddCustomer() {
                         type='text'
                         placeholder='e.g. Circula'
                         label='Account name'
-                        name='accountName'
+                        name='account_name'
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        value={formik.values.accountName}
+                        value={formik.values.account_name}
                         errorMessage={
-                            formik.errors.accountName && formik.touched.accountName
-                                ? formik.errors.accountName
+                            formik.errors.account_name && formik.touched.account_name
+                                ? formik.errors.account_name
                                 : ''
                         }
                     />
@@ -291,13 +315,15 @@ export default function AddCustomer() {
                         id='notes'
                         placeholder='SWIFT code, Routing number, etc.'
                         label='Additional notes (Optional)'
+                        onChange={formik.handleChange}
+                        value={formik.values.notes}
                     />
                 </FormSection>
                 <div className='flex justify-end gap-4 mt-8'>
-                    <Button type="button" variant='outline' onClick={() => navigate(appRoute.customers)}>
+                    <Button disabled={isLoading} type="button" variant='outline' onClick={() => navigate(appRoute.customers)}>
                         Cancel
                     </Button>
-                    <Button type='submit' variant='secondary'>
+                    <Button disabled={isLoading} type='submit' variant='secondary' isLoading={isLoading}>
                         Add customer
                     </Button>
                 </div>
