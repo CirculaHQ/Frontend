@@ -1,4 +1,4 @@
-import { ModuleHeader, TextBadge } from '@/components/shared';
+import { BackButton, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Button,
   DropdownMenu,
@@ -13,10 +13,11 @@ import { useNavigate } from 'react-router-dom';
 
 const CustomerDetails = () => {
   const navigate = useNavigate();
+  const image = '';
 
-  const vendorData = {
+  const customerData = {
     'Personal information': {
-      'Name': 'Zaid Schwartz',
+      Name: 'Zaid Schwartz',
       'Date of birth': '2 November, 1989',
       'Phone number': '+2348012345678',
       'Email address': 'zaidwartz@circulahq.com',
@@ -26,7 +27,7 @@ const CustomerDetails = () => {
     'Personal address': {
       Country: 'Ghana',
       Address: '421 Berrylane Street',
-      'District': 'Accra Metropolitan',
+      District: 'Accra Metropolitan',
       Region: 'Greater Accra',
       supportingText: 'Supporting text goes here',
     },
@@ -34,20 +35,20 @@ const CustomerDetails = () => {
       'Bank name': 'Access Bank',
       'Account number': '3456123497',
       'Account name': 'Zaid Schwartz',
-    //   'Additional notes': 'SWIFT code: 1234',
+      //   'Additional notes': 'SWIFT code: 1234',
       supportingText: 'Supporting text goes here',
     },
   };
 
   const icons: { [key: string]: string } = {
-    'Name': 'building',
+    Name: 'building',
     'Date of birth': 'calendar',
     'Phone number': 'phone',
     'Email address': 'mail-01',
     'Role in value chain': 'users-01',
     Country: 'flag-01',
     Address: 'marker-pin',
-    'District': 'mark',
+    District: 'mark',
     Region: 'mark',
     'Bank name': 'bank',
     'Account number': 'hash',
@@ -57,19 +58,18 @@ const CustomerDetails = () => {
 
   return (
     <div className='p-4'>
-      <button
-        onClick={() => navigate(appRoute.vendors)}
-        className='text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4'
-      >
-        <Icon name='arrow-left' className='w-5 h-5' /> Back to Customers
-      </button>
+      <BackButton route={appRoute.customers} label='Back to customers' />
       <div className='flex justify-between items-center mb-6'>
-        <div className='bg-white p-[3px] rounded-2xl shadow-md mr-4'>
-          <div className='bg-[#F5F5F5] rounded-2xl w-[72px] h-[72px] border border-[#D5D7DA] flex flex-col items-center justify-center'>
-            <Icon name='persona' className='w-9 h-9' />
+        <div className='mr-4'>
+          <div className='bg-[#F5F5F5] rounded-full w-[56px] h-[56px] border flex flex-col items-center justify-center'>
+            {!image ? (
+              <Icon name='persona' className='w-9 h-9 rounded-full' />
+            ) : (
+              <img src='' width={56} height={56} alt='pics' className='object-cover rounded-full' />
+            )}
           </div>
         </div>
-        <ModuleHeader title={vendorData['Personal information']['Name']}>
+        <ModuleHeader title={customerData['Personal information']['Name']}>
           <div className='flex flex-row items-center gap-3'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -128,7 +128,7 @@ const CustomerDetails = () => {
         </TabsList>
         <TabsContent value='profile'>
           {/* Profile details content goes here */}
-          {Object.entries(vendorData).map(([sectionTitle, sectionData]) => (
+          {Object.entries(customerData).map(([sectionTitle, sectionData]) => (
             <div key={sectionTitle} className='mb-6 mt-6'>
               <h3 className='text-base font-bold text-secondary mb-2'>{sectionTitle}</h3>
               <p className='text-xs text-quaternary mb-4'>{sectionData.supportingText}</p>
@@ -139,7 +139,7 @@ const CustomerDetails = () => {
                     <div key={key} className='flex flex-col sm:flex-row gap-3 sm:items-center'>
                       <Icon name={icons[key]} className='w-4 h-4 text-quaternary hidden sm:block' />
                       <div className='flex flex-col sm:flex-row sm:items-center w-full'>
-                        <p className='text-xs text-quaternary w-full sm:w-48'>{key}</p>
+                        <p className='text-sm text-quaternary w-full sm:w-48'>{key}</p>
                         <p className='text-sm font-medium text-secondary sm:flex-1'>{value}</p>
                       </div>
                     </div>
