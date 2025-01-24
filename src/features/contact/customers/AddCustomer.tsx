@@ -82,7 +82,13 @@ export default function AddCustomer() {
                                 <div className='bg-[#F5F5F5] rounded-2xl w-[72px] h-[72px] border border-[#D5D7DA] flex flex-col items-center justify-center'>
                                     {!state.selectedFile ?
                                         <Icon name='persona' className='w-9 h-9' /> :
-                                        <img src={state.preview} alt="pics" width={72} height={72} className="object-cover object-top w-[72px] h-[72px] rounded-2xl" />
+                                        <img
+                                            src={state.preview}
+                                            alt="pics"
+                                            width={72}
+                                            height={72}
+                                            className="object-cover object-top w-[72px] h-[72px] rounded-2xl"
+                                        />
                                     }
                                 </div>
                             </div>
