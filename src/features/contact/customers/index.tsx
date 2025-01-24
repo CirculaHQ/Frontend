@@ -1,5 +1,11 @@
-import { EmptyState, ModuleHeader, TextBadge } from '@/components/shared'
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui'
+import { EmptyState, ModuleHeader, TextBadge } from '@/components/shared';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,9 +13,9 @@ const Customers = () => {
   const navigate = useNavigate();
 
   const customerTypes = [
-    { label: "business", icon: <TextBadge text='B' /> },
-    { label: "individual", icon: <TextBadge text='I' /> }
-  ]
+    { label: 'business', icon: <TextBadge text='B' /> },
+    { label: 'individual', icon: <TextBadge text='I' /> },
+  ];
 
   return (
     <div>
@@ -38,9 +44,14 @@ const Customers = () => {
           </DropdownMenu>
         </div>
       </ModuleHeader>
-      <EmptyState icon='users-right' title='No customers yet' description='Add a customer and they will show up here.' className='mt-8' />
+      <EmptyState
+        icon='users-right'
+        title='No customers yet'
+        description='Add a customer and they will show up here.'
+        className='mt-8'
+      />
     </div>
-  )
-}
+  );
+};
 
-export default Customers
+export default Customers;

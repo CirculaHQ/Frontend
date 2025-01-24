@@ -52,13 +52,7 @@ interface AddCustomerPayload {
 }
 
 const addCustomer = async (data: AddCustomerPayload): Promise<AddCustomerResponse> => {
-  const response = await request<AddCustomerResponse>(
-    'POST',
-    `/customer`,
-    data,
-    true,
-    true
-  );
+  const response = await request<AddCustomerResponse>('POST', `/customer`, data, true, true);
   return response;
 };
 

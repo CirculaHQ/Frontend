@@ -13,11 +13,11 @@ import { useNavigate } from 'react-router-dom';
 
 const CustomerDetails = () => {
   const navigate = useNavigate();
-  const image = ""
+  const image = '';
 
   const customerData = {
     'Personal information': {
-      'Name': 'Zaid Schwartz',
+      Name: 'Zaid Schwartz',
       'Date of birth': '2 November, 1989',
       'Phone number': '+2348012345678',
       'Email address': 'zaidwartz@circulahq.com',
@@ -27,7 +27,7 @@ const CustomerDetails = () => {
     'Personal address': {
       Country: 'Ghana',
       Address: '421 Berrylane Street',
-      'District': 'Accra Metropolitan',
+      District: 'Accra Metropolitan',
       Region: 'Greater Accra',
       supportingText: 'Supporting text goes here',
     },
@@ -41,14 +41,14 @@ const CustomerDetails = () => {
   };
 
   const icons: { [key: string]: string } = {
-    'Name': 'building',
+    Name: 'building',
     'Date of birth': 'calendar',
     'Phone number': 'phone',
     'Email address': 'mail-01',
     'Role in value chain': 'users-01',
     Country: 'flag-01',
     Address: 'marker-pin',
-    'District': 'mark',
+    District: 'mark',
     Region: 'mark',
     'Bank name': 'bank',
     'Account number': 'hash',
@@ -58,14 +58,15 @@ const CustomerDetails = () => {
 
   return (
     <div className='p-4'>
-      <BackButton route={appRoute.customers} label="Back to customers" />
+      <BackButton route={appRoute.customers} label='Back to customers' />
       <div className='flex justify-between items-center mb-6'>
         <div className='mr-4'>
           <div className='bg-[#F5F5F5] rounded-full w-[56px] h-[56px] border flex flex-col items-center justify-center'>
-            {!image ?
-              <Icon name='persona' className='w-9 h-9 rounded-full' /> :
-              <img src="" width={56} height={56} alt='pics' className='object-cover rounded-full' />
-            }
+            {!image ? (
+              <Icon name='persona' className='w-9 h-9 rounded-full' />
+            ) : (
+              <img src='' width={56} height={56} alt='pics' className='object-cover rounded-full' />
+            )}
           </div>
         </div>
         <ModuleHeader title={customerData['Personal information']['Name']}>

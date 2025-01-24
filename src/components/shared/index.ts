@@ -8,5 +8,5 @@ export * from './empty-state';
 export * from './line-distribution';
 export * from './form-section';
 export * from './invoice-preview';
-export * from "./back-button"
-export * from "./select-file"
+export * from './back-button';
+export * from './select-file';

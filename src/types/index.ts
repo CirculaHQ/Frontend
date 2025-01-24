@@ -1,2 +1,2 @@
-export const name = "";
-export type AccountType = "individual" | "business"
+export const name = '';
+export type AccountType = 'individual' | 'business';

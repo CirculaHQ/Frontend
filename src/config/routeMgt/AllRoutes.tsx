@@ -72,7 +72,8 @@ const authenticatedRoutes = [
   },
   {
     path: appRoute.inventory_details().format,
-    element: <InventoryDetails />},
+    element: <InventoryDetails />,
+  },
   {
     path: appRoute.add_inventory,
     element: <AddInventory />,
