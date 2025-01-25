@@ -14,8 +14,8 @@ import { capitalizeFirstLetterOfEachWord } from '@/utils/textFormatter';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const CustomerDetails = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { data, isLoading } = useFetchCustomer(id);
 
   if (isLoading) return <p>Fetching customer details...</p>;
@@ -24,23 +24,23 @@ const CustomerDetails = () => {
   const customerData = {
     'Personal information': {
       Name: `${capitalizeFirstLetterOfEachWord(data.account_name)}`,
-      'Date of birth': `${ data.date_of_birth || "N/A"}`,
-      'Phone number': `${data.phone_number || "N/A"}`,
-      'Email address': `${data.email || "N/A"}`,
-      'Role in value chain': `${data?.role || "N/A"}`,
+      'Date of birth': `${data.date_of_birth || 'N/A'}`,
+      'Phone number': `${data.phone_number || 'N/A'}`,
+      'Email address': `${data.email || 'N/A'}`,
+      'Role in value chain': `${data?.role || 'N/A'}`,
       supportingText: 'Supporting text goes here',
     },
     'Personal address': {
-      Country: `${capitalizeFirstLetterOfEachWord(data.country || "N/A")}`,
-      Address: `${capitalizeFirstLetterOfEachWord(data.address || "N/A")}`,
-      District: `${capitalizeFirstLetterOfEachWord(data.lga || "N/A")}`,
-      Region: `${capitalizeFirstLetterOfEachWord(data.state || "N/A")}`,
+      Country: `${capitalizeFirstLetterOfEachWord(data.country || 'N/A')}`,
+      Address: `${capitalizeFirstLetterOfEachWord(data.address || 'N/A')}`,
+      District: `${capitalizeFirstLetterOfEachWord(data.lga || 'N/A')}`,
+      Region: `${capitalizeFirstLetterOfEachWord(data.state || 'N/A')}`,
       supportingText: 'Supporting text goes here',
     },
     'Bank details': {
-      'Bank name': `${capitalizeFirstLetterOfEachWord(data.bank_name || "N/A")}`,
-      'Account number': `${data.account_number || "N/A"}`,
-      'Account name': `${capitalizeFirstLetterOfEachWord(data.account_name || "N/A")}`,
+      'Bank name': `${capitalizeFirstLetterOfEachWord(data.bank_name || 'N/A')}`,
+      'Account number': `${data.account_number || 'N/A'}`,
+      'Account name': `${capitalizeFirstLetterOfEachWord(data.account_name || 'N/A')}`,
       //   'Additional notes': 'SWIFT code: 1234',
       supportingText: 'Supporting text goes here',
     },
@@ -71,7 +71,13 @@ const CustomerDetails = () => {
             {!data.photo ? (
               <Icon name='persona' className='w-9 h-9 rounded-full' />
             ) : (
-              <img src={data.photo} width={56} height={56} alt='pics' className='object-cover rounded-full' />
+              <img
+                src={data.photo}
+                width={56}
+                height={56}
+                alt='pics'
+                className='object-cover rounded-full'
+              />
             )}
           </div>
         </div>
@@ -92,7 +98,12 @@ const CustomerDetails = () => {
                 <DropdownMenuItem className='py-2 rounded-[8px]'>Action three</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button type='button' onClick={() => navigate(`${appRoute.add_customer}?type=${data.type}&id=${data.id}`)}>Edit details</Button>
+            <Button
+              type='button'
+              onClick={() => navigate(`${appRoute.add_customer}?type=${data.type}&id=${data.id}`)}
+            >
+              Edit details
+            </Button>
             <Button>Contact</Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

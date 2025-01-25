@@ -28,11 +28,23 @@ const useAddCustomer = (callback?: (e: any) => void) => {
 
 const useEditCustomer = (callback?: (e: any) => void) => {
   const queryClient = useQueryClient();
-  let id: string
+  let id: string;
 
-  const editCustomer = async ({ customerId, payload }: { customerId: string; payload: AddCustomerPayload }): Promise<AddCustomerResponse> => {
-    id = customerId
-    return await request<AddCustomerResponse>('PATCH', `/customer/${customerId}`, payload, true, true);
+  const editCustomer = async ({
+    customerId,
+    payload,
+  }: {
+    customerId: string;
+    payload: AddCustomerPayload;
+  }): Promise<AddCustomerResponse> => {
+    id = customerId;
+    return await request<AddCustomerResponse>(
+      'PATCH',
+      `/customer/${customerId}`,
+      payload,
+      true,
+      true
+    );
   };
 
   return useMutation({

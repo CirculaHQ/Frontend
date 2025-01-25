@@ -24,7 +24,7 @@ import { useFetchCustomer } from '@/hooks/api/queries/contacts';
 
 export default function AddCustomer() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams()
+  const [searchParams] = useSearchParams();
   const { userID } = useGetUserInfo();
   const [state, setState] = useState({
     selectedFile: '',
@@ -34,13 +34,15 @@ export default function AddCustomer() {
   const isBusiness = customerType === BUSINESS;
   const customerId = searchParams.get('id') as string;
   const { mutate: addCustomer, isLoading: isAddingCustomer } = useAddCustomer((e) => navigate(e));
-  const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer((e) => navigate(e));
+  const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer((e) =>
+    navigate(e)
+  );
   const { data, isLoading: isLoadingCustomer } = useFetchCustomer(customerId);
 
   const button = {
     loading: customerId ? isEditingCustomer : isAddingCustomer,
-    name: customerId ? "Edit" : "Add"
-  }
+    name: customerId ? 'Edit' : 'Add',
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -61,7 +63,7 @@ export default function AddCustomer() {
       address: '',
     },
     onSubmit: (values) => {
-      const payload = { ...values, type: customerType as AccountType, user: userID }
+      const payload = { ...values, type: customerType as AccountType, user: userID };
       if (!customerId) {
         addCustomer(payload);
       } else {
@@ -95,14 +97,17 @@ export default function AddCustomer() {
         address: data.address ?? '',
       });
     }
-  }, [customerId, data])
+  }, [customerId, data]);
 
   if (isLoadingCustomer) return <p>Fetching customer details...</p>;
 
   return (
     <div className='mx-auto'>
       <BackButton route={appRoute.customers} label='Back to customers' />
-      <ModuleHeader title={`${customerId ? 'Edit' : 'Add'} ${customerType} customer`} className='mb-10'>
+      <ModuleHeader
+        title={`${customerId ? 'Edit' : 'Add'} ${customerType} customer`}
+        className='mb-10'
+      >
         <div className='flex flex-row items-center gap-3'>
           <Button
             type='button'
@@ -399,7 +404,12 @@ export default function AddCustomer() {
           >
             Cancel
           </Button>
-          <Button disabled={button.loading} type='submit' variant='secondary' isLoading={button.loading}>
+          <Button
+            disabled={button.loading}
+            type='submit'
+            variant='secondary'
+            isLoading={button.loading}
+          >
             {button.name} customer
           </Button>
         </div>

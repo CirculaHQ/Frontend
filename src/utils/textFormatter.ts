@@ -10,12 +10,12 @@ export function capitalizeFirstLetterOfEachWord(str: string) {
     return str; // Return empty string if word is empty
   }
   return str
-    ?.split(" ")
+    ?.split(' ')
     ?.map((word: string) => word?.charAt(0).toUpperCase() + word?.slice(1))
-    ?.join(" ");
+    ?.join(' ');
 }
 
 export const getInitials = (word: string) => {
-  if (!word) return ""
-  return capitalizeFirstLetter(word[0])
-}
+  if (!word) return '';
+  return capitalizeFirstLetter(word[0]);
+};

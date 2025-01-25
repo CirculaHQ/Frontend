@@ -34,20 +34,20 @@ const initialParams = {
   type: '',
   country: '',
   archived: false,
-  limit
-}
+  limit,
+};
 
 const Customers = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
-  const [params, setParams] = useState({ ...initialParams })
+  const [params, setParams] = useState({ ...initialParams });
   const { data, isLoading, isInitialFetch } = useFetchCustomers(params);
   const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer(() => {});
 
   if (isInitialFetch) return <p>Loading...</p>;
 
-  const customers = data?.results || []
+  const customers = data?.results || [];
   const totalPages = data ? Math.ceil(data.count / limit) : 0;
 
   const customerTypes = [
@@ -57,7 +57,7 @@ const Customers = () => {
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
-    setParams({ ...params, offset: page - 1 })
+    setParams({ ...params, offset: page - 1 });
   };
 
   const onSearchChange = (search: string) => {
@@ -65,26 +65,32 @@ const Customers = () => {
   };
 
   const navigateToEditCustomer = (e: any, customer: Customer) => {
-    e.stopPropagation()
-    navigate(`${appRoute.add_customer}?type=${customer.type}&id=${customer.id}`)
-  }
+    e.stopPropagation();
+    navigate(`${appRoute.add_customer}?type=${customer.type}&id=${customer.id}`);
+  };
 
   const toggleArchive = () => {
-    setParams({ ...params, archived: !params.archived })
-  }
+    setParams({ ...params, archived: !params.archived });
+  };
 
   const archiveCustomer = (e: any, customer: Customer) => {
-    e.stopPropagation()
-    const { id } = customer
-    editCustomer({ customerId: id, payload: { archived: !customer.archived } })
-  }
+    e.stopPropagation();
+    const { id } = customer;
+    editCustomer({ customerId: id, payload: { archived: !customer.archived } });
+  };
+
+  const exportAllCustomers = async () => {
+    //await exportCustomers()
+  };
 
   return (
     <div>
       <ModuleHeader title='Customers'>
         <div className='flex flex-row items-center gap-3'>
-          <Button onClick={toggleArchive}>{!params.archived ? 'Show' : 'Hide'} archive</Button>
-          <Button>Export</Button>
+          <Button disabled={isLoading} onClick={toggleArchive}>
+            {!params.archived ? 'Show' : 'Hide'} archive
+          </Button>
+          <Button onClick={exportAllCustomers}>Export</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='secondary'>Add customer</Button>
@@ -106,10 +112,7 @@ const Customers = () => {
           </DropdownMenu>
         </div>
       </ModuleHeader>
-      <FilterModule
-        onSearchChange={onSearchChange}
-        containerClass='mt-8'
-      />
+      <FilterModule onSearchChange={onSearchChange} containerClass='mt-8' />
       <div className='mt-2'>
         {!isMobile ? (
           <Table>
@@ -125,13 +128,20 @@ const Customers = () => {
             </TableHeader>
             <TableBody>
               {customers.map((customer) => (
-                <TableRow className='cursor-pointer' key={customer.id} onClick={() => navigate(`${appRoute.customers}/${customer.id}`)}>
+                <TableRow
+                  className='cursor-pointer'
+                  key={customer.id}
+                  onClick={() => navigate(`${appRoute.customers}/${customer.id}`)}
+                >
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
                         <AvatarImage src={customer.photo} />
                         <AvatarFallback>
-                          {getInitials(customer.business_name[0] || `${customer.first_name} ${customer.last_name}`)}
+                          {getInitials(
+                            customer.business_name[0] ||
+                              `${customer.first_name} ${customer.last_name}`
+                          )}
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
@@ -175,7 +185,10 @@ const Customers = () => {
                         <DropdownMenuItem className='py-2 rounded-[8px]'>
                           Assign inventory
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]' onClick={(e) => archiveCustomer(e, customer)}>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => archiveCustomer(e, customer)}
+                        >
                           Archive
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -201,16 +214,17 @@ const Customers = () => {
                       <Avatar className='w-6 h-6 rounded-full'>
                         <AvatarImage src={customer.photo} />
                         <AvatarFallback>
-                          {getInitials(customer.business_name[0] || `${customer.first_name} ${customer.last_name}`)}
+                          {getInitials(
+                            customer.business_name[0] ||
+                              `${customer.first_name} ${customer.last_name}`
+                          )}
                         </AvatarFallback>
                       </Avatar>
                       <div className='flex flex-col items-start'>
                         <span className='font-medium text-sm text-primary'>
                           {customer.business_name || `${customer.first_name} ${customer.last_name}`}
                         </span>
-                        <h4 className='font-normal text-sm text-tertiary'>
-                          {customer.email}
-                        </h4>
+                        <h4 className='font-normal text-sm text-tertiary'>{customer.email}</h4>
                       </div>
                     </div>
                   </TableCell>
@@ -238,7 +252,10 @@ const Customers = () => {
                         <DropdownMenuItem className='py-2 rounded-[8px]'>
                           Assign inventory
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]' onClick={(e) => archiveCustomer(e, customer)}>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => archiveCustomer(e, customer)}
+                        >
                           Archive
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -259,14 +276,16 @@ const Customers = () => {
           />
         )}
       </div>
-      {!isLoading && !customers.length ?
+      {!isLoading && !customers.length ? (
         <EmptyState
           icon='users-right'
           title='No customers yet'
           description='Add a customer and they will show up here.'
           className='mt-8'
-        /> : ""
-      }
+        />
+      ) : (
+        ''
+      )}
     </div>
   );
 };

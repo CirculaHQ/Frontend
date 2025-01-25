@@ -9,7 +9,13 @@ const useFetchCustomers = (params: CustomersParams) => {
   const [isInitialFetch, setIsInitialFetch] = useState(true);
 
   const fetchCustomers = async (): Promise<CustomersResponse> => {
-    return await request<CustomersResponse>('GET', `/customer${generateQueryParams(params)}`, "", false, true);
+    return await request<CustomersResponse>(
+      'GET',
+      `/customer${generateQueryParams(params)}`,
+      null,
+      false,
+      true
+    );
   };
 
   const { data, isLoading, isError, error } = useQuery({
@@ -28,13 +34,13 @@ const useFetchCustomers = (params: CustomersParams) => {
     isInitialFetch,
     isLoading,
     isError,
-    error
+    error,
   };
 };
 
 const useFetchCustomer = (id?: string) => {
   const fetchCustomer = async (): Promise<Customer> => {
-    return await request<Customer>('GET', `/customer/${id}`, "", false, true);
+    return await request<Customer>('GET', `/customer/${id}`, null, false, true);
   };
 
   return useQuery<Customer>({
@@ -47,7 +53,19 @@ const useFetchCustomer = (id?: string) => {
   });
 };
 
-export {
-  useFetchCustomers,
-  useFetchCustomer
+const useExportCustomers = () => {
+  const exportCustomers = async (): Promise<Customer> => {
+    return await request<Customer>('GET', `/customer/export`, null, true, true, '', false, true);
+  };
+
+  const { isLoading, data } = useQuery<Customer>({
+    refetchOnWindowFocus: false,
+    queryFn: () => exportCustomers(),
+    select: (res) => res,
+    retry: false,
+  });
+
+  return { data, isLoading, exportCustomers };
 };
+
+export { useFetchCustomers, useFetchCustomer, useExportCustomers };
