@@ -22,7 +22,7 @@ import { useEditCustomer } from '@/hooks/api/mutations/contacts';
 import { useFetchCustomers } from '@/hooks/api/queries/contacts';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Customer } from '@/types/customers';
-import { getInitials } from '@/utils/textFormatter';
+import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -137,7 +137,10 @@ const Customers = () => {
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
                         <AvatarImage src={customer.photo} />
-                        <AvatarFallback>
+                        <AvatarFallback
+                          style={{ backgroundColor: generateRandomBackgroundColor() }}
+                          className='w-[24px] h-[24px] rounded-full text-white'
+                        >
                           {getInitials(
                             customer.business_name[0] ||
                               `${customer.first_name} ${customer.last_name}`
@@ -213,7 +216,10 @@ const Customers = () => {
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
                         <AvatarImage src={customer.photo} />
-                        <AvatarFallback>
+                        <AvatarFallback
+                          style={{ backgroundColor: generateRandomBackgroundColor() }}
+                          className='w-[24px] h-[24px] rounded-full text-white'
+                        >
                           {getInitials(
                             customer.business_name[0] ||
                               `${customer.first_name} ${customer.last_name}`
