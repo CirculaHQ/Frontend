@@ -7,18 +7,29 @@ interface FilterModuleProps {
   containerClass?: string;
   includeRegion?: boolean;
   onSearchChange?: (searchQuery: string) => void;
+  debounceTime?: number;
 }
-const FilterModule = ({containerClass, includeRegion = true, onSearchChange, }: FilterModuleProps) => {
+const FilterModule = ({ containerClass, includeRegion = true, onSearchChange, debounceTime = 500 }: FilterModuleProps) => {
   const [searchValue, setSearchValue] = useState('');
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    if (onSearchChange) {
-      const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setSearchValue(event.target.value);
-        onSearchChange(event.target.value);
-      };
+    if (!hasMounted) {
+      setHasMounted(true);
+      return;
     }
-  }, [onSearchChange]);
+
+    const handler = setTimeout(() => {
+      if (onSearchChange) onSearchChange(searchValue);
+    }, debounceTime);
+
+    return () => clearTimeout(handler);
+  }, [searchValue, debounceTime]);
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target
+    setSearchValue(value);
+  };
 
   return (
     <div className={cn("flex flex-row items-center justify-between py-2", containerClass && containerClass)}>
@@ -29,19 +40,19 @@ const FilterModule = ({containerClass, includeRegion = true, onSearchChange, }: 
           className="border-none w-full pr-3 py-2 text-sm font-normal rounded-md focus:outline-none placeholder:font-normal font-inter max-w-[200px] placeholder:font-inter placeholder:text-placeholder"
           placeholder="Search"
           value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          onChange={handleInputChange}
           onBlur={() => onSearchChange && onSearchChange(searchValue)}
         />
       </div>
       <div className="hidden md:flex flex-row items-center justify-end ">
-        <TextBadge text='M'/>
+        <TextBadge text='M' />
         <div className="gap-2 flex flex-row items-center justify-center px-3">
           <span className='text-placeholder font-normal text-sm'>All types</span>
-          <Icon name="chevron-down" className="w-5 h-5 text-quaternary" fill='none'/>
+          <Icon name="chevron-down" className="w-5 h-5 text-quaternary" fill='none' />
         </div>
-       {includeRegion && <div className="gap-2 flex flex-row items-center justify-center px-3">
+        {includeRegion && <div className="gap-2 flex flex-row items-center justify-center px-3">
           <span className='text-placeholder font-normal text-sm'>All regions</span>
-          <Icon name="chevron-down" className="w-5 h-5 text-quaternary" fill='none'/>
+          <Icon name="chevron-down" className="w-5 h-5 text-quaternary" fill='none' />
         </div>}
       </div>
     </div>

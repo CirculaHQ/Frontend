@@ -15,18 +15,16 @@ import {
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useFormik } from 'formik';
-import { useState } from 'react';
-import { useAddCustomer } from '@/hooks/api/mutations/contacts';
+import { useEffect, useState } from 'react';
+import { useAddCustomer, useEditCustomer } from '@/hooks/api/mutations/contacts';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import { banks, countries, states } from '@/mocks';
-import { AccountType } from '@/types';
-
-const INDIVIDUAL = 'individual';
-const BUSINESS = 'business';
+import { AccountType, BUSINESS, INDIVIDUAL } from '@/types';
+import { useFetchCustomer } from '@/hooks/api/queries/contacts';
 
 export default function AddCustomer() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams()
   const { userID } = useGetUserInfo();
   const [state, setState] = useState({
     selectedFile: '',
@@ -34,7 +32,15 @@ export default function AddCustomer() {
   });
   const customerType = searchParams.get('type')?.toLowerCase() ?? INDIVIDUAL;
   const isBusiness = customerType === BUSINESS;
-  const { mutate: addCustomer, isLoading } = useAddCustomer((e) => navigate(e));
+  const customerId = searchParams.get('id') as string;
+  const { mutate: addCustomer, isLoading: isAddingCustomer } = useAddCustomer((e) => navigate(e));
+  const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer((e) => navigate(e));
+  const { data, isLoading: isLoadingCustomer } = useFetchCustomer(customerId);
+
+  const button = {
+    loading: customerId ? isEditingCustomer : isAddingCustomer,
+    name: customerId ? "Edit" : "Add"
+  }
 
   const formik = useFormik({
     initialValues: {
@@ -55,11 +61,12 @@ export default function AddCustomer() {
       address: '',
     },
     onSubmit: (values) => {
-      addCustomer({
-        ...values,
-        type: customerType as AccountType,
-        user: userID,
-      });
+      const payload = { ...values, type: customerType as AccountType, user: userID }
+      if (!customerId) {
+        addCustomer(payload);
+      } else {
+        editCustomer({ customerId, payload });
+      }
     },
   });
 
@@ -68,21 +75,45 @@ export default function AddCustomer() {
     setState({ ...state, selectedFile: file, preview });
   };
 
+  useEffect(() => {
+    if (customerId && data) {
+      formik.setValues({
+        business_name: data.business_name ?? '',
+        phone_number: data.phone_number ?? '',
+        email: data.email ?? '',
+        lga: data.lga ?? '',
+        account_number: data.account_number ?? '',
+        account_name: data.account_name ?? '',
+        first_name: data.first_name ?? '',
+        last_name: data.last_name ?? '',
+        nickname: data.nickname ?? '',
+        state: data.state ?? '',
+        bank_name: data.bank_name ?? '',
+        country: data.country ?? '',
+        role: data.role ?? '',
+        notes: data.notes ?? '',
+        address: data.address ?? '',
+      });
+    }
+  }, [customerId, data])
+
+  if (isLoadingCustomer) return <p>Fetching customer details...</p>;
+
   return (
     <div className='mx-auto'>
       <BackButton route={appRoute.customers} label='Back to customers' />
-      <ModuleHeader title={`Add ${customerType} customer`} className='mb-10'>
+      <ModuleHeader title={`${customerId ? 'Edit' : 'Add'} ${customerType} customer`} className='mb-10'>
         <div className='flex flex-row items-center gap-3'>
           <Button
             type='button'
             variant='outline'
-            disabled={isLoading}
+            disabled={button.loading}
             onClick={() => navigate(appRoute.customers)}
           >
             Cancel
           </Button>
-          <Button disabled={isLoading} type='button' variant='secondary'>
-            Add customer
+          <Button disabled={button.loading} type='button' variant='secondary'>
+            {button.name} customer
           </Button>
         </div>
       </ModuleHeader>
@@ -361,15 +392,15 @@ export default function AddCustomer() {
         </FormSection>
         <div className='flex justify-end gap-4 mt-8'>
           <Button
-            disabled={isLoading}
+            disabled={button.loading}
             type='button'
             variant='outline'
             onClick={() => navigate(appRoute.customers)}
           >
             Cancel
           </Button>
-          <Button disabled={isLoading} type='submit' variant='secondary' isLoading={isLoading}>
-            Add customer
+          <Button disabled={button.loading} type='submit' variant='secondary' isLoading={button.loading}>
+            {button.name} customer
           </Button>
         </div>
       </form>

@@ -1,67 +1,24 @@
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { AccountType } from '@/types';
+import { AddCustomerPayload, AddCustomerResponse } from '@/types/customers';
 import request from '@/utils/api';
+import { QUERYKEYS } from '@/utils/query-keys';
 import { showToast } from '@/utils/toast';
-import { useMutation } from 'react-query';
-
-interface AddCustomerResponse {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  first_name: string;
-  last_name: string;
-  nickname: string;
-  date_of_birth: string;
-  business_name: string;
-  phone_number: string;
-  email: string;
-  country: string;
-  address: string;
-  lga: string;
-  state: string;
-  bank_name: string;
-  account_number: string;
-  account_name: string;
-  notes: string;
-  photo: string;
-  type: AccountType;
-  archived: boolean;
-  user: string; // UUID of the user
-}
-
-interface AddCustomerPayload {
-  first_name: string;
-  last_name: string;
-  nickname: string;
-  date_of_birth?: string;
-  business_name: string;
-  phone_number: string;
-  email: string;
-  country: string;
-  address: string;
-  lga: string;
-  state: string;
-  bank_name: string;
-  account_number: string;
-  account_name: string;
-  notes: string;
-  photo?: string;
-  type: AccountType;
-  user: string;
-  role?: string;
-}
-
-const addCustomer = async (data: AddCustomerPayload): Promise<AddCustomerResponse> => {
-  const response = await request<AddCustomerResponse>('POST', `/customer`, data, true, true);
-  return response;
-};
+import { useMutation, useQueryClient } from 'react-query';
 
 const useAddCustomer = (callback?: (e: any) => void) => {
+  const queryClient = useQueryClient();
+
+  const addCustomer = async (data: AddCustomerPayload): Promise<AddCustomerResponse> => {
+    const response = await request<AddCustomerResponse>('POST', `/customer`, data, true, true);
+    return response;
+  };
+
   return useMutation({
     mutationFn: addCustomer,
     onSuccess: async (response: any) => {
+      await queryClient.invalidateQueries({ queryKey: [QUERYKEYS.FETCH_CUSTOMERS] });
       showToast('Customer created successfully!', 'success');
-      callback?.(`${appRoute.customers}/${response.user}`);
+      callback?.(`${appRoute.customers}/${response.id}`);
     },
     onError: (err: any) => {
       showToast('Failed to create customer. Please try again.', 'error');
@@ -69,4 +26,27 @@ const useAddCustomer = (callback?: (e: any) => void) => {
   });
 };
 
-export { useAddCustomer };
+const useEditCustomer = (callback?: (e: any) => void) => {
+  const queryClient = useQueryClient();
+  let id: string
+
+  const editCustomer = async ({ customerId, payload }: { customerId: string; payload: AddCustomerPayload }): Promise<AddCustomerResponse> => {
+    id = customerId
+    return await request<AddCustomerResponse>('PATCH', `/customer/${customerId}`, payload, true, true);
+  };
+
+  return useMutation({
+    mutationFn: editCustomer,
+    onSuccess: async (response: any) => {
+      await queryClient.invalidateQueries({ queryKey: [QUERYKEYS.FETCH_CUSTOMERS] });
+      await queryClient.invalidateQueries({ queryKey: [QUERYKEYS.FETCH_CUSTOMER, id] });
+      showToast('Customer updated successfully!', 'success');
+      callback?.(`${appRoute.customers}/${id}`);
+    },
+    onError: (err: any) => {
+      showToast('Failed to edit customer. Please try again.', 'error');
+    },
+  });
+};
+
+export { useAddCustomer, useEditCustomer };
