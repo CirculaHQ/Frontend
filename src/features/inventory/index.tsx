@@ -41,6 +41,9 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const INVENTORY_IN = 'inventory-in';
+const INVENTORY_OUT = 'inventory-out';
+const PROCESSED_MATERIALS = 'processed-materials';
+const RAW_MATERIALS = 'raw-materials';
 const TOTAL_MATERIALS = 'Total materials';
 
 const tabs = [
@@ -61,10 +64,24 @@ const Inventory = () => {
   const reportsPerPage = 20;
   const [searchQuery, setSearchQuery] = useState('');
 
+  const getType = (tab: string) => {
+    switch (tab) {
+      case INVENTORY_IN:
+        return 'in';
+      case INVENTORY_OUT:
+        return 'out';
+      case PROCESSED_MATERIALS:
+        return 'processed';
+      case RAW_MATERIALS:
+        return 'raw';
+    }
+  };
+
   const queryParams = {
     limit: reportsPerPage,
     offset: (currentPage - 1) * reportsPerPage,
     search: searchQuery,
+    type: getType(currentTab),
   };
 
   const { data, isLoading } = useFetchInventory(queryParams);
@@ -80,7 +97,8 @@ const Inventory = () => {
     setCurrentPage(page);
   };
 
-  const handleDeleteInventory = async (id: string) => {
+  const handleDeleteInventory = async (e: any, id: string) => {
+    e.stopPropagation();
     await deleteInventory.mutateAsync(
       { id },
       {
@@ -93,6 +111,17 @@ const Inventory = () => {
 
   const handleChangeTab = (tab: string) => {
     setSearchParams({ tab });
+  };
+
+  const navigateToEditMaterial = (e: any, material: any) => {
+    e.stopPropagation();
+    navigate(appRoute.add_inventory, {
+      state: { type: material.type, inventoryData: { ...material, id: material.id } },
+    });
+  };
+
+  const exportMaterial = (e: any, material: any) => {
+    e.stopPropagation();
   };
 
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
@@ -217,7 +246,7 @@ const Inventory = () => {
           </div>
         </div>
       )}
-      <Tabs defaultValue={currentTab} onValueChange={handleChangeTab}>
+      <Tabs defaultValue={currentTab} onValueChange={handleChangeTab} className='overflow-x-auto'>
         <TabsList className='flex border-b text-left justify-start space-x-2'>
           {tabs.map((tab) => (
             <TabsTrigger
@@ -241,7 +270,6 @@ const Inventory = () => {
         </TabsContent> */}
       </Tabs>
       <FilterModule includeRegion={false} onSearchChange={handleSearchChange} />
-
       <div>
         {data?.results.length === 0 ? (
           <EmptyState
@@ -264,7 +292,11 @@ const Inventory = () => {
             </TableHeader>
             <TableBody>
               {data?.results.map((item) => (
-                <TableRow className='cursor-pointer' key={item.id}>
+                <TableRow
+                  className='cursor-pointer'
+                  key={item.id}
+                  onClick={() => navigate(`${appRoute.inventory}/${item.id}`)}
+                >
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
                       <span className='font-medium text-sm text-primary'>
@@ -312,21 +344,20 @@ const Inventory = () => {
                       >
                         <DropdownMenuItem
                           className='py-2  rounded-[8px]'
-                          onClick={() => {
-                            navigate(appRoute.add_inventory, {
-                              state: { type: item.type, inventoryData: { ...item, id: item.id } },
-                            });
-                          }}
+                          onClick={(e) => navigateToEditMaterial(e, item)}
                         >
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => exportMaterial(e, item)}
+                        >
                           <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className='py-2 rounded-[8px]'
-                          onClick={() => handleDeleteInventory(item.id)}
+                          onClick={(e) => handleDeleteInventory(e, item.id)}
                         >
                           <Icon name='trash' className='w-4 h-4 text-quaternary' />
                           Delete operation
@@ -376,14 +407,23 @@ const Inventory = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2  rounded-[8px]'
+                          onClick={(e) => navigateToEditMaterial(e, item)}
+                        >
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => exportMaterial(e, item)}
+                        >
                           <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => handleDeleteInventory(e, item.id)}
+                        >
                           <Icon name='trash' className='w-4 h-4 text-quaternary' />
                           Delete operation
                         </DropdownMenuItem>
