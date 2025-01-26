@@ -3,6 +3,7 @@ import {
   FilterModule,
   LineDistribution,
   ModuleHeader,
+  StatCard,
   TextBadge,
 } from '@/components/shared';
 import {
@@ -16,6 +17,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Icon,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -24,19 +30,30 @@ import {
   TablePagination,
   TableRow,
 } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useFetchInventory } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { capitalizeFirstLetter } from '@/utils/textFormatter';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
+const INVENTORY_IN = 'inventory-in';
+const TOTAL_MATERIALS = 'Total materials';
 
-const capitalizeFirstLetter = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+const tabs = [
+  { label: 'Inventory in', value: 'inventory-in' },
+  { label: 'Inventory out', value: 'inventory-out' },
+  { label: 'Raw materials', value: 'raw-materials' },
+  { label: 'Processed materials', value: 'processed-materials' },
+];
+
 const Inventory = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [summary, setSummary] = useState(TOTAL_MATERIALS);
+  const currentTab = searchParams.get('tab') ?? INVENTORY_IN;
   const deleteInventory = useDeleteInventory();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -74,6 +91,10 @@ const Inventory = () => {
     );
   };
 
+  const handleChangeTab = (tab: string) => {
+    setSearchParams({ tab });
+  };
+
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
     useFetchInventoryBreakdown();
 
@@ -85,7 +106,7 @@ const Inventory = () => {
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
         color: '#' + Math.floor(Math.random() * 16777215).toString(16),
         weight: quantity,
-        label: material,
+        label: capitalizeFirstLetter(material),
         value: `${quantity} kg`,
         percentage: `${((quantity / inventoryBreakdown.total_quantity) * 100).toFixed(1)}%`,
         subSegments: inventoryBreakdown.material_types[material]
@@ -100,10 +121,20 @@ const Inventory = () => {
     : [];
 
   if (isLoading) return <div>Loading...</div>;
+
   return (
     <div className='mb-10'>
       <ModuleHeader title='Inventory'>
         <div className='flex flex-row items-center gap-3'>
+          {!isMobile && (
+            <div className='flex flex-row items-center w-full justify-start gap-5'>
+              <DateRangePicker showRange={true} />
+              <div className='flex flex-row items-center gap-1'>
+                <span className='text-tertiary font-semibold text-sm'>All material</span>
+                <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+              </div>
+            </div>
+          )}
           <Button>Export</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -132,32 +163,86 @@ const Inventory = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        {isMobile && (
+          <div className='flex flex-row items-center w-full justify-start gap-5 mt-4'>
+            <DateRangePicker showRange={true} />
+            <div className='flex flex-row items-center gap-1'>
+              <span className='text-tertiary font-semibold text-sm'>All material</span>
+              <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+            </div>
+          </div>
+        )}
       </ModuleHeader>
-      <div className='flex flex-row items-center w-full justify-start gap-5 mt-8'>
-        <DateRangePicker />
-        <div className='flex flex-row items-center gap-1'>
-          <span className='text-tertiary font-semibold text-sm'>All material</span>
-          <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+      {!isMobile ? (
+        <div className='my-8 border-t border-border'>
+          <div className='grid grid-cols-3'>
+            <StatCard containerClassName='pt-6' label='Total material (kg)' value='292,400.00' />
+            <StatCard
+              containerClassName='pt-6 px-6 border-x border-x-border'
+              label='Raw material (kg)'
+              value='292,400.00'
+            />
+            <StatCard
+              containerClassName='pt-6 px-6'
+              label='Processed material (kg)'
+              value='292,400.00'
+            />
+          </div>
+          <div className='mt-4'>
+            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+          </div>
         </div>
-      </div>
-      <div className='mt-8'>
-        <div className='gap-2 flex flex-col'>
-          <h4 className='text-tertiary font-semibold text-sm'>Total Material (kilogram)</h4>
-          <h1 className='font-semibold text-primary text-3xl'>292,400.00</h1>
+      ) : (
+        <div className='my-8'>
+          <div className='flex justify-between'>
+            <StatCard label={`${summary} (kg)`} value='292,400.00' />
+            <Select
+              //value={summary}
+              onValueChange={(value) => setSummary(value)}
+            >
+              <SelectTrigger className='w-[110px] h-[36px]'>
+                <SelectValue placeholder='Summary' className='text-placeholder font-normal' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='Total material'>Total material</SelectItem>
+                <SelectItem value='Raw material'>Raw material</SelectItem>
+                <SelectItem value='Processed material'>Processed material</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='mt-4'>
+            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+          </div>
         </div>
-        <div className='mt-4'>
-          <span className='text-sm font-normal text-tertiary'>Material distribution</span>
-          <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
-        </div>
-      </div>
+      )}
+      <Tabs defaultValue={currentTab} onValueChange={handleChangeTab}>
+        <TabsList className='flex border-b text-left justify-start space-x-2'>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className={`px-1 py-2 rounded-none
+                ${
+                  currentTab === tab.value
+                    ? 'border-b-2 border-green-500 !text-green-600 font-medium'
+                    : 'text-gray-500 hover:text-gray-700'
+                }
+                  `}
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {/* <TabsContent value='profile'>
+        </TabsContent>
+        <TabsContent value='activity'>
+        </TabsContent> */}
+      </Tabs>
+      <FilterModule includeRegion={false} onSearchChange={handleSearchChange} />
 
-      <FilterModule
-        containerClass='mt-8'
-        includeRegion={false}
-        onSearchChange={handleSearchChange}
-      />
-
-      <div className='mt-2'>
+      <div>
         {data?.results.length === 0 ? (
           <EmptyState
             icon='inventory-empty'

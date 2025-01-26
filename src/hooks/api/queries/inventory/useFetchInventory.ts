@@ -47,7 +47,7 @@ const fetchInventory = async (params: InventoryQueryParams = {}): Promise<Invent
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value!)}`)
     .join('&');
 
-  return request('GET', `/inventory?${queryString}`, undefined, false);
+  return request('GET', `/inventory?${queryString}`, undefined, false, false);
 };
 
 export const useFetchInventory = (initialParams: InventoryQueryParams = {}) => {
