@@ -9,32 +9,38 @@ import {
 } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { useNavigate } from 'react-router-dom';
+import { useFetchCustomer } from '@/hooks/api/queries/contacts';
+import { capitalizeFirstLetterOfEachWord } from '@/utils/textFormatter';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const CustomerDetails = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const image = '';
+  const { data, isLoading } = useFetchCustomer(id);
+
+  if (isLoading) return <p>Fetching customer details...</p>;
+  if (!data) return <p>No customer data found</p>;
 
   const customerData = {
     'Personal information': {
-      Name: 'Zaid Schwartz',
-      'Date of birth': '2 November, 1989',
-      'Phone number': '+2348012345678',
-      'Email address': 'zaidwartz@circulahq.com',
-      'Role in value chain': 'Distributor',
+      Name: `${capitalizeFirstLetterOfEachWord(data.account_name)}`,
+      'Date of birth': `${data.date_of_birth || 'N/A'}`,
+      'Phone number': `${data.phone_number || 'N/A'}`,
+      'Email address': `${data.email || 'N/A'}`,
+      'Role in value chain': `${data?.role || 'N/A'}`,
       supportingText: 'Supporting text goes here',
     },
     'Personal address': {
-      Country: 'Ghana',
-      Address: '421 Berrylane Street',
-      District: 'Accra Metropolitan',
-      Region: 'Greater Accra',
+      Country: `${capitalizeFirstLetterOfEachWord(data.country || 'N/A')}`,
+      Address: `${capitalizeFirstLetterOfEachWord(data.address || 'N/A')}`,
+      District: `${capitalizeFirstLetterOfEachWord(data.lga || 'N/A')}`,
+      Region: `${capitalizeFirstLetterOfEachWord(data.state || 'N/A')}`,
       supportingText: 'Supporting text goes here',
     },
     'Bank details': {
-      'Bank name': 'Access Bank',
-      'Account number': '3456123497',
-      'Account name': 'Zaid Schwartz',
+      'Bank name': `${capitalizeFirstLetterOfEachWord(data.bank_name || 'N/A')}`,
+      'Account number': `${data.account_number || 'N/A'}`,
+      'Account name': `${capitalizeFirstLetterOfEachWord(data.account_name || 'N/A')}`,
       //   'Additional notes': 'SWIFT code: 1234',
       supportingText: 'Supporting text goes here',
     },
@@ -57,15 +63,21 @@ const CustomerDetails = () => {
   };
 
   return (
-    <div className='p-4'>
+    <div>
       <BackButton route={appRoute.customers} label='Back to customers' />
       <div className='flex justify-between items-center mb-6'>
         <div className='mr-4'>
           <div className='bg-[#F5F5F5] rounded-full w-[56px] h-[56px] border flex flex-col items-center justify-center'>
-            {!image ? (
+            {!data.photo ? (
               <Icon name='persona' className='w-9 h-9 rounded-full' />
             ) : (
-              <img src='' width={56} height={56} alt='pics' className='object-cover rounded-full' />
+              <img
+                src={data.photo}
+                width={56}
+                height={56}
+                alt='pics'
+                className='object-cover rounded-full'
+              />
             )}
           </div>
         </div>
@@ -86,7 +98,12 @@ const CustomerDetails = () => {
                 <DropdownMenuItem className='py-2 rounded-[8px]'>Action three</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button>Edit details</Button>
+            <Button
+              type='button'
+              onClick={() => navigate(`${appRoute.add_customer}?type=${data.type}&id=${data.id}`)}
+            >
+              Edit details
+            </Button>
             <Button>Contact</Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
