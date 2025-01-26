@@ -112,7 +112,7 @@ const AddInventory = () => {
         className='mb-10'
       >
         <div className='flex flex-row items-center gap-3'>
-          <Button variant='outline' onClick={() => navigate(appRoute.vendors)}>
+          <Button variant='outline' onClick={() => navigate(appRoute.inventory)}>
             Cancel
           </Button>
           <Button variant='secondary'>Add to inventory</Button>
