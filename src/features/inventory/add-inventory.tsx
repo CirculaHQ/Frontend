@@ -95,7 +95,7 @@ const AddInventory = () => {
   });
 
   return (
-    <div className='md:p-6 mx-auto'>
+    <div className='mx-auto'>
       <button
         onClick={() => navigate(appRoute.inventory)}
         className='text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4'
@@ -112,7 +112,7 @@ const AddInventory = () => {
         className='mb-10'
       >
         <div className='flex flex-row items-center gap-3'>
-          <Button variant='outline' onClick={() => navigate(appRoute.vendors)}>
+          <Button variant='outline' onClick={() => navigate(appRoute.inventory)}>
             Cancel
           </Button>
           <Button variant='secondary'>Add to inventory</Button>
