@@ -56,9 +56,6 @@ const Signup = () => {
           navigate(appRoute.sign_up_confirmation, { state: { email: formData.email } });
         }
       },
-      onError: (error) => {
-        console.error('Signup error:', error);
-      },
     });
   };
 

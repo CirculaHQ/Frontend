@@ -3,6 +3,7 @@ import {
   FilterModule,
   LineDistribution,
   ModuleHeader,
+  StatCard,
   TextBadge,
 } from '@/components/shared';
 import {
@@ -16,6 +17,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Icon,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -24,18 +30,33 @@ import {
   TablePagination,
   TableRow,
 } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useFetchInventory } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { capitalizeFirstLetter } from '@/utils/textFormatter';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const capitalizeFirstLetter = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+const INVENTORY_IN = 'inventory-in';
+const INVENTORY_OUT = 'inventory-out';
+const PROCESSED_MATERIALS = 'processed-materials';
+const RAW_MATERIALS = 'raw-materials';
+const TOTAL_MATERIALS = 'Total materials';
+
+const tabs = [
+  { label: 'Inventory in', value: 'inventory-in' },
+  { label: 'Inventory out', value: 'inventory-out' },
+  { label: 'Raw materials', value: 'raw-materials' },
+  { label: 'Processed materials', value: 'processed-materials' },
+];
+
 const Inventory = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [summary, setSummary] = useState(TOTAL_MATERIALS);
+  const currentTab = searchParams.get('tab') ?? INVENTORY_IN;
   const deleteInventory = useDeleteInventory();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -43,10 +64,24 @@ const Inventory = () => {
   const reportsPerPage = 20;
   const [searchQuery, setSearchQuery] = useState('');
 
+  const getType = (tab: string) => {
+    switch (tab) {
+      case INVENTORY_IN:
+        return 'in';
+      case INVENTORY_OUT:
+        return 'out';
+      case PROCESSED_MATERIALS:
+        return 'processed';
+      case RAW_MATERIALS:
+        return 'raw';
+    }
+  };
+
   const queryParams = {
     limit: reportsPerPage,
     offset: (currentPage - 1) * reportsPerPage,
     search: searchQuery,
+    type: getType(currentTab),
   };
 
   const { data, isLoading } = useFetchInventory(queryParams);
@@ -62,7 +97,8 @@ const Inventory = () => {
     setCurrentPage(page);
   };
 
-  const handleDeleteInventory = async (id: string) => {
+  const handleDeleteInventory = async (e: any, id: string) => {
+    e.stopPropagation();
     await deleteInventory.mutateAsync(
       { id },
       {
@@ -71,6 +107,21 @@ const Inventory = () => {
         },
       }
     );
+  };
+
+  const handleChangeTab = (tab: string) => {
+    setSearchParams({ tab });
+  };
+
+  const navigateToEditMaterial = (e: any, material: any) => {
+    e.stopPropagation();
+    navigate(appRoute.add_inventory, {
+      state: { type: material.type, inventoryData: { ...material, id: material.id } },
+    });
+  };
+
+  const exportMaterial = (e: any, material: any) => {
+    e.stopPropagation();
   };
 
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
@@ -84,7 +135,7 @@ const Inventory = () => {
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
         color: '#' + Math.floor(Math.random() * 16777215).toString(16),
         weight: quantity,
-        label: material,
+        label: capitalizeFirstLetter(material),
         value: `${quantity} kg`,
         percentage: `${((quantity / inventoryBreakdown.total_quantity) * 100).toFixed(1)}%`,
         subSegments: inventoryBreakdown.material_types[material]
@@ -98,11 +149,21 @@ const Inventory = () => {
       }))
     : [];
 
-  if (isLoading) return <div>Loading Inventories...</div>;
+  if (isLoading) return <div>Loading...</div>;
+
   return (
     <div className='mb-10'>
       <ModuleHeader title='Inventory'>
         <div className='flex flex-row items-center gap-3'>
+          {!isMobile && (
+            <div className='flex flex-row items-center w-full justify-start gap-5'>
+              <DateRangePicker showRange={true} />
+              <div className='flex flex-row items-center gap-1'>
+                <span className='text-tertiary font-semibold text-sm'>All material</span>
+                <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+              </div>
+            </div>
+          )}
           <Button>Export</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -131,32 +192,85 @@ const Inventory = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        {isMobile && (
+          <div className='flex flex-row items-center w-full justify-start gap-5 mt-4'>
+            <DateRangePicker showRange={true} />
+            <div className='flex flex-row items-center gap-1'>
+              <span className='text-tertiary font-semibold text-sm'>All material</span>
+              <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+            </div>
+          </div>
+        )}
       </ModuleHeader>
-      <div className='flex flex-row items-center w-full justify-start gap-5 mt-8'>
-        <DateRangePicker />
-        <div className='flex flex-row items-center gap-1'>
-          <span className='text-tertiary font-semibold text-sm'>All material</span>
-          <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+      {!isMobile ? (
+        <div className='my-8 border-t border-border'>
+          <div className='grid grid-cols-3'>
+            <StatCard containerClassName='pt-6' label='Total material (kg)' value='292,400.00' />
+            <StatCard
+              containerClassName='pt-6 px-6 border-x border-x-border'
+              label='Raw material (kg)'
+              value='292,400.00'
+            />
+            <StatCard
+              containerClassName='pt-6 px-6'
+              label='Processed material (kg)'
+              value='292,400.00'
+            />
+          </div>
+          <div className='mt-4'>
+            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+          </div>
         </div>
-      </div>
-      <div className='mt-8'>
-        <div className='gap-2 flex flex-col'>
-          <h4 className='text-tertiary font-semibold text-sm'>Total Material (kilogram)</h4>
-          <h1 className='font-semibold text-primary text-3xl'>292,400.00</h1>
+      ) : (
+        <div className='my-8'>
+          <div className='flex justify-between'>
+            <StatCard label={`${summary} (kg)`} value='292,400.00' />
+            <Select
+              //value={summary}
+              onValueChange={(value) => setSummary(value)}
+            >
+              <SelectTrigger className='w-[110px] h-[36px]'>
+                <SelectValue placeholder='Summary' className='text-placeholder font-normal' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='Total material'>Total material</SelectItem>
+                <SelectItem value='Raw material'>Raw material</SelectItem>
+                <SelectItem value='Processed material'>Processed material</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='mt-4'>
+            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+          </div>
         </div>
-        <div className='mt-4'>
-          <span className='text-sm font-normal text-tertiary'>Material distribution</span>
-          <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
-        </div>
-      </div>
-
-      <FilterModule
-        containerClass='mt-8'
-        includeRegion={false}
-        onSearchChange={handleSearchChange}
-      />
-
-      <div className='mt-2'>
+      )}
+      <Tabs defaultValue={currentTab} onValueChange={handleChangeTab} className='overflow-x-auto'>
+        <TabsList className='flex border-b text-left justify-start space-x-2'>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className={`px-1 py-2 rounded-none
+                ${
+                  currentTab === tab.value
+                    ? 'border-b-2 border-green-500 !text-green-600 font-medium'
+                    : 'text-gray-500 hover:text-gray-700'
+                }
+                  `}
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {/* <TabsContent value='profile'>
+        </TabsContent>
+        <TabsContent value='activity'>
+        </TabsContent> */}
+      </Tabs>
+      <FilterModule includeRegion={false} onSearchChange={handleSearchChange} />
+      <div>
         {data?.results.length === 0 ? (
           <EmptyState
             icon='inventory-empty'
@@ -178,7 +292,11 @@ const Inventory = () => {
             </TableHeader>
             <TableBody>
               {data?.results.map((item) => (
-                <TableRow className='cursor-pointer' key={item.id}>
+                <TableRow
+                  className='cursor-pointer'
+                  key={item.id}
+                  onClick={() => navigate(`${appRoute.inventory}/${item.id}`)}
+                >
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
                       <span className='font-medium text-sm text-primary'>
@@ -226,21 +344,20 @@ const Inventory = () => {
                       >
                         <DropdownMenuItem
                           className='py-2  rounded-[8px]'
-                          onClick={() => {
-                            navigate(appRoute.add_inventory, {
-                              state: { type: item.type, inventoryData: { ...item, id: item.id } },
-                            });
-                          }}
+                          onClick={(e) => navigateToEditMaterial(e, item)}
                         >
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => exportMaterial(e, item)}
+                        >
                           <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className='py-2 rounded-[8px]'
-                          onClick={() => handleDeleteInventory(item.id)}
+                          onClick={(e) => handleDeleteInventory(e, item.id)}
                         >
                           <Icon name='trash' className='w-4 h-4 text-quaternary' />
                           Delete operation
@@ -290,14 +407,23 @@ const Inventory = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2  rounded-[8px]'
+                          onClick={(e) => navigateToEditMaterial(e, item)}
+                        >
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => exportMaterial(e, item)}
+                        >
                           <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => handleDeleteInventory(e, item.id)}
+                        >
                           <Icon name='trash' className='w-4 h-4 text-quaternary' />
                           Delete operation
                         </DropdownMenuItem>

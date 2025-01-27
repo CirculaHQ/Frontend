@@ -1,5 +1,5 @@
-import request from "@/utils/api";
-import { useQuery } from "react-query";
+import request from '@/utils/api';
+import { useQuery } from 'react-query';
 
 export interface InventoryBreakdown {
   total_quantity: number;
@@ -14,7 +14,7 @@ export interface InventoryBreakdown {
   count: number;
 }
 
- const getInventoryBreakdown = async (): Promise<InventoryBreakdown> => {
+const getInventoryBreakdown = async (): Promise<InventoryBreakdown> => {
   const response = await request<InventoryBreakdown>(
     'GET',
     '/inventory/breakdown',
@@ -26,22 +26,16 @@ export interface InventoryBreakdown {
 };
 
 export const useFetchInventoryBreakdown = () => {
-    const {
-      data,
-      isLoading,
-      isError,
-      error,
-      refetch,
-    } = useQuery<InventoryBreakdown>(
-      'inventoryBreakdown', 
-      getInventoryBreakdown
-    );
-  
-    return {
-      data,
-      isLoading,
-      isError,
-      error,
-      refetch,
-    };
+  const { data, isLoading, isError, error, refetch } = useQuery<InventoryBreakdown>(
+    'inventoryBreakdown',
+    getInventoryBreakdown
+  );
+
+  return {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
   };
+};

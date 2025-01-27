@@ -51,7 +51,7 @@ const handleApiError = (error: AxiosError, showError: boolean, show404Error: boo
       message:
         statusCode >= 500 || status >= 500
           ? 'Oops! Something went wrong on our end. Please try again later.'
-          : showError && formatErrorDetail(data.detail || data.message),
+          : showError && formatErrorDetail(data?.error),
       status: status,
       statusCode: statusCode,
     };

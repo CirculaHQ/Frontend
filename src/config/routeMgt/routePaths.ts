@@ -31,4 +31,6 @@ export const appRoute = {
   add_vendor: `/vendors/add-vendor`,
   vendor_details: `/vendors/vendor-details`,
   customer_details: `/customers/customer-details`,
+
+  add_customer: `/customers/add-customer`,
 };

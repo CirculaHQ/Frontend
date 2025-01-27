@@ -219,7 +219,7 @@ export function AppSidebar() {
                       /> */}
 
                       <div>
-                        <p className='text-primary font-semibold'>
+                        <p className='text-primary font-semibold capitalize'>
                           {userProfile.first_name} {userProfile.last_name}
                         </p>
                         <p className='text-tertiary font-normal text-sm'>{userProfile.email}</p>

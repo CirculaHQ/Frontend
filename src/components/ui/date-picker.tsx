@@ -115,9 +115,9 @@ export function DatePicker({
           {selectedDate ? (
             <span>
               {format(selectedDate, "PP")} {/* Display date */}
-              <span className="text-muted-foreground ml-2">
-                ({getAge(selectedDate)} years old) {/* Show age */}
-              </span>
+              {/* <span className="text-muted-foreground ml-2">
+                ({getAge(selectedDate)} years old)
+              </span> */}
             </span>
           ) : (
             <span className="text-sm text-placeholder">{placeholder}</span>
