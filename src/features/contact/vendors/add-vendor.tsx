@@ -23,7 +23,6 @@ const AddVendor = () => {
   const type = searchParams.get('type');
   const isBusiness = type === 'business';
 
-  console.log(type);
   const formik = useFormik({
     initialValues: {
       businessName: '',
