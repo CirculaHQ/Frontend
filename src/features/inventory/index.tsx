@@ -155,8 +155,6 @@ const Inventory = () => {
       }))
     : [];
 
-  console.log(inventoryBreakdown);
-
   if (isLoading) return <div>Loading...</div>;
 
   return (
