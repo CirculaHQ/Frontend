@@ -4,7 +4,11 @@ import { FormSection } from '@/components/shared';
 import { Button, Input } from '@/components/ui';
 import { CheckCircle } from 'lucide-react';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { getUserProfile, sendOTPEmail, updatePassword } from '@/hooks/api/mutations/settings/user-profile';
+import {
+  getUserProfile,
+  sendOTPEmail,
+  updatePassword,
+} from '@/hooks/api/mutations/settings/user-profile';
 import { useMutation } from 'react-query';
 
 interface AccountSettingsProps {
@@ -47,7 +51,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = () => {
       },
       onError: (error: any) => {
         console.log(error);
-        },
+      },
     }
   );
 
@@ -81,17 +85,14 @@ const AccountSettings: React.FC<AccountSettingsProps> = () => {
 
   const { mutate: sendOTP } = useMutation(sendOTPEmail, {
     onSuccess: () => {
-      navigate(appRoute.sign_up_confirmation, { 
-        state: { email: newEmail, from: 'accountSettings' } 
+      navigate(appRoute.sign_up_confirmation, {
+        state: { email: newEmail, from: 'accountSettings' },
       });
     },
-    onError: (error: any) => {
-      console.error('Error sending OTP:', error);
-    }
   });
 
   const handleUpdateEmail = () => {
-    sendOTP({ email: newEmail }); 
+    sendOTP({ email: newEmail });
   };
 
   const handleUpdatePassword = () => {
@@ -190,8 +191,13 @@ const AccountSettings: React.FC<AccountSettingsProps> = () => {
           <Button variant='outline' onClick={handleCancelPasswordUpdate}>
             Cancel
           </Button>
-          <Button type='button' variant='secondary' onClick={handleUpdatePassword} disabled={isUpdatingPassword}>
-          {isUpdatingPassword ? 'Updating...' : 'Update password'}
+          <Button
+            type='button'
+            variant='secondary'
+            onClick={handleUpdatePassword}
+            disabled={isUpdatingPassword}
+          >
+            {isUpdatingPassword ? 'Updating...' : 'Update password'}
           </Button>
         </div>
       )}

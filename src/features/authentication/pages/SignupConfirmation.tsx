@@ -33,12 +33,9 @@ const SignupConfirmation = () => {
   const { mutate: updateEmailAddress } = useMutation(updateEmail, {
     onSuccess: () => {
       if (from === 'accountSettings') {
-        navigate(appRoute.settings); 
-      } 
+        navigate(appRoute.settings);
+      }
     },
-    onError: (error: any) => {
-      console.error('Error updating email:', error);
-    }
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -46,29 +43,34 @@ const SignupConfirmation = () => {
 
     if (from === 'accountSettings') {
       updateEmailAddress({ email, otp: verificationCode });
+    } else if (from === 'forgotPassword') {
+      navigate(appRoute.reset_password, {
+        state: {
+          email,
+          otp: verificationCode,
+        },
+      });
     } else {
-    confirmCode(
-      { email, otp: verificationCode },
-      {
-        onError: (err: any) => {
-          showToast(err, 'error');
-        },
-        onSuccess: (res: any) => {
-          const result = res;
-          if (
-            signIn({
-              token: result.access,
-              tokenType: 'Bearer',
-              authState: result.user,
-              expiresIn: 180,
-            })
-          ) {
-            showToast('Account verified successfully!', 'success');
-          }
-        },
-      }
-    );
-  };}
+      confirmCode(
+        { email, otp: verificationCode },
+        {
+          onSuccess: (res: any) => {
+            const result = res;
+            if (
+              signIn({
+                token: result.access,
+                tokenType: 'Bearer',
+                authState: result.user,
+                expiresIn: 180,
+              })
+            ) {
+              showToast('Account verified successfully!', 'success');
+            }
+          },
+        }
+      );
+    }
+  };
 
   return (
     <>

@@ -10,31 +10,25 @@ type ResponseType = {
 
 type InputType = {
   email: string;
-  password: string;
-  confirm_password: string;
-  otp: string;
 };
 
 type ErrorType = { error: string; success: boolean };
 
-const ForgotPassword = (input: InputType): Promise<AxiosResponse<ResponseType>> => {
+const SendOtp = (input: InputType): Promise<AxiosResponse<ResponseType>> => {
   return request(
     'POST',
-    `/auth/login`,
+    `/otp/send`,
     {
       email: input.email,
-      password: input.password,
-      confirm_password: input.password,
-      otp: input.otp,
     },
     false
   );
 };
 
-const useForgotPassword = () => {
+const useSendOtp = () => {
   return useMutation<AxiosResponse<ResponseType>, AxiosError<ErrorType>, InputType>(
-    (input: InputType) => ForgotPassword(input)
+    (input: InputType) => SendOtp(input)
   );
 };
 
-export { useForgotPassword };
+export { useSendOtp };

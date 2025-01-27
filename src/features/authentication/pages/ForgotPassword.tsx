@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Icon } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useNavigate } from 'react-router-dom';
+import { useFormik } from 'formik';
+import { EmailSchema } from '@/validation-schema/auth';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [verificationCode, setVerificationCode] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Verification code submitted:', verificationCode);
-  };
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+    },
+    validationSchema: EmailSchema,
+    onSubmit: (values) => {
+      navigate(appRoute.sign_up_confirmation, { state: { email: values.email, from: 'forgotPassword' } });
+    },
+  });
 
   return (
     <div
@@ -34,30 +38,26 @@ const ForgotPassword = () => {
           code to rest your password.
         </p>
 
-        <form onSubmit={handleSubmit}>
-          <div className='mb-5'>
+        <form onSubmit={formik.handleSubmit}>
+          <div>
             <label htmlFor='email' className='block text-sm font-medium text-gray-700'>
               Email
             </label>
             <Input
               id='email'
               type='email'
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder='johndoe@circulahq.com'
               className='mt-2 block w-full p-2 border border-gray-300 rounded-md focus:ring-[var(color-brand-secondary)] sm:text-sm'
             />
           </div>
 
-          {/* Additional Information */}
-          {/* <p className="text-sm text-gray-500 mt-2">
-            Enter the verification code we sent to email.
-          </p> */}
-
           <Button
             type='submit'
-            disabled={!verificationCode}
-            className='w-full mt-7 bg-black text-white text-sm font-medium py-2 rounded-md hover:bg-[var(--color-brand-tertiary-alt)]'
+            disabled={!formik.isValid || !formik.dirty}
+            className='w-full mt-8 bg-black text-white text-sm font-medium py-2 rounded-md hover:bg-[var(--color-brand-tertiary-alt)]'
           >
             Send verification code
           </Button>
