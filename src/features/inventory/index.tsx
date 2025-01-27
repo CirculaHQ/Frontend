@@ -31,6 +31,7 @@ import {
   TableRow,
 } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { materials } from '@/config/materials';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
@@ -131,9 +132,14 @@ const Inventory = () => {
     return <div>Loading material distribution...</div>;
   }
 
+  const getMaterialColor = (material: string) => {
+    return materials.find((item: any) => item.name === material)?.backgroundColor ?? '';
+  };
+
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
-        color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+        // color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+        color: getMaterialColor(material),
         weight: quantity,
         label: capitalizeFirstLetter(material),
         value: `${quantity} kg`,
@@ -148,6 +154,8 @@ const Inventory = () => {
           : [],
       }))
     : [];
+
+  console.log(inventoryBreakdown);
 
   if (isLoading) return <div>Loading...</div>;
 
