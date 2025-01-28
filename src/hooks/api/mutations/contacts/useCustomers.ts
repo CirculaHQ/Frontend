@@ -9,7 +9,7 @@ const useAddCustomer = (callback?: (e: any) => void) => {
   const queryClient = useQueryClient();
 
   const addCustomer = async (data: AddCustomerPayload): Promise<AddCustomerResponse> => {
-    const response = await request<AddCustomerResponse>('POST', `/customer`, data, true, true);
+    const response = await request<AddCustomerResponse>('POST', `/customer`, data, false, false);
     return response;
   };
 
@@ -42,8 +42,8 @@ const useEditCustomer = (callback?: (e: any) => void) => {
       'PATCH',
       `/customer/${customerId}`,
       payload,
-      true,
-      true
+      false,
+      false
     );
   };
 

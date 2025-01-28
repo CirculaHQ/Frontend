@@ -10,6 +10,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchCustomer } from '@/hooks/api/queries/contacts';
+import { BUSINESS } from '@/types';
 import { capitalizeFirstLetterOfEachWord } from '@/utils/textFormatter';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -17,13 +18,16 @@ const CustomerDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data, isLoading } = useFetchCustomer(id);
+  const isBusiness = data?.type === BUSINESS;
 
   if (isLoading) return <p>Fetching customer details...</p>;
   if (!data) return <p>No customer data found</p>;
 
+  const name = isBusiness ? data?.business_name : `${data?.first_name} ${data?.last_name}`;
+
   const customerData = {
     'Personal information': {
-      Name: `${capitalizeFirstLetterOfEachWord(data.account_name)}`,
+      Name: capitalizeFirstLetterOfEachWord(name),
       'Date of birth': `${data.date_of_birth || 'N/A'}`,
       'Phone number': `${data.phone_number || 'N/A'}`,
       'Email address': `${data.email || 'N/A'}`,
