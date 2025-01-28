@@ -18,7 +18,7 @@ import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { useAddCustomer, useEditCustomer } from '@/hooks/api/mutations/contacts';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
-import { banks, countries, states } from '@/mocks';
+import { countries, states } from '@/mocks';
 import { AccountType, BUSINESS, INDIVIDUAL } from '@/types';
 import { useFetchCustomer } from '@/hooks/api/queries/contacts';
 
@@ -336,27 +336,17 @@ export default function AddCustomer() {
           </div>
         </FormSection>
         <FormSection title='Bank Details' description='Supporting text goes here'>
-          <div className='w-full flex flex-col gap-1.5'>
-            <Label>Bank name</Label>
-            <Select
-              value={formik.values.bank_name}
-              onValueChange={(value) => formik.setFieldValue('bank_name', value)}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder='Select your bank name'
-                  className='text-placeholder font-normal'
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {banks.map((bank) => (
-                  <SelectItem key={bank.label} value={bank.value}>
-                    {bank.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Input
+            id='bank-name'
+            type='text'
+            //placeholder=''
+            label='Bank name'
+            name='bank_name'
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.bank_name}
+            errorMessage={formik.errors.bank_name && formik.touched.bank_name ? formik.errors.bank_name : ''}
+          />
           <Input
             id='account-number'
             type='text'
