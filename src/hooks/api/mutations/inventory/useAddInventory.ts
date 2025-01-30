@@ -19,7 +19,7 @@ interface AddInventoryPayload {
 
 type ErrorType = { error: string; success: boolean };
 const AddInventory = async (payload: AddInventoryPayload): Promise<any> => {
-  return await request<any>(
+  return await request(
     'POST',
     '/inventory',
     payload,

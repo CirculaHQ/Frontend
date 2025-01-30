@@ -319,7 +319,7 @@ const Inventory = () => {
                         <AvatarImage src='https://github.com/shadcn.png' />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
-                      <span className='text-sm text-tertiary'>{item.vendor}</span>
+                      <span className='text-sm text-tertiary'>{item.vendor.account_name}</span>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>

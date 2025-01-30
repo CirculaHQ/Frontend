@@ -17,9 +17,15 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useAddInventory, useUpdateInventory } from '@/hooks/api/mutations/inventory';
+import {
+  CustomMaterial,
+  CustomMaterialType,
+  getCustomMaterials,
+  getCustomMaterialTypes,
+} from '@/hooks/api/mutations/settings/custom-material';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import { useFormik } from 'formik';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const AddInventory = () => {
@@ -31,6 +37,38 @@ const AddInventory = () => {
   const inventoryType = location.state?.type || 'in';
   const inventoryDataToEdit = location.state?.inventoryData;
   const isEditMode = !!inventoryDataToEdit;
+
+  const [customMaterials, setCustomMaterials] = useState<CustomMaterial[]>([]);
+  const [materialTypes, setMaterialTypes] = useState<CustomMaterialType[]>([]);
+  const [selectedMaterial, setSelectedMaterial] = useState('');
+
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const response = await getCustomMaterials();
+        setCustomMaterials(response.results);
+      } catch (error) {
+        console.error('Failed to fetch materials:', error);
+      }
+    };
+
+    fetchMaterials();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedMaterial) return;
+
+    const fetchMaterialTypes = async () => {
+      try {
+        const response = await getCustomMaterialTypes(10, 0, selectedMaterial);
+        setMaterialTypes(response.results);
+      } catch (error) {
+        console.error('Failed to fetch material types:', error);
+      }
+    };
+
+    fetchMaterialTypes();
+  }, [selectedMaterial]);
 
   useEffect(() => {
     if (isEditMode && inventoryDataToEdit) {
@@ -85,8 +123,9 @@ const AddInventory = () => {
             quantity: Number(values.quantity),
           },
           {
-            onSuccess: (data) => {
-              navigate(appRoute.inventory_details(data.id).path);
+            onSuccess: (response) => {
+              const { id } = response as unknown as { id: string };
+              navigate(appRoute.inventory_details(id).path);
             },
           }
         );
@@ -264,7 +303,10 @@ const AddInventory = () => {
             <Label>Material </Label>
             <Select
               value={formik.values.material}
-              onValueChange={(value) => formik.setFieldValue('material', value)}
+              onValueChange={(value) => {
+                formik.setFieldValue('material', value);
+                setSelectedMaterial(value);
+              }}
             >
               <SelectTrigger>
                 <SelectValue
@@ -273,8 +315,11 @@ const AddInventory = () => {
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='plastic'>Plastic</SelectItem>
-                <SelectItem value='glass'>Glass</SelectItem>
+                {customMaterials.map((material) => (
+                  <SelectItem key={material.id} value={material.id}>
+                    {material.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -292,8 +337,11 @@ const AddInventory = () => {
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='polyethene'>Polyethene</SelectItem>
-                <SelectItem value='glass'>Glass</SelectItem>
+                {materialTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

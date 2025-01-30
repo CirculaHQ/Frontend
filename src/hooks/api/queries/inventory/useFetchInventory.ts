@@ -23,7 +23,14 @@ interface InventoryResponse {
   results: Inventory[];
 }
 
-interface Inventory {
+interface Vendor {
+  account_name: number;
+  email: string | null;
+  first_name: string | null;
+  last_name: Inventory[];
+}
+
+export interface Inventory {
   id: string;
   created_at: string;
   updated_at: string;
@@ -36,7 +43,7 @@ interface Inventory {
   amount: string;
   quantity: number;
   code: string;
-  vendor: string;
+  vendor: Vendor;
   customer: string;
   user: string;
 }
