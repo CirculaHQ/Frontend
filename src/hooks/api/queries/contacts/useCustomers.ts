@@ -6,8 +6,6 @@ import { useState } from 'react';
 import { useQuery } from 'react-query';
 
 const useFetchCustomers = (params: CustomersParams) => {
-  const [isInitialFetch, setIsInitialFetch] = useState(true);
-
   const fetchCustomers = async (): Promise<CustomersResponse> => {
     return await request<CustomersResponse>(
       'GET',
@@ -24,14 +22,11 @@ const useFetchCustomers = (params: CustomersParams) => {
     queryFn: () => fetchCustomers(),
     select: (res) => res,
     retry: false,
-    onSuccess: () => {
-      setIsInitialFetch(false);
-    },
+    keepPreviousData: true,
   });
 
   return {
     data,
-    isInitialFetch,
     isLoading,
     isError,
     error,
@@ -54,18 +49,15 @@ const useFetchCustomer = (id?: string) => {
 };
 
 const useExportCustomers = () => {
-  const exportCustomers = async (): Promise<Customer> => {
-    return await request<Customer>('GET', `/customer/export`, null, true, true, '', false, true);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const exportCustomers = async () => {
+    setIsLoading(true);
+    await request<Customer>('GET', `/customer/export`, null, true, true, '', false, true);
+    setIsLoading(false);
   };
 
-  const { isLoading, data } = useQuery<Customer>({
-    refetchOnWindowFocus: false,
-    queryFn: () => exportCustomers(),
-    select: (res) => res,
-    retry: false,
-  });
-
-  return { data, isLoading, exportCustomers };
+  return { isLoading, exportCustomers };
 };
 
 export { useFetchCustomers, useFetchCustomer, useExportCustomers };

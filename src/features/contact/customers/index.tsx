@@ -19,7 +19,7 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useEditCustomer } from '@/hooks/api/mutations/contacts';
-import { useFetchCustomers } from '@/hooks/api/queries/contacts';
+import { useExportCustomers, useFetchCustomers } from '@/hooks/api/queries/contacts';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Customer } from '@/types/customers';
 import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
@@ -42,10 +42,9 @@ const Customers = () => {
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const [params, setParams] = useState({ ...initialParams });
-  const { data, isLoading, isInitialFetch } = useFetchCustomers(params);
+  const { data, isLoading } = useFetchCustomers(params);
+  const { exportCustomers, isLoading: isExporting } = useExportCustomers();
   const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer(() => {});
-
-  if (isInitialFetch) return <p>Loading...</p>;
 
   const customers = data?.results || [];
   const totalPages = data ? Math.ceil(data.count / limit) : 0;
@@ -79,9 +78,7 @@ const Customers = () => {
     editCustomer({ customerId: id, payload: { archived: !customer.archived } });
   };
 
-  const exportAllCustomers = async () => {
-    //await exportCustomers()
-  };
+  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div>
@@ -90,7 +87,9 @@ const Customers = () => {
           <Button disabled={isLoading} onClick={toggleArchive}>
             {!params.archived ? 'Show' : 'Hide'} archive
           </Button>
-          <Button onClick={exportAllCustomers}>Export</Button>
+          <Button onClick={exportCustomers} disabled={isExporting} isLoading={isExporting}>
+            Export
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='secondary'>Add customer</Button>
