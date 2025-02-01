@@ -107,7 +107,7 @@ export function DatePicker({
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-between text-left font-normal",
+            "w-full justify-between text-left font-normal h-[40px]",
             !selectedDate && "text-muted-foreground"
           )}
           contentClassName="flex items-center justify-between w-full"
