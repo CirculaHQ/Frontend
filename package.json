@@ -84,6 +84,9 @@
   "husky": {
     "hooks": {
       "pre-commit": "yarn precommit"
-    }
+    },
+    "**/*.{ts,tsx}": [
+      "prettier --write"
+    ]
   }
 }
