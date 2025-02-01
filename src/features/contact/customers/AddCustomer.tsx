@@ -21,14 +21,17 @@ import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import { countries, states } from '@/mocks';
 import { AccountType, BUSINESS, INDIVIDUAL } from '@/types';
 import { useFetchCustomer } from '@/hooks/api/queries/contacts';
+import { uploadToCloudinary } from '@/utils/cloudinary-helper';
+import { Customer } from '@/types/customers';
 
 export default function AddCustomer() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { userID } = useGetUserInfo();
   const [state, setState] = useState({
-    selectedFile: '',
+    selectedFile: null,
     preview: '',
+    isUploading: false,
   });
   const customerType = searchParams.get('type')?.toLowerCase() ?? INDIVIDUAL;
   const isBusiness = customerType === BUSINESS;
@@ -62,8 +65,18 @@ export default function AddCustomer() {
       notes: '',
       address: '',
     },
-    onSubmit: (values) => {
-      const payload = { ...values, type: customerType as AccountType, user: userID };
+    onSubmit: async (values) => {
+      let payload = { ...values, type: customerType as AccountType, user: userID } as Customer;
+
+      if (state.selectedFile) {
+        setState({ ...state, isUploading: true });
+        const res = await uploadToCloudinary(state.selectedFile);
+        if ('secure_url' in res) {
+          payload.photo = res?.secure_url;
+        }
+        setState({ ...state, isUploading: false });
+      }
+
       if (!customerId) {
         addCustomer(payload);
       } else {
@@ -135,11 +148,11 @@ export default function AddCustomer() {
             <div className='flex items-center gap-4'>
               <div className='bg-white p-[3px] rounded-2xl shadow-md'>
                 <div className='bg-[#F5F5F5] rounded-2xl w-[72px] h-[72px] border border-[#D5D7DA] flex flex-col items-center justify-center'>
-                  {!state.selectedFile ? (
+                  {!data?.photo && !state.selectedFile ? (
                     <Icon name='persona' className='w-9 h-9' />
                   ) : (
                     <img
-                      src={state.preview}
+                      src={state.preview || data?.photo}
                       alt='pics'
                       width={72}
                       height={72}
@@ -345,7 +358,9 @@ export default function AddCustomer() {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.bank_name}
-            errorMessage={formik.errors.bank_name && formik.touched.bank_name ? formik.errors.bank_name : ''}
+            errorMessage={
+              formik.errors.bank_name && formik.touched.bank_name ? formik.errors.bank_name : ''
+            }
           />
           <Input
             id='account-number'
@@ -395,10 +410,10 @@ export default function AddCustomer() {
             Cancel
           </Button>
           <Button
-            disabled={button.loading}
+            disabled={button.loading || state.isUploading}
             type='submit'
             variant='secondary'
-            isLoading={button.loading}
+            isLoading={button.loading || state.isUploading}
           >
             {button.name} customer
           </Button>
