@@ -17,10 +17,13 @@ import {
   TablePagination,
   TableRow,
 } from '@/components/ui';
+import { appRoute } from '@/config/routeMgt/routePaths';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Vendors = () => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20; // Adjust as needed
@@ -45,8 +48,8 @@ const Vendors = () => {
               align='end'
               className='text-sm font-medium text-secondary rounded-[8px] px-1'
             >
-              <DropdownMenuItem className='py-2  rounded-[8px] justify-between'>Business <TextBadge text='B'/></DropdownMenuItem>
-              <DropdownMenuItem className='py-2 rounded-[8px] justify-between'>Individual <TextBadge text='I'/></DropdownMenuItem>
+              <DropdownMenuItem className='py-2  rounded-[8px] justify-between' onClick={() => navigate(`${appRoute.add_vendor}?type=business`)}>Business <TextBadge text='B'/></DropdownMenuItem>
+              <DropdownMenuItem className='py-2 rounded-[8px] justify-between' onClick={() => navigate(`${appRoute.add_vendor}?type=individual`)}>Individual <TextBadge text='I'/></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

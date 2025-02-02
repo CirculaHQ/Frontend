@@ -1,36 +1,160 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Layout } from '@/components/shared';
 import Login from '@/features/authentication/pages/Login';
 import Inventory from '@/features/inventory';
-import Invoice from '@/features/invoice/pages/Invoice';
-import Settings from '@/features/settings/pages/Settings';
-import { GlobalContextProvider } from '@/stateManagement/GlobalContext';
-import { appRoute } from './routePaths';
-import { Layout } from '@/components/shared';
+import Settings from '@/features/settings';
 import Customers from '@/features/contact/customers';
 import Vendors from '@/features/contact/vendors';
 import Operations from '@/features/operations';
 import Reports from '@/features/reports';
 import Dashboard from '@/features/dashboard';
+import AddVendor from '@/features/contact/vendors/add-vendor';
+import { GlobalContextProvider } from '@/stateManagement/GlobalContext';
+import { appRoute } from './routePaths';
+import Signup from '@/features/authentication/pages/Signup';
+import SignupConfirmation from '@/features/authentication/pages/SignupConfirmation';
+import LoginConfirmation from '@/features/authentication/pages/LoginConfirmation';
+import ForgotPassword from '@/features/authentication/pages/ForgotPassword';
+import ResetPassword from '@/features/authentication/pages/ResetPassword';
+import { RequireAuth } from 'react-auth-kit';
+import Invoice from '@/features/invoice';
+import VendorDetails from '@/features/contact/vendors/VendorDetails';
+import CustomerDetails from '@/features/contact/customers/CustomerDetails';
+import InventoryDetails from '@/features/inventory/inventory-details';
+import OperationsDetails from '@/features/operations/OperationsDetails';
+import AddInventory from '@/features/inventory/add-inventory';
+import AddOperation from '@/features/operations/add-operation';
+import CreateInvoice from '@/features/invoice/create-invoices';
+import AddCustomer from '@/features/contact/customers/AddCustomer';
+
+// Separate arrays for authenticated and public routes
+const authenticatedRoutes = [
+  {
+    path: appRoute.home,
+    element: <Dashboard />,
+  },
+  {
+    path: appRoute.dashboard,
+    element: <Dashboard />,
+  },
+  {
+    path: appRoute.invoice,
+    element: <Invoice />,
+  },
+  {
+    path: appRoute.create_invoice,
+    element: <CreateInvoice />,
+  },
+  {
+    path: appRoute.operations,
+    element: <Operations />,
+  },
+
+  {
+    path: appRoute.add_operation,
+    element: <AddOperation />,
+  },
+  {
+    path: appRoute.operations_details,
+    element: <OperationsDetails />,
+  },
+  {
+    path: appRoute.settings,
+    element: <Settings />,
+  },
+  {
+    path: appRoute.customers,
+    element: <Customers />,
+  },
+  {
+    path: appRoute.inventory,
+    element: <Inventory />,
+  },
+  {
+    path: appRoute.inventory_details().format,
+    element: <InventoryDetails />,
+  },
+  {
+    path: appRoute.add_inventory,
+    element: <AddInventory />,
+  },
+  {
+    path: appRoute.vendors,
+    element: <Vendors />,
+  },
+  {
+    path: appRoute.reports,
+    element: <Reports />,
+  },
+  {
+    path: appRoute.add_vendor,
+    element: <AddVendor />,
+  },
+  {
+    path: appRoute.vendor_details,
+    element: <VendorDetails />,
+  },
+  {
+    path: `${appRoute.customers}/:id`,
+    element: <CustomerDetails />,
+  },
+  {
+    path: appRoute.add_customer,
+    element: <AddCustomer />,
+  },
+];
+
+const publicRoutes = [
+  {
+    path: appRoute.login_in,
+    element: <Login />,
+  },
+  {
+    path: appRoute.sign_up,
+    element: <Signup />,
+  },
+  {
+    path: appRoute.sign_up_confirmation,
+    element: <SignupConfirmation />,
+  },
+  {
+    path: appRoute.login_confirmation,
+    element: <LoginConfirmation />,
+  },
+  {
+    path: appRoute.forgot_password,
+    element: <ForgotPassword />,
+  },
+  {
+    path: appRoute.reset_password,
+    element: <ResetPassword />,
+  },
+];
 
 export const AllRoutes = () => {
   return (
     <Router>
-          <Layout>
       <GlobalContextProvider>
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path={appRoute.login_in} element={<Login />} />
-            <Route path={appRoute.invoice} element={<Invoice />} />
-            <Route path={appRoute.operations} element={<Operations />} />
-            <Route path={appRoute.customers} element={<Customers />} />
-            <Route path={appRoute.vendors} element={<Vendors />} />
-            <Route path={appRoute.inventory} element={<Inventory />} />
-            <Route path={appRoute.reports} element={<Reports />} />
-            <Route path={appRoute.settings} element={<Settings />} />
+          {/* Public Routes */}
+          {publicRoutes.map((route, index) => (
+            <Route key={`public-${index}`} path={route.path} element={route.element} />
+          ))}
+
+          {/* Protected Routes */}
+          {authenticatedRoutes.map((route, index) => (
+            <Route
+              key={`protected-${index}`}
+              path={route.path}
+              element={
+                <Layout>
+                  <RequireAuth loginPath={appRoute.login_in}>{route.element}</RequireAuth>
+                </Layout>
+              }
+            />
+          ))}
         </Routes>
       </GlobalContextProvider>
-      </Layout>
-
     </Router>
   );
 };

@@ -1,4 +1,4 @@
-import { FilterModule, ModuleHeader } from '@/components/shared';
+import { EmptyState, FilterModule, LineDistribution, ModuleHeader, StatCard } from '@/components/shared';
 import {
   Badge,
   Button,
@@ -8,6 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Icon,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -16,64 +21,156 @@ import {
   TablePagination,
   TableRow,
 } from '@/components/ui';
+import { appRoute } from '@/config/routeMgt/routePaths';
+import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
+import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { memo, useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-type MetricCardProps = {
-  title: string;
-  count: string;
-};
+const PRODUCED = 'Produced';
 
-const MetricCard = memo(({ title, count }: MetricCardProps) => {
-  return (
-    <div className='h-[106px] flex gap-2 w-full flex-col items-start justify-center  border border-[#D5D7DA] px-5 rounded-xl shadow-sm'>
-      <h4 className='text-tertiary text-sm font-medium'>{title}</h4>
-      <h1 className='text-primary font-semibold md:text-[30px] md:leading-[38px]'>{count}</h1>
-    </div>
-  );
-});
 const Operations = () => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
   const totalPages = Math.ceil(100 / reportsPerPage);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [summary, setSummary] = useState(PRODUCED);
+
+  const queryParams = {
+    limit: reportsPerPage,
+    offset: (currentPage - 1) * reportsPerPage,
+    search: searchQuery,
+  };
+
+  const { data, isLoading } = useFetchOperations(queryParams);
+
+  const handleSearchChange = (newSearchQuery: string) => {
+    setSearchQuery(newSearchQuery);
+    setCurrentPage(1);
+  };
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
-  const templates = Array(5).fill(null);
 
+  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
+    useFetchInventoryBreakdown();
+
+  if (loadingInventoryBreakdown) {
+    return <div>Loading material distribution...</div>;
+  }
+
+  const lineDistributionSegments = inventoryBreakdown
+    ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
+      color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      weight: quantity,
+      label: material,
+      value: `${quantity} kg`,
+      percentage: `${((quantity / inventoryBreakdown.total_quantity) * 100).toFixed(1)}%`,
+      subSegments: inventoryBreakdown.material_types[material]
+        ? Object.entries(inventoryBreakdown.material_types[material]).map(
+          ([type, subQuantity]) => ({
+            name: type,
+            amount: subQuantity,
+          })
+        )
+        : [],
+    }))
+    : [];
+
+  if (isLoading) return <div>Loading Operations...</div>;
   return (
     <div>
       <ModuleHeader title='Operations'>
         <div className='flex flex-row items-center gap-3'>
+          {!isMobile && (
+            <div className='flex flex-row items-center w-full justify-start gap-5'>
+              <DateRangePicker showRange={true} />
+              <div className='flex flex-row items-center gap-1'>
+                <span className='text-tertiary font-semibold text-sm'>All material</span>
+                <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+              </div>
+            </div>
+          )}
           <Button>
-            <Icon name='arrow-up-right' className='w-5 h-5 text-secondary' />
             Export report
           </Button>
-          <Button variant='secondary'>
-            <Icon name='plus' className='w-5 h-5 text-[#FAFAFA]' />
+          <Button variant='secondary' onClick={() => navigate(appRoute.add_operation)}>
             New operation
           </Button>
         </div>
+        {isMobile && (
+          <div className='flex flex-row items-center w-full justify-start gap-5 mt-4'>
+            <DateRangePicker showRange={true} />
+            <div className='flex flex-row items-center gap-1'>
+              <span className='text-tertiary font-semibold text-sm'>All material</span>
+              <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+            </div>
+          </div>
+        )}
       </ModuleHeader>
-      <div className='flex flex-row items-center w-full justify-between mt-8'>
-        <Button>
-          <Icon name='filter' className='w-5 h-5 text-secondary' />
-          Filter
-        </Button>
-        <DateRangePicker />
-      </div>
-
-      <div className='flex flex-col md:flex-row  items-center justify-between w-full mt-8 gap-6'>
-        <MetricCard title='Quantity' count='200,000kg' />
-        <MetricCard title='Number of operations' count='12,440' />
-        <MetricCard title='Waste yield' count='96,345kg' />
-      </div>
-      <FilterModule containerClass='mt-8' />
+      {!isMobile ? (
+        <div className='my-8 border-t border-border'>
+          <div className='grid grid-cols-3'>
+            <StatCard containerClassName='pt-6' label='Produced (Kilogram)' value='0' />
+            <StatCard
+              containerClassName='pt-6 px-6 border-x border-x-border'
+              label='Waste yield (Kilogram)'
+              value='0'
+            />
+            <StatCard
+              containerClassName='pt-6 px-6'
+              label='Total operations'
+              value='0'
+            />
+          </div>
+          <div className='mt-4'>
+            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+          </div>
+        </div>
+      ) : (
+        <div className='my-8'>
+          <div className='flex justify-between'>
+            <StatCard label={`${summary} (kilogram)`} value='292,400.00' />
+            <Select
+              //value={summary}
+              onValueChange={(value) => setSummary(value)}
+            >
+              <SelectTrigger className='w-[110px] h-[36px]'>
+                <SelectValue placeholder='Summary' className='text-placeholder font-normal' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='Total material'>Total material</SelectItem>
+                <SelectItem value='Raw material'>Raw material</SelectItem>
+                <SelectItem value='Processed material'>Processed material</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='mt-4'>
+            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+          </div>
+        </div>
+      )}
+      <FilterModule
+        containerClass='mt-8'
+        includeRegion={false}
+        onSearchChange={handleSearchChange}
+      />
 
       <div className='mt-2'>
-        {!isMobile ? (
+        {data?.results.length === 0 ? (
+          <EmptyState
+            icon='inventory-empty'
+            title='No operations started'
+            description='Begin your operations on Circula and they would show up here.'
+            className='mt-8'
+          />
+        ) : !isMobile ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -88,13 +185,13 @@ const Operations = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
-                  <TableCell className='w-[100px]'>OP - 182</TableCell>
+              {data?.results.map((item) => (
+                <TableRow className='cursor-pointer' key={item.id}>
+                  <TableCell className='w-[100px]'>{item.id}</TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>5 days ago</span>
-                      <h4 className='font-normal text-sm text-tertiary'>13/07/2020</h4>
+                      <span className='font-medium text-sm text-primary'>{item.start_time}</span>
+                      <h4 className='font-normal text-sm text-tertiary'>{item.start_date}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
@@ -104,17 +201,17 @@ const Operations = () => {
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    Sorting
+                    {item.operation_type}
                   </TableCell>
 
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     <Badge variant='failed'>Completed</Badge>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    690 kg
+                    {item.quantity_produced}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    1,000 kg
+                    {item.waste_produced}
                   </TableCell>
                   <TableCell className='w-7'>
                     <DropdownMenu>
@@ -155,8 +252,8 @@ const Operations = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
+              {data?.results.map((item) => (
+                <TableRow className='cursor-pointer' key={item.id}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
                       <span className='font-medium text-sm text-primary'>Clear Glass</span>
@@ -164,7 +261,7 @@ const Operations = () => {
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    Sorting
+                    {item.operation_type}
                   </TableCell>
                   <TableCell className='w-7'>
                     <DropdownMenu>

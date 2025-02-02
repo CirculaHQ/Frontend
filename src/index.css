@@ -67,6 +67,8 @@
     --color-error-primary: #d92d20;
     --color-warning-primary: #dc6803;
     --color-success-primary: #079455;
+    --color-quinary: #A4A7AE;
+    --color-brand: #2C6000;
 
     /* Your existing HSL variables */
     --background: 0 0% 100%;

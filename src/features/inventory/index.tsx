@@ -1,9 +1,15 @@
-import { FilterModule, LineDistribution, ModuleHeader, TextBadge } from '@/components/shared';
+import {
+  EmptyState,
+  FilterModule,
+  LineDistribution,
+  ModuleHeader,
+  StatCard,
+  TextBadge,
+} from '@/components/shared';
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-  Badge,
   Button,
   DateRangePicker,
   DropdownMenu,
@@ -11,6 +17,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Icon,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
   TableBody,
   TableCell,
@@ -19,134 +30,146 @@ import {
   TablePagination,
   TableRow,
 } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { materials } from '@/config/materials';
+import { appRoute } from '@/config/routeMgt/routePaths';
+import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
+import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
+import { useFetchInventory } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { memo, useState } from 'react';
+import { capitalizeFirstLetter } from '@/utils/textFormatter';
+import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-type MetricCardProps = {
-  title: string;
-  count: string;
-};
+const INVENTORY_IN = 'inventory-in';
+const INVENTORY_OUT = 'inventory-out';
+const PROCESSED_MATERIALS = 'processed-materials';
+const RAW_MATERIALS = 'raw-materials';
+const TOTAL_MATERIALS = 'Total materials';
 
-const Operations = () => {
+const tabs = [
+  { label: 'Inventory in', value: 'inventory-in' },
+  { label: 'Inventory out', value: 'inventory-out' },
+  { label: 'Raw materials', value: 'raw-materials' },
+  { label: 'Processed materials', value: 'processed-materials' },
+];
+
+const Inventory = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [summary, setSummary] = useState(TOTAL_MATERIALS);
+  const currentTab = searchParams.get('tab') ?? INVENTORY_IN;
+  const deleteInventory = useDeleteInventory();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
-  const totalPages = Math.ceil(100 / reportsPerPage);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const data = [
-    {
-      color: '#181D27',
-      weight: 20,
-      label: 'Glass',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about glass recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#7F56D9',
-      weight: 25,
-      label: 'Paper/cardboard',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about paper recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#F04438',
-      weight: 15,
-      label: 'Plastics',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about plastic recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#F79009',
-      weight: 15,
-      label: 'Metals',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about metal recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#17B26A',
-      weight: 15,
-      label: 'E-wastes',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about e-waste recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-    {
-      color: '#D444F1',
-      weight: 10,
-      label: 'Rubber',
-      percentage: '34.4%',
-      value: '100kg',
-      info: 'Information about rubber recycling',
-      subSegments: [
-        { name: 'Polyethylene Terephthalate (PET)', amount: 34.4 },
-        { name: 'High-Density Polyethylene (HDPE)', amount: 34.4 },
-        { name: 'Low-Density Polyethylene (LDPE)', amount: 34.4 },
-        { name: 'Polypropylene (PP)', amount: 34.4 },
-        { name: 'Polystyrene (PS)', amount: 34.4 },
-        { name: 'Poly Vinyl Chloride (PVC)', amount: 34.4 },
-        { name: 'Nylon', amount: 34.4 },
-      ],
-    },
-  ];
+  const getType = (tab: string) => {
+    switch (tab) {
+      case INVENTORY_IN:
+        return 'in';
+      case INVENTORY_OUT:
+        return 'out';
+      case PROCESSED_MATERIALS:
+        return 'processed';
+      case RAW_MATERIALS:
+        return 'raw';
+    }
+  };
+
+  const queryParams = {
+    limit: reportsPerPage,
+    offset: (currentPage - 1) * reportsPerPage,
+    search: searchQuery,
+    type: getType(currentTab),
+  };
+
+  const { data, isLoading } = useFetchInventory(queryParams);
+
+  const totalPages = data ? Math.ceil(data.count / reportsPerPage) : 0;
+
+  const handleSearchChange = (newSearchQuery: string) => {
+    setSearchQuery(newSearchQuery);
+    setCurrentPage(1); // Reset to first page when searching
+  };
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
-  const templates = Array(5).fill(null);
+
+  const handleDeleteInventory = async (e: any, id: string) => {
+    e.stopPropagation();
+    await deleteInventory.mutateAsync(
+      { id },
+      {
+        onSuccess: () => {
+          setCurrentPage(1); // Reset to first page after deletion
+        },
+      }
+    );
+  };
+
+  const handleChangeTab = (tab: string) => {
+    setSearchParams({ tab });
+  };
+
+  const navigateToEditMaterial = (e: any, material: any) => {
+    e.stopPropagation();
+    navigate(appRoute.add_inventory, {
+      state: { type: material.type, inventoryData: { ...material, id: material.id } },
+    });
+  };
+
+  const exportMaterial = (e: any, material: any) => {
+    e.stopPropagation();
+  };
+
+  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
+    useFetchInventoryBreakdown();
+
+  if (loadingInventoryBreakdown) {
+    return <div>Loading material distribution...</div>;
+  }
+
+  const getMaterialColor = (material: string) => {
+    return materials.find((item: any) => item.name === material)?.backgroundColor ?? '';
+  };
+
+  const lineDistributionSegments = inventoryBreakdown
+    ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
+        // color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+        color: getMaterialColor(material),
+        weight: quantity,
+        label: capitalizeFirstLetter(material),
+        value: `${quantity} kg`,
+        percentage: `${((quantity / inventoryBreakdown.total_quantity) * 100).toFixed(1)}%`,
+        subSegments: inventoryBreakdown.material_types[material]
+          ? Object.entries(inventoryBreakdown.material_types[material]).map(
+              ([type, subQuantity]) => ({
+                name: type,
+                amount: subQuantity,
+              })
+            )
+          : [],
+      }))
+    : [];
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className='mb-10'>
       <ModuleHeader title='Inventory'>
         <div className='flex flex-row items-center gap-3'>
+          {!isMobile && (
+            <div className='flex flex-row items-center w-full justify-start gap-5'>
+              <DateRangePicker showRange={true} />
+              <div className='flex flex-row items-center gap-1'>
+                <span className='text-tertiary font-semibold text-sm'>All material</span>
+                <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+              </div>
+            </div>
+          )}
           <Button>Export</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -156,38 +179,112 @@ const Operations = () => {
               align='end'
               className='text-sm font-medium text-secondary rounded-[8px] px-1'
             >
-              <DropdownMenuItem className='py-2  rounded-[8px] justify-between'>
+              <DropdownMenuItem
+                className='py-2  rounded-[8px] justify-between'
+                onClick={() => {
+                  navigate(appRoute.add_inventory, { state: { type: 'in' } });
+                }}
+              >
                 Inventory in <TextBadge text='I' />
               </DropdownMenuItem>
-              <DropdownMenuItem className='py-2 rounded-[8px] justify-between'>
+              <DropdownMenuItem
+                className='py-2 rounded-[8px] justify-between'
+                onClick={() => {
+                  navigate(appRoute.add_inventory, { state: { type: 'out' } });
+                }}
+              >
                 Inventory out <TextBadge text='0' />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        {isMobile && (
+          <div className='flex flex-row items-center w-full justify-start gap-5 mt-4'>
+            <DateRangePicker showRange={true} />
+            <div className='flex flex-row items-center gap-1'>
+              <span className='text-tertiary font-semibold text-sm'>All material</span>
+              <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+            </div>
+          </div>
+        )}
       </ModuleHeader>
-      <div className='flex flex-row items-center w-full justify-start gap-5 mt-8'>
-        <DateRangePicker />
-        <div className='flex flex-row items-center gap-1'>
-          <span className='text-tertiary font-semibold text-sm'>All material</span>
-          <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+      {!isMobile ? (
+        <div className='my-8 border-t border-border'>
+          <div className='grid grid-cols-3'>
+            <StatCard containerClassName='pt-6' label='Total material (kg)' value='292,400.00' />
+            <StatCard
+              containerClassName='pt-6 px-6 border-x border-x-border'
+              label='Raw material (kg)'
+              value='292,400.00'
+            />
+            <StatCard
+              containerClassName='pt-6 px-6'
+              label='Processed material (kg)'
+              value='292,400.00'
+            />
+          </div>
+          <div className='mt-4'>
+            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+          </div>
         </div>
-      </div>
-      <div className='mt-8'>
-        <div className='gap-2 flex flex-col'>
-          <h4 className='text-tertiary font-semibold text-sm'>Total Material (kilogram)</h4>
-          <h1 className='font-semibold text-primary text-3xl'>292,400.00</h1>
+      ) : (
+        <div className='my-8'>
+          <div className='flex justify-between'>
+            <StatCard label={`${summary} (kg)`} value='292,400.00' />
+            <Select
+              //value={summary}
+              onValueChange={(value) => setSummary(value)}
+            >
+              <SelectTrigger className='w-[110px] h-[36px]'>
+                <SelectValue placeholder='Summary' className='text-placeholder font-normal' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='Total material'>Total material</SelectItem>
+                <SelectItem value='Raw material'>Raw material</SelectItem>
+                <SelectItem value='Processed material'>Processed material</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='mt-4'>
+            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+          </div>
         </div>
-        <div className='mt-4'>
-          <span className='text-sm font-normal text-tertiary'>Material distribution</span>
-          <LineDistribution segments={data} height={8} className='mt-4' />
-        </div>
-      </div>
-
-      <FilterModule containerClass='mt-8' includeRegion={false} />
-
-      <div className='mt-2'>
-        {!isMobile ? (
+      )}
+      <Tabs defaultValue={currentTab} onValueChange={handleChangeTab} className='overflow-x-auto'>
+        <TabsList className='flex border-b text-left justify-start space-x-2'>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className={`px-1 py-2 rounded-none
+                ${
+                  currentTab === tab.value
+                    ? 'border-b-2 border-green-500 !text-green-600 font-medium'
+                    : 'text-gray-500 hover:text-gray-700'
+                }
+                  `}
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {/* <TabsContent value='profile'>
+        </TabsContent>
+        <TabsContent value='activity'>
+        </TabsContent> */}
+      </Tabs>
+      <FilterModule includeRegion={false} onSearchChange={handleSearchChange} />
+      <div>
+        {data?.results.length === 0 ? (
+          <EmptyState
+            icon='inventory-empty'
+            title='No items in your inventory'
+            description='Add or remove items from your inventory and they will show up here.'
+            className='mt-8'
+          />
+        ) : !isMobile ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -200,12 +297,20 @@ const Operations = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
+              {data?.results.map((item) => (
+                <TableRow
+                  className='cursor-pointer'
+                  key={item.id}
+                  onClick={() => navigate(`${appRoute.inventory}/${item.id}`)}
+                >
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>Clear Glass</span>
-                      <h4 className='font-normal text-sm text-tertiary'>Glass</h4>
+                      <span className='font-medium text-sm text-primary'>
+                        {capitalizeFirstLetter(item.material)}
+                      </span>
+                      <h4 className='font-normal text-sm text-tertiary'>
+                        {capitalizeFirstLetter(item.material_type)}
+                      </h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px]'>
@@ -214,19 +319,21 @@ const Operations = () => {
                         <AvatarImage src='https://github.com/shadcn.png' />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
-                      <span className='text-sm text-tertiary'>Circular HQ</span>
+                      <span className='text-sm text-tertiary'>{item.vendor.account_name}</span>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    ₦1,593,775.80
+                    {item.currency} {item.amount}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    1,000 kg
+                    {item.quantity} kg
                   </TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>5 days ago</span>
-                      <h4 className='font-normal text-sm text-tertiary'>13/07/2020</h4>
+                      <span className='font-medium text-sm text-primary'>
+                        {new Date(item.date_received).toLocaleDateString()}
+                      </span>
+                      {/* <h4 className='font-normal text-sm text-tertiary'>13/07/2020</h4> */}
                     </div>
                   </TableCell>
 
@@ -241,14 +348,23 @@ const Operations = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2  rounded-[8px]'
+                          onClick={(e) => navigateToEditMaterial(e, item)}
+                        >
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => exportMaterial(e, item)}
+                        >
                           <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => handleDeleteInventory(e, item.id)}
+                        >
                           <Icon name='trash' className='w-4 h-4 text-quaternary' />
                           Delete operation
                         </DropdownMenuItem>
@@ -269,18 +385,20 @@ const Operations = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
+              {data?.results.map((item) => (
+                <TableRow className='cursor-pointer' key={item.id}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>Clear Glass</span>
-                      <h4 className='font-normal text-sm text-tertiary'>Glass</h4>
+                      <span className='font-medium text-sm text-primary'>{item.material}</span>
+                      <h4 className='font-normal text-sm text-tertiary'>{item.material_type}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>1,000 kg</span>
-                      <h4 className='font-normal text-sm text-tertiary'>₦1,593,775.80</h4>
+                      <span className='font-medium text-sm text-primary'>{item.quantity} kg</span>
+                      <h4 className='font-normal text-sm text-tertiary'>
+                        {item.currency} {item.amount}
+                      </h4>
                     </div>
                   </TableCell>
 
@@ -295,14 +413,23 @@ const Operations = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2  rounded-[8px]'
+                          onClick={(e) => navigateToEditMaterial(e, item)}
+                        >
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => exportMaterial(e, item)}
+                        >
                           <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
+                        <DropdownMenuItem
+                          className='py-2 rounded-[8px]'
+                          onClick={(e) => handleDeleteInventory(e, item.id)}
+                        >
                           <Icon name='trash' className='w-4 h-4 text-quaternary' />
                           Delete operation
                         </DropdownMenuItem>
@@ -314,16 +441,19 @@ const Operations = () => {
             </TableBody>
           </Table>
         )}
-        <TablePagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-          totalReports={100}
-          reportsPerPage={reportsPerPage}
-        />
+
+        {data?.results.length !== 0 && (
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalReports={data?.count || 0}
+            reportsPerPage={reportsPerPage}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-export default Operations;
+export default Inventory;
