@@ -14,7 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { format } from 'date-fns';
 
 import { FormikProps, useFormik } from 'formik';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { InfoRow } from './inventory-info-row';
 
 const INVENTORY = 'inventory'
@@ -66,13 +66,13 @@ const OperationForm: React.FC<OperationFormProps> = ({
     },
     onSubmit: async (values) => {
       if (editingOperationId) {
-        await handleUpdateOperation(values);
+        handleUpdateOperation(values);
       } else {
         //await handleSaveOperation(values);
         const payload = { ...values, id: addedOperations?.length + 1 }
-      setAddedOperations([...addedOperations, payload])
-      formik.resetForm()
-      if (setShowOperationInputs) setShowOperationInputs(false)
+        setAddedOperations([...addedOperations, payload])
+        formik.resetForm()
+        if (setShowOperationInputs) setShowOperationInputs(false)
       }
     },
   });
@@ -98,6 +98,10 @@ const OperationForm: React.FC<OperationFormProps> = ({
   const handleInputQuantity = (id: string, val: any) => {
     formik.setFieldValue('input_quantity', Number(val))
   }
+
+  const sourceTotalQty = useMemo(() => {
+    return selectedInventory.reduce((sum: number, item: any) => sum + item.quantity, 0)
+  }, [selectedInventory])
 
   return (
     <div className='w-full flex flex-col gap-4'>
@@ -134,7 +138,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
                   </SelectContent>
                 </Select>
               </div>
-              {formik.values.input_source === INVENTORY && <InventorySection formik={formik} handleChange={handleInputQuantity} />}
+              {formik.values.input_source === INVENTORY && <InventorySection formik={formik} totalQty={sourceTotalQty} handleChange={handleInputQuantity} />}
               <div className='w-full flex flex-col gap-2'>
                 <Label>Operation type</Label>
                 <Select
@@ -299,9 +303,10 @@ const OperationForm: React.FC<OperationFormProps> = ({
 interface InterventionSectionProps {
   handleChange: (id: any, value: any) => void;
   formik: FormikProps<any>;
+  totalQty: number;
 }
 
-const InventorySection = ({ handleChange, formik }: InterventionSectionProps) => {
+const InventorySection = ({ handleChange, formik, totalQty }: InterventionSectionProps) => {
   const [show, setShow] = useState(true)
 
   return (
@@ -333,7 +338,7 @@ const InventorySection = ({ handleChange, formik }: InterventionSectionProps) =>
             <InfoRow
               label='Input quantity'
               onChange={handleChange}
-              inventory={{ quantity: 600 }}
+              inventory={{ quantity: totalQty }}
               value={formik.values.input_quantity}
               icon='scales'
               showInput={true}

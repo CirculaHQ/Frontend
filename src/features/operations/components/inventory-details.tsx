@@ -1,5 +1,6 @@
 import { FormSection } from '@/components/shared';
 import {
+  Button,
   Icon,
   Label,
   Select,
@@ -10,7 +11,8 @@ import {
 } from '@/components/ui';
 import { Inventory } from '@/hooks/api/queries/inventory';
 import InventoryInfo from './inventory-info';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useCreateBatch } from '@/hooks/api/mutations/operations/useOperationsMutation';
 
 interface InventoryDetailsProps {
   selectedInventory: Inventory[];
@@ -30,6 +32,29 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
   data,
 }) => {
   const [collapse, setCollapse] = useState(false)
+  const { mutate: createBatch, isLoading } = useCreateBatch();
+
+  const totalQty = useMemo(() => {
+    return selectedInventory.reduce((sum, item) => sum + item.quantity, 0)
+  }, [selectedInventory])
+
+  const availableQty = useMemo(() => {
+    return selectedInventory.reduce((sum, item) => sum + item.quantity, 0)
+  }, [selectedInventory])
+
+  const submit = async () => {
+    const payload = {
+      user: selectedInventory[0].user.id,
+      inventories: [],
+      input_quantities: []
+    } as any
+    selectedInventory.map(({ id, input_quantity }) => {
+      payload.inventories.push(id)
+      payload.input_quantities.push(Number(input_quantity))
+    })
+    const data = createBatch(payload)
+    console.log(data)
+  }
 
   return (
     <FormSection title='Inventory details' description='Supporting text goes here'>
@@ -52,7 +77,7 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
       {!!selectedInventory.length && !collapse && (
         <div className='w-full'>
           <p className='text-xs text-primary font-medium mb-4'>
-            Total quantity: <span className='text-quaternary font-normal'>0kg;</span> Available quantity: <span className='text-quaternary font-normal'>0kg;</span>
+            Total quantity: <span className='text-quaternary font-normal'>{totalQty}kg;</span> Available quantity: <span className='text-quaternary font-normal'>{availableQty}kg;</span>
           </p>
           <div className='space-y-4'>
             {selectedInventory.map((inventory) => (
@@ -88,6 +113,27 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           {collapse ? "Expand" : "Collapse"} Items
         </button>
       )}
+      <div className='w-full flex justify-start space-x-2'>
+        <Button
+          variant='outline'
+          type='button'
+          disabled={!selectedInventory.length}
+          onClick={submit}
+          isLoading={isLoading}
+          className='w-auto'
+        >
+          Create batch
+        </Button>
+        {/* {setShowOperationInputs && (
+          <Button
+            type='button'
+            onClick={() => setShowOperationInputs(false)}
+            className='w-auto border-0'
+          >
+            Cancel
+          </Button>
+        )} */}
+      </div>
     </FormSection>
   )
 };

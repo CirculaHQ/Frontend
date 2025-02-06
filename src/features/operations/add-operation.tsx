@@ -6,10 +6,6 @@ import {
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { OperationPayload, useAddOperation } from '@/hooks/api/mutations/operations/useAddOperation';
 import { UpdateOperationPayload, useUpdateOperation } from '@/hooks/api/mutations/operations/useUpdateOperation';
-import {
-  CustomOperation,
-  getCustomOperations,
-} from '@/hooks/api/mutations/settings/custom-operation';
 import { Inventory, useFetchInventory } from '@/hooks/api/queries/inventory/useFetchInventory';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
@@ -22,6 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import InventoryDetails from './components/inventory-details';
 import OperationsList from './components/operations-list';
 import { format } from 'date-fns';
+import { IN, RAW } from '@/config/common';
+import { useFetchOperationTypes } from '@/hooks/api/queries/operations/useOperationsQuery';
 
 const AddOperation = () => {
   const navigate = useNavigate();
@@ -32,23 +30,16 @@ const AddOperation = () => {
   const [selectedInventory, setSelectedInventory] = useState<Inventory[]>([]);
   const [showOperationInputs, setShowOperationInputs] = useState(false);
   const [editingOperationId, setEditingOperationId] = useState<string | null>(null);
-  const [customOperations, setCustomOperations] = useState<CustomOperation[]>([]);
+  // const [customOperations, setCustomOperations] = useState<CustomOperation[]>([]);
 
   const { mutate, isLoading } = useAddOperation();
   const { mutate: updateOperation, isLoading: isUpdating } = useUpdateOperation();
-  const { data } = useFetchInventory();
+  const { data } = useFetchInventory({ stage: RAW, type: IN });
   const { data: operationsData, isLoading: operationsLoading } = useFetchOperations({ inventory_id: selectedInventoryId });
+  const { data: operationTypes, isLoading: isLoadingOperationTypes } = useFetchOperationTypes()
 
   const formatDate = (date: string | number | Date) => format(new Date(date), 'dd/MM/yyyy');
   const formatTime = (time: any) => format(new Date(`1970/01/01T${time}:00`), 'h:mm a');
-
-  useEffect(() => {
-    const fetchCustomOperations = async () => {
-      const response = await getCustomOperations(100, 0, '');
-      setCustomOperations(response.results);
-    };
-    fetchCustomOperations();
-  }, []);
 
   const handleInventorySelect = (id: string) => {
     const inventoryAlreadySelected = selectedInventory.find((inventory: Inventory) => inventory.id === id)
@@ -219,7 +210,7 @@ const AddOperation = () => {
             operationsLoading={operationsLoading}
             handleAccordionClick={handleAccordionClick}
             formik={formik}
-            customOperations={customOperations}
+            customOperations={operationTypes}
             handleUpdateOperation={handleUpdateOperation}
             isUpdating={isUpdating}
             editingOperationId={editingOperationId}

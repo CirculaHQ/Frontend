@@ -25,6 +25,7 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getMaterialColor } from '@/utils/materials';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -65,7 +66,7 @@ const Operations = () => {
 
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
-      color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      color: getMaterialColor(material),
       weight: quantity,
       label: material,
       value: `${quantity} kg`,

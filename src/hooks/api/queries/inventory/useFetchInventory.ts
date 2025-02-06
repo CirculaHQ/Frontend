@@ -14,6 +14,7 @@ interface InventoryQueryParams {
   search?: string;
   type?: string;
   vendor?: string;
+  stage?: 'raw' | 'ready for sale' | 'waste';
 }
 
 interface InventoryResponse {
@@ -46,6 +47,7 @@ export interface Inventory {
   vendor: Vendor;
   customer: string;
   user: string;
+  input_quantity?: number | string;
 }
 
 const fetchInventory = async (params: InventoryQueryParams = {}): Promise<InventoryResponse> => {

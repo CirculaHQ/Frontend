@@ -31,12 +31,12 @@ import {
   TableRow,
 } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { materials } from '@/config/materials';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useFetchInventory } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getMaterialColor } from '@/utils/materials';
 import { capitalizeFirstLetter } from '@/utils/textFormatter';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -131,10 +131,6 @@ const Inventory = () => {
   if (loadingInventoryBreakdown) {
     return <div>Loading material distribution...</div>;
   }
-
-  const getMaterialColor = (material: string) => {
-    return materials.find((item: any) => item.name === material)?.backgroundColor ?? '';
-  };
 
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
@@ -319,7 +315,7 @@ const Inventory = () => {
                         <AvatarImage src='https://github.com/shadcn.png' />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
-                      <span className='text-sm text-tertiary'>{item.vendor.account_name}</span>
+                      <span className='text-sm text-tertiary'>{item.vendor?.account_name ?? 'N/A'}</span>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
