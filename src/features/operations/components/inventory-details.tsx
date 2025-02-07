@@ -32,7 +32,7 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
   data,
 }) => {
   const [collapse, setCollapse] = useState(false)
-  const { mutate: createBatch, isLoading } = useCreateBatch();
+  const { mutateAsync: createBatch, isLoading, data: batchData } = useCreateBatch();
 
   const totalQty = useMemo(() => {
     return selectedInventory.reduce((sum, item) => sum + item.quantity, 0)
@@ -52,8 +52,8 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
       payload.inventories.push(id)
       payload.input_quantities.push(Number(input_quantity))
     })
-    const data = createBatch(payload)
-    console.log(data)
+    const res = await createBatch(payload)
+    console.log(res)
   }
 
   return (

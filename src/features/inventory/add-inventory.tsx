@@ -78,8 +78,12 @@ const AddInventory = () => {
     },
   });
 
+  const getMaterialId = (material: string) => {
+    return materials?.find((item) => item.name === material)?.id ?? ''
+  }
+
   const { data: materials, isLoading: isLoadingMaterials } = useFetchMaterials()
-  const { data: materialTypes, isLoading: isLoadingMaterialTypes } = useFetchMaterialTypes(formik.values.material)
+  const { data: materialTypes, isLoading: isLoadingMaterialTypes } = useFetchMaterialTypes(getMaterialId(inventoryDataToEdit.material || formik.values.material))
   const { data: materialState, isLoading: isLoadingMaterialState } = useFetchMaterialState()
 
   useEffect(() => {
@@ -98,7 +102,7 @@ const AddInventory = () => {
         user: userID,
       });
     }
-  }, [isEditMode, inventoryDataToEdit, userID, inventoryType]);
+  }, [isEditMode, inventoryDataToEdit, userID, inventoryType, materialTypes]);
 
   return (
     <div className='mx-auto'>
@@ -267,7 +271,7 @@ const AddInventory = () => {
           )}
 
           <div className='w-full flex flex-col gap-1.5'>
-            <Label>Material </Label>
+            <Label>Material</Label>
             <Select
               value={formik.values.material}
               onValueChange={(value) => {
@@ -283,7 +287,7 @@ const AddInventory = () => {
               </SelectTrigger>
               <SelectContent loading={isLoadingMaterials}>
                 {materials?.map((material) => (
-                  <SelectItem key={material.id} value={material.name}>
+                  <SelectItem key={material.name} value={material.name}>
                     {material.name}
                   </SelectItem>
                 ))}
@@ -303,9 +307,9 @@ const AddInventory = () => {
                   className='text-placeholder font-normal'
                 />
               </SelectTrigger>
-              <SelectContent loading={isLoadingMaterialState}>
+              <SelectContent loading={isLoadingMaterialTypes}>
                 {materialTypes?.map((type) => (
-                  <SelectItem key={type.id} value={type.name}>
+                  <SelectItem key={type.name} value={type.name}>
                     {type.name}
                   </SelectItem>
                 ))}
@@ -329,7 +333,7 @@ const AddInventory = () => {
               </SelectTrigger>
               <SelectContent loading={isLoadingMaterialState}>
                 {materialState?.map((state) => (
-                  <SelectItem key={state.id} value={state.name}>
+                  <SelectItem key={state.name} value={state.name}>
                     {state.name}
                   </SelectItem>
                 ))}

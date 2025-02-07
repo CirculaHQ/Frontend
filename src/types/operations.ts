@@ -2,6 +2,25 @@ export interface Operation {
 }
 
 export interface Batch {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    code: string;
+    operation_type: string | null;
+    start_date: string | null;
+    start_time: string | null;
+    end_date: string | null;
+    end_time: string | null;
+    input_quantity: number;
+    quantity_produced: number;
+    waste_produced: number;
+    quantity_left: number;
+    status: 'ongoing' | 'done' | 'ready';
+    input_quantities: number[];
+    user: string;
+    batch: string | null;
+    input_source: string | null;
+    inventories: string[]
 }
 
 export interface CreateBatchPayload {
@@ -10,33 +29,9 @@ export interface CreateBatchPayload {
     input_quantities: number[];
 }
 
-export interface CreateBatchResponse {
-    id: string;
-    created_at: Date;
-    updated_at: Date;
-    code: string;
-    operation_type: string;
-    start_date: string;
-    start_time: string;
-    end_date: string;
-    end_time: string;
-    input_quantity: number;
-    quantity_produced: number;
-    waste_produced: number;
-    quantity_left: number;
-    status: 'ongoing' | 'done' | 'ready';
-    user: string;
-    batch: string;
-    input_source: string;
-    inventories: string[];
+export interface CreateBatchResponse extends Batch {
 }
 
 export interface CustomersParams {
     [key: string]: string | number | boolean | undefined;
 }
-
-// export interface AddCustomerResponse extends Customer {
-//     created_at: string;
-//     updated_at: string;
-//     archived: boolean;
-// }

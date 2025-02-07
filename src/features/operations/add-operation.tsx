@@ -12,7 +12,7 @@ import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import { QUERYKEYS } from '@/utils/query-keys';
 import { showToast } from '@/utils/toast';
 import { useFormik } from 'formik';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import InventoryDetails from './components/inventory-details';
@@ -20,6 +20,7 @@ import OperationsList from './components/operations-list';
 import { format } from 'date-fns';
 import { IN, RAW } from '@/config/common';
 import { useFetchOperationTypes } from '@/hooks/api/queries/operations/useOperationsQuery';
+import { Batch } from '@/types/operations';
 
 const AddOperation = () => {
   const navigate = useNavigate();
@@ -30,7 +31,31 @@ const AddOperation = () => {
   const [selectedInventory, setSelectedInventory] = useState<Inventory[]>([]);
   const [showOperationInputs, setShowOperationInputs] = useState(false);
   const [editingOperationId, setEditingOperationId] = useState<string | null>(null);
-  // const [customOperations, setCustomOperations] = useState<CustomOperation[]>([]);
+  const [batch, setBatch] = useState<Batch>({
+    "id": "3ba6d2c8-db45-45b3-a804-52fb03932764",
+    "created_at": "2025-02-07T08:32:26.234597Z",
+    "updated_at": "2025-02-07T08:32:26.234617Z",
+    "code": "OPS-250207-008",
+    "operation_type": null,
+    "start_date": null,
+    "start_time": null,
+    "end_date": null,
+    "end_time": null,
+    "input_quantity": 3,
+    "quantity_produced": 0,
+    "waste_produced": 0,
+    "quantity_left": 3,
+    "status": "ongoing",
+    "input_quantities": [
+      3
+    ],
+    "user": "21d755eb-af45-4a15-94a3-3b8235f62a87",
+    "batch": null,
+    "input_source": null,
+    "inventories": [
+      "64c9a83c-eac2-4718-9da7-e8645d829023"
+    ]
+  })
 
   const { mutate, isLoading } = useAddOperation();
   const { mutate: updateOperation, isLoading: isUpdating } = useUpdateOperation();

@@ -2,17 +2,16 @@ import { useQuery } from 'react-query';
 import request from '@/utils/api';
 import { QUERYKEYS } from '@/utils/query-keys';
 
-interface MaterialsResponse {
-
-}
-
 interface Material {
-
+    id: string;
+    created_at: string;
+    updated_at: string;
+    name: string;
 }
 
 export const useFetchMaterials = () => {
-    const fetchMaterials = async (): Promise<MaterialsResponse> => {
-        return await request<MaterialsResponse>('GET', `/inventory/get_materials`, null, false, true);
+    const fetchMaterials = async (): Promise<Material[]> => {
+        return await request<Material[]>('GET', `/inventory/get_materials`, null, false, true);
     };
 
     return useQuery({
