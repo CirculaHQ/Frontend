@@ -27,6 +27,12 @@ export const chartColors = {
     fill: 'fill-[#B9CAAA]',
     text: 'text-[#B9CAAA]',
   },
+  green100: {
+    bg: 'bg-[#D5DFCC]',
+    stroke: 'stroke-[#D5DFCC]',
+    fill: 'fill-[#D5DFCC]',
+    text: 'text-[#D5DFCC]',
+  },
   violet: {
     bg: 'bg-violet-500',
     stroke: 'stroke-violet-500',

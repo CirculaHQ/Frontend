@@ -19,70 +19,8 @@ import {
   TableRow,
 } from '@/components/ui';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { memo, useState } from 'react';
-
-const lineChartData = [
-  {
-    date: 'Jan 23',
-    SolarPanels: 2890,
-    Inverters: 2338,
-  },
-  {
-    date: 'Feb 23',
-    SolarPanels: 2756,
-    Inverters: 2103,
-  },
-  {
-    date: 'Mar 23',
-    SolarPanels: 3322,
-    Inverters: 2194,
-  },
-  {
-    date: 'Apr 23',
-    SolarPanels: 3470,
-    Inverters: 2108,
-  },
-  {
-    date: 'May 23',
-    SolarPanels: 3475,
-    Inverters: 1812,
-  },
-  {
-    date: 'Jun 23',
-    SolarPanels: 3129,
-    Inverters: 1726,
-  },
-  {
-    date: 'Jul 23',
-    SolarPanels: 3490,
-    Inverters: 1982,
-  },
-  {
-    date: 'Aug 23',
-    SolarPanels: 2903,
-    Inverters: 2012,
-  },
-  {
-    date: 'Sep 23',
-    SolarPanels: 2643,
-    Inverters: 2342,
-  },
-  {
-    date: 'Oct 23',
-    SolarPanels: 2837,
-    Inverters: 2473,
-  },
-  {
-    date: 'Nov 23',
-    SolarPanels: 2954,
-    Inverters: 3848,
-  },
-  {
-    date: 'Dec 23',
-    SolarPanels: 3239,
-    Inverters: 3736,
-  },
-];
+import { inventoryChartData, operationsChartData, salesChartData } from '@/mocks/dashboard';
+import { useState } from 'react';
 
 const Dashboard = () => {
   const isMobile = useIsMobile();
@@ -115,14 +53,14 @@ const Dashboard = () => {
 
           <div className='w-full h-[400px] min-h-[300px]'>
             <LineChart
-              data={lineChartData}
+              data={operationsChartData}
               index='date'
-              categories={['Inverters']}
+              categories={['amount']}
               colors={['green']}
               valueFormatter={(number: number) =>
                 `${Intl.NumberFormat('us').format(number).toString()}kg`
               }
-              showLegend={true}
+              showLegend={false}
               showXAxis={true}
               showYAxis={true}
               showGridLines={true}
@@ -150,14 +88,14 @@ const Dashboard = () => {
 
           <div className='w-full h-[400px] min-h-[300px]'>
             <BarChart
-              data={lineChartData}
+              data={inventoryChartData}
               index='date'
-              categories={['SolarPanels', 'Inverters']}
+              categories={['Raw materials', 'Ready for sale', 'Waste']}
               valueFormatter={(number: number) =>
                 `$${Intl.NumberFormat('us').format(number).toString()}`
               }
               onValueChange={(v) => console.log(v)}
-              colors={['green', 'lightGreen']}
+              colors={['green', 'lightGreen', 'green100']}
               showLegend={true}
               showXAxis={true}
               showYAxis={true}
@@ -190,10 +128,10 @@ const Dashboard = () => {
 
         <div className='w-full h-[400px] min-h-[300px]'>
           <LineChart
-            data={lineChartData}
+            data={salesChartData}
             index='date'
-            categories={['SolarPanels', 'Inverters']}
-            colors={['green', 'lightGreen']}
+            categories={['Overdue', 'Pending', 'Fulfilled']}
+            colors={['green100', 'lightGreen', 'green']}
             valueFormatter={(number: number) =>
               `${Intl.NumberFormat('us').format(number).toString()}kg`
             }
