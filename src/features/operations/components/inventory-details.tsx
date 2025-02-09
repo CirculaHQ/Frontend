@@ -15,6 +15,7 @@ import { useMemo, useState } from 'react';
 import { useCreateBatch } from '@/hooks/api/mutations/operations/useOperationsMutation';
 import { useSearchParams } from 'react-router-dom';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
+import { areMaterialTypesSame } from '@/utils/objectFormatter';
 
 interface InventoryDetailsProps {
   selectedInventory: Inventory[];
@@ -107,6 +108,12 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           </div>
         </div>
       )}
+      {selectedInventory.length > 1 && !areMaterialTypesSame(selectedInventory) && (
+        <p className='text-sm'>
+          <Icon name="alert-triangle" className='w-[15.02px] h-[13.34px] inline mr-1' />
+          Material type and state of selected inventories do not match.
+        </p>
+      )}
       {selectedInventory.length > 1 && (
         <button
           type='button'
@@ -121,7 +128,7 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           <Button
             variant='outline'
             type='button'
-            disabled={!selectedInventory.length}
+            disabled={!selectedInventory.length || (selectedInventory.length > 1 && !areMaterialTypesSame(selectedInventory))}
             onClick={submit}
             isLoading={isLoading}
             className='w-auto'
