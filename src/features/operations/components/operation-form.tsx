@@ -14,10 +14,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { format } from 'date-fns';
 
 import { FormikProps, useFormik } from 'formik';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { InfoRow } from './inventory-info-row';
-
-const INVENTORY = 'inventory'
+import { useGetUserInfo } from '@/hooks/useGetUserInfo';
+import { useAddSubOperation, useUpdateSubOperation } from '@/hooks/api/mutations/operations/useOperationsMutation';
+// import { UpdateOperationPayload, useUpdateOperation } from '@/hooks/api/mutations/operations/useUpdateOperation';
 
 interface Operation {
   id: string;
@@ -25,32 +26,29 @@ interface Operation {
 }
 
 interface OperationFormProps {
-  //formik: FormikProps<any>;
   customOperations: Operation[];
-  handleUpdateOperation: (values: any) => void;
-  isUpdating: boolean;
-  selectedInventory: any;
-  editingOperationId: string | null;
-  addedOperations: any[];
-  setAddedOperations: (e: any) => void;
-  setShowOperationInputs?: (e: any) => void;
+  selectedInventory: any[];
+  selectedOperations?: any[];
+  editingOperationId?: string | null;
+  onCancel?: (e: any) => void;
+  operation: any;
 }
 
 const formatDate = (date: string | number | Date) => format(new Date(date), 'dd/MM/yyyy');
-const formatTime = (time: any) => format(new Date(`1970-01-01T${time}:00`), 'h:mm a');
+//const formatTime = (time: any) => format(new Date(`1970-01-01T${time}:00`), 'hh:mm ss');
 
 const OperationForm: React.FC<OperationFormProps> = ({
   //formik,
   customOperations,
-  handleUpdateOperation,
-  isUpdating,
   selectedInventory,
+  selectedOperations = [],
   editingOperationId,
-  setAddedOperations,
-  addedOperations,
-  setShowOperationInputs
+  onCancel,
+  operation
 }) => {
-  //const [state, setState] = useState({ input: true, output: false })
+  const { userID } = useGetUserInfo();
+  const { mutateAsync: addSubOperation, isLoading: isAddingSubOperation } = useAddSubOperation()
+  const { mutateAsync: updateSubOperation, isLoading: isUpdatingSubOperation } = useUpdateSubOperation(operation.id, operation?.batch)
 
   const formik = useFormik({
     initialValues: {
@@ -63,16 +61,26 @@ const OperationForm: React.FC<OperationFormProps> = ({
       input_quantity: '',
       quantity_produced: 0,
       waste_produced: 0,
+      user: userID,
+      batch: operation?.id
     },
     onSubmit: async (values) => {
+      const { start_date, end_date, start_time, end_time, input_quantity } = values
+      const payload = {
+        ...values,
+        input_quantity: Number(input_quantity),
+        start_date: start_date ? format(new Date(start_date), 'yyyy-MM-dd') : null,
+        end_date: end_date ? format(new Date(end_date), 'yyyy-MM-dd') : null,
+        start_time: start_time ? format(new Date(`1970-01-01T${start_time}:00`), 'hh:mm:ss') : null,
+        end_time: end_time ? format(new Date(`1970-01-01T${end_time}:00`), 'hh:mm:ss') : null
+      }
+
       if (editingOperationId) {
-        handleUpdateOperation(values);
+        await updateSubOperation(payload)
       } else {
-        //await handleSaveOperation(values);
-        const payload = { ...values, id: addedOperations?.length + 1 }
-        setAddedOperations([...addedOperations, payload])
+        await addSubOperation(payload)
         formik.resetForm()
-        if (setShowOperationInputs) setShowOperationInputs(false)
+        onCancel!(false)
       }
     },
   });
@@ -86,13 +94,34 @@ const OperationForm: React.FC<OperationFormProps> = ({
     )
   }
 
+  const computedSources = useMemo(() => {
+    return selectedOperations?.length ? selectedOperations.map((item) => {
+      return {
+        label: `${item.operation_type} - ${item.quantity_left}kg`,
+        id: item?.id,
+        key: item.operation_type,
+        quantity_left: item.quantity_left
+      }
+    }) : []
+  }, [selectedOperations])
+
   const inputSources = [
-    { label: 'From Inventory - 1,598kg', key: 'inventory' }
+    {
+      label: `From Inventory - ${operation.quantity_left}kg`,
+      id: editingOperationId ? operation?.input_source : operation?.id,
+      key: 'Inventory',
+      quantity_left: operation.quantity_left
+    },
+    ...computedSources
   ]
 
+  const selectedSource = () => {
+    return inputSources.find((item) => item.id === formik.values.input_source) || {}
+  }
+
   const handleSource = (val: string) => {
-    const source = inputSources.find((item) => item.key === val)
-    if (source) formik.setFieldValue('input_source', source.key)
+    const source = inputSources.find((item) => item.id === val)
+    if (source) formik.setFieldValue('input_source', source.id)
   }
 
   const handleInputQuantity = (id: string, val: any) => {
@@ -100,15 +129,47 @@ const OperationForm: React.FC<OperationFormProps> = ({
   }
 
   const sourceTotalQty = useMemo(() => {
-    return selectedInventory.reduce((sum: number, item: any) => sum + item.quantity, 0)
+    return selectedInventory.reduce((sum: number, item: any) => sum + item.input_quantity, 0)
   }, [selectedInventory])
 
+  const handleCancelClick = (e: any) => {
+    e.stopPropagation()
+    if (editingOperationId) {
+      resetEditForm()
+    } else {
+      formik.resetForm();
+      onCancel!(false)
+    }
+  };
+
+  const resetEditForm = () => {
+    const start_time = operation.start_time ? operation.start_time.split(':')[0] + ':' + operation.start_time.split(':')[1] : ''
+    const end_time = operation.end_time ? operation.end_time.split(':')[0] + ':' + operation.end_time.split(':')[1] : ''
+
+    formik.setValues({
+      ...formik.values,
+      input_source: operation.input_source ?? '',
+      operation_type: operation.operation_type ?? '',
+      start_date: operation.start_date ?? '',
+      start_time,
+      end_date: operation.end_date ?? '',
+      end_time,
+      input_quantity: operation.input_quantity ?? '',
+      quantity_produced: operation.quantity_produced ?? 0,
+      waste_produced: operation.waste_produced ?? 0,
+    })
+  }
+
+  useEffect(() => {
+    if (editingOperationId) resetEditForm()
+  }, [editingOperationId])
+
   return (
-    <div className='w-full flex flex-col gap-4'>
+    <form className='w-full flex flex-col gap-4' onSubmit={formik.handleSubmit}>
       <Accordion type='multiple' className='w-full'>
-        <AccordionItem value="input">
+        <AccordionItem className='border-0' value="input">
           <AccordionTrigger
-            className='no-underline hover:no-underline focus:no-underline !pt-0 '
+            className='no-underline hover:no-underline focus:no-underline !pt-0'
           // onClick={() => {
           //   setState({ ...state, input: true })
           // }}
@@ -131,14 +192,21 @@ const OperationForm: React.FC<OperationFormProps> = ({
                   </SelectTrigger>
                   <SelectContent>
                     {inputSources.map((sources) => (
-                      <SelectItem key={sources.key} value={sources.key}>
+                      <SelectItem key={sources.key} value={sources.id}>
                         {sources.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              {formik.values.input_source === INVENTORY && <InventorySection formik={formik} totalQty={sourceTotalQty} handleChange={handleInputQuantity} />}
+              {formik.values.input_source && (
+                <SourceDetails
+                  formik={formik}
+                  totalQty={sourceTotalQty}
+                  handleChange={handleInputQuantity}
+                  source={selectedSource()}
+                />
+              )}
               <div className='w-full flex flex-col gap-2'>
                 <Label>Operation type</Label>
                 <Select
@@ -189,7 +257,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
         </AccordionItem>
       </Accordion>
       <Accordion type='multiple' className='w-full'>
-        <AccordionItem value="output">
+        <AccordionItem className='border-0' value="output">
           <AccordionTrigger
             className='no-underline hover:no-underline focus:no-underline !pt-0'
           // onClick={() => {
@@ -236,10 +304,14 @@ const OperationForm: React.FC<OperationFormProps> = ({
                     name='quantity_produced'
                     className='pr-16'
                     value={formik.values.quantity_produced}
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      const { value } = e.target
+                      if (value > formik.values.input_quantity) return
+                      formik.handleChange(e)
+                    }}
                     onBlur={formik.handleBlur}
                   />
-                  <span className='absolute right-3 text-gray-500'>kg</span>
+                  <span className='absolute right-3 text-gray-500'>{formik.values.input_quantity}kg</span>
                 </div>
               </div>
               <div className='w-full relative'>
@@ -253,11 +325,16 @@ const OperationForm: React.FC<OperationFormProps> = ({
                     placeholder='0'
                     name='waste_produced'
                     className='pr-16'
+                    max={formik.values.input_quantity}
                     value={formik.values.waste_produced}
-                    onChange={formik.handleChange}
+                    onChange={(e) => {
+                      const { value } = e.target
+                      if (value > formik.values.input_quantity) return
+                      formik.handleChange(e)
+                    }}
                     onBlur={formik.handleBlur}
                   />
-                  <span className='absolute right-4 text-gray-500'>kg</span>
+                  <span className='absolute right-4 text-gray-500'>{formik.values.input_quantity}kg</span>
                 </div>
               </div>
               <div>
@@ -280,23 +357,26 @@ const OperationForm: React.FC<OperationFormProps> = ({
       <div className='w-full flex justify-start space-x-2'>
         <Button
           variant='outline'
-          type='button'
-          onClick={() => isUpdating ? handleUpdateOperation(formik.values) : formik.handleSubmit()}
+          type='submit'
+          //type='button'
+          disabled={isAddingSubOperation || isUpdatingSubOperation}
           className='w-auto'
         >
-          {isUpdating ? 'Updating...' : editingOperationId ? 'Update Operation' : 'Add Operation'}
+          {editingOperationId ?
+            <>{isUpdatingSubOperation ? 'Updating...' : 'Update Operation'}</> :
+            <>{isAddingSubOperation ? 'Adding...' : 'Add Operation'}</>
+          }
         </Button>
-        {setShowOperationInputs && (
-          <Button
-            type='button'
-            onClick={() => setShowOperationInputs(false)}
-            className='w-auto border-0'
-          >
-            Cancel
-          </Button>
-        )}
+        <Button
+          type='button'
+          disabled={isAddingSubOperation || isUpdatingSubOperation}
+          onClick={handleCancelClick}
+          className='w-auto border-0'
+        >
+          Cancel
+        </Button>
       </div>
-    </div>
+    </form>
   );
 };
 
@@ -304,26 +384,27 @@ interface InterventionSectionProps {
   handleChange: (id: any, value: any) => void;
   formik: FormikProps<any>;
   totalQty: number;
+  source: any;
 }
 
-const InventorySection = ({ handleChange, formik, totalQty }: InterventionSectionProps) => {
+const SourceDetails = ({ source, handleChange, formik, totalQty }: InterventionSectionProps) => {
   const [show, setShow] = useState(true)
 
   return (
     <div className='w-full flex flex-col gap-2'>
       <p className='text-xs text-primary font-medium mb-2'>
-        Total quantity: <span className='text-quaternary font-normal'>0kg</span>
+        Total quantity: <span className='text-quaternary font-normal'>{totalQty}kg</span>
       </p>
       <div className='w-full border border-[#D5D7DA] p-3 rounded-xl shadow-sm'>
         <div className='flex items-start justify-between'>
-          <p className='text-sm font-medium'>Inventory</p>
+          <p className='text-sm font-medium'>{source?.key}</p>
           <div className='flex items-center'>
             <button
               type='button'
               className='px-2'
             //onClick={() => onDelete(inventory.id)}
             >
-              <Icon name="trash-03" className='w-4 h-4 text-white hidden sm:block' />
+              <Icon name="trash" className='w-4 h-4 text-quaternary' />
             </button>
             <button type='button' className='px-2' onClick={() => setShow(!show)}>
               {show ?
@@ -338,8 +419,7 @@ const InventorySection = ({ handleChange, formik, totalQty }: InterventionSectio
             <InfoRow
               label='Input quantity'
               onChange={handleChange}
-              inventory={{ quantity: totalQty }}
-              value={formik.values.input_quantity}
+              inventory={{ quantity: totalQty, input_quantity: formik.values.input_quantity, quantity_left: source.quantity_left }}
               icon='scales'
               showInput={true}
             />

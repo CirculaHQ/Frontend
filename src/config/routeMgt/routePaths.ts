@@ -10,6 +10,7 @@ export const appRoute = {
   operations: `/operations`,
   operations_details: `/operations/operations-details`,
   add_operation: `/operations/add-operation`,
+  editOperation: (id?: number | string) => `/operations/add-operation?operationId=${id}`,
 
   settings: `/settings`,
 

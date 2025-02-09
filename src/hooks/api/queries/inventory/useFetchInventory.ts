@@ -43,6 +43,7 @@ export interface Inventory {
   currency: string;
   amount: string;
   quantity: number;
+  quantity_left: number;
   code: string;
   vendor: Vendor;
   customer: string;

@@ -13,10 +13,11 @@ import { Inventory } from '@/hooks/api/queries/inventory';
 import InventoryInfo from './inventory-info';
 import { useMemo, useState } from 'react';
 import { useCreateBatch } from '@/hooks/api/mutations/operations/useOperationsMutation';
+import { useSearchParams } from 'react-router-dom';
+import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 
 interface InventoryDetailsProps {
   selectedInventory: Inventory[];
-  selectedInventoryId: string[];
   onSelect: (value: string) => void;
   onDelete: (value: string) => void;
   onChange: (value: string, input: string) => void;
@@ -25,26 +26,28 @@ interface InventoryDetailsProps {
 
 const InventoryDetails: React.FC<InventoryDetailsProps> = ({
   selectedInventory,
-  selectedInventoryId,
   onSelect,
   onDelete,
   onChange,
   data,
 }) => {
+  const { userID } = useGetUserInfo();
+  const [searchParams, setSearchParams] = useSearchParams()
+  const operationId = searchParams.get('operationId') ?? ''
   const [collapse, setCollapse] = useState(false)
-  const { mutateAsync: createBatch, isLoading, data: batchData } = useCreateBatch();
+  const { mutateAsync: createBatch, isLoading } = useCreateBatch();
 
   const totalQty = useMemo(() => {
-    return selectedInventory.reduce((sum, item) => sum + item.quantity, 0)
+    return selectedInventory.reduce((sum, item) => sum + (item.quantity_left || item.quantity), 0)
   }, [selectedInventory])
 
   const availableQty = useMemo(() => {
-    return selectedInventory.reduce((sum, item) => sum + item.quantity, 0)
+    return selectedInventory.reduce((sum, item) => sum + (item.quantity_left || item.quantity), 0)
   }, [selectedInventory])
 
   const submit = async () => {
     const payload = {
-      user: selectedInventory[0].user.id,
+      user: userID,
       inventories: [],
       input_quantities: []
     } as any
@@ -53,7 +56,7 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
       payload.input_quantities.push(Number(input_quantity))
     })
     const res = await createBatch(payload)
-    console.log(res)
+    if (res) setSearchParams({ operationId: res.id })
   }
 
   return (
@@ -114,16 +117,18 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
         </button>
       )}
       <div className='w-full flex justify-start space-x-2'>
-        <Button
-          variant='outline'
-          type='button'
-          disabled={!selectedInventory.length}
-          onClick={submit}
-          isLoading={isLoading}
-          className='w-auto'
-        >
-          Create batch
-        </Button>
+        {!operationId && (
+          <Button
+            variant='outline'
+            type='button'
+            disabled={!selectedInventory.length}
+            onClick={submit}
+            isLoading={isLoading}
+            className='w-auto'
+          >
+            Create batch
+          </Button>
+        )}
         {/* {setShowOperationInputs && (
           <Button
             type='button'
