@@ -1,5 +1,6 @@
 import { FormSection } from '@/components/shared';
 import {
+  Button,
   Icon,
   Label,
   Select,
@@ -10,11 +11,14 @@ import {
 } from '@/components/ui';
 import { Inventory } from '@/hooks/api/queries/inventory';
 import InventoryInfo from './inventory-info';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useCreateBatch } from '@/hooks/api/mutations/operations/useOperationsMutation';
+import { useSearchParams } from 'react-router-dom';
+import { useGetUserInfo } from '@/hooks/useGetUserInfo';
+import { areMaterialTypesSame } from '@/utils/objectFormatter';
 
 interface InventoryDetailsProps {
   selectedInventory: Inventory[];
-  selectedInventoryId: string[];
   onSelect: (value: string) => void;
   onDelete: (value: string) => void;
   onChange: (value: string, input: string) => void;
@@ -23,13 +27,38 @@ interface InventoryDetailsProps {
 
 const InventoryDetails: React.FC<InventoryDetailsProps> = ({
   selectedInventory,
-  selectedInventoryId,
   onSelect,
   onDelete,
   onChange,
   data,
 }) => {
+  const { userID } = useGetUserInfo();
+  const [searchParams, setSearchParams] = useSearchParams()
+  const operationId = searchParams.get('operationId') ?? ''
   const [collapse, setCollapse] = useState(false)
+  const { mutateAsync: createBatch, isLoading } = useCreateBatch();
+
+  const totalQty = useMemo(() => {
+    return selectedInventory.reduce((sum, item) => sum + (item.quantity_left || item.quantity), 0)
+  }, [selectedInventory])
+
+  const availableQty = useMemo(() => {
+    return selectedInventory.reduce((sum, item) => sum + (item.quantity_left || item.quantity), 0)
+  }, [selectedInventory])
+
+  const submit = async () => {
+    const payload = {
+      user: userID,
+      inventories: [],
+      input_quantities: []
+    } as any
+    selectedInventory.map(({ id, input_quantity }) => {
+      payload.inventories.push(id)
+      payload.input_quantities.push(Number(input_quantity))
+    })
+    const res = await createBatch(payload)
+    if (res) setSearchParams({ operationId: res.id })
+  }
 
   return (
     <FormSection title='Inventory details' description='Supporting text goes here'>
@@ -52,7 +81,7 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
       {!!selectedInventory.length && !collapse && (
         <div className='w-full'>
           <p className='text-xs text-primary font-medium mb-4'>
-            Total quantity: <span className='text-quaternary font-normal'>0kg;</span> Available quantity: <span className='text-quaternary font-normal'>0kg;</span>
+            Total quantity: <span className='text-quaternary font-normal'>{totalQty}kg;</span> Available quantity: <span className='text-quaternary font-normal'>{availableQty}kg;</span>
           </p>
           <div className='space-y-4'>
             {selectedInventory.map((inventory) => (
@@ -79,6 +108,12 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           </div>
         </div>
       )}
+      {selectedInventory.length > 1 && !areMaterialTypesSame(selectedInventory) && (
+        <p className='text-sm'>
+          <Icon name="alert-triangle" className='w-[15.02px] h-[13.34px] inline mr-1' />
+          Material type and state of selected inventories do not match.
+        </p>
+      )}
       {selectedInventory.length > 1 && (
         <button
           type='button'
@@ -88,6 +123,29 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           {collapse ? "Expand" : "Collapse"} Items
         </button>
       )}
+      <div className='w-full flex justify-start space-x-2'>
+        {!operationId && (
+          <Button
+            variant='outline'
+            type='button'
+            disabled={!selectedInventory.length || (selectedInventory.length > 1 && !areMaterialTypesSame(selectedInventory))}
+            onClick={submit}
+            isLoading={isLoading}
+            className='w-auto'
+          >
+            Create batch
+          </Button>
+        )}
+        {/* {setShowOperationInputs && (
+          <Button
+            type='button'
+            onClick={() => setShowOperationInputs(false)}
+            className='w-auto border-0'
+          >
+            Cancel
+          </Button>
+        )} */}
+      </div>
     </FormSection>
   )
 };

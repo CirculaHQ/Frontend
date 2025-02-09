@@ -11,6 +11,7 @@ export interface OperationPayload {
     end_date: string | undefined;
     end_time: string | undefined;
     input_quantity: number;
+    input_source: string;
     quantity_produced: number;
     waste_produced: number;
     user: string;

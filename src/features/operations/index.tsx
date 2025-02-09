@@ -25,6 +25,8 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Operation } from '@/types/operations';
+import { getMaterialColor } from '@/utils/materials';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,6 +58,11 @@ const Operations = () => {
     setCurrentPage(page);
   };
 
+  const navigateToEditOperation = (e: any, operation: any) => {
+    e.stopPropagation();
+    navigate(appRoute.editOperation(operation.id));
+  };
+
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
     useFetchInventoryBreakdown();
 
@@ -65,7 +72,7 @@ const Operations = () => {
 
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
-      color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      color: getMaterialColor(material),
       weight: quantity,
       label: material,
       value: `${quantity} kg`,
@@ -224,7 +231,7 @@ const Operations = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem className='py-2  rounded-[8px]' onClick={(e) => navigateToEditOperation(e, item)}>
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>
@@ -274,7 +281,7 @@ const Operations = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem className='py-2  rounded-[8px]' onClick={(e) => navigateToEditOperation(e, item)}>
                           <Icon name='edit' className='w-4 h-4 text-quaternary' />
                           Edit details
                         </DropdownMenuItem>

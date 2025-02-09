@@ -2,7 +2,7 @@ import { Icon, Input } from "@/components/ui";
 
 interface InfoRowProps {
     label: string;
-    value: string | number;
+    value?: string | number;
     icon: string;
     showInput?: boolean;
     inventory?: any;
@@ -22,7 +22,7 @@ export const InfoRow = ({ label, value, icon, inventory, onChange, showInput = f
                     placeholder='0'
                     label=''
                     name='input_quantity'
-                    tag={`/${inventory.quantity}kg`}
+                    tag={`/${inventory.quantity_left || inventory.quantity}kg`}
                     onChange={(e) => {
                         const { value } = e.target
                         if (isNaN(Number(value))) return;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { InfoIcon, X } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   AlertDialog,
