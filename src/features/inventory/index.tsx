@@ -37,7 +37,7 @@ import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useF
 import { useFetchInventory } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMaterialColor } from '@/utils/materials';
-import { capitalizeFirstLetter } from '@/utils/textFormatter';
+import { capitalizeFirstLetter, generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -134,21 +134,21 @@ const Inventory = () => {
 
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
-        // color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-        color: getMaterialColor(material),
-        weight: quantity,
-        label: capitalizeFirstLetter(material),
-        value: `${quantity} kg`,
-        percentage: `${((quantity / inventoryBreakdown.total_quantity) * 100).toFixed(1)}%`,
-        subSegments: inventoryBreakdown.material_types[material]
-          ? Object.entries(inventoryBreakdown.material_types[material]).map(
-              ([type, subQuantity]) => ({
-                name: type,
-                amount: subQuantity,
-              })
-            )
-          : [],
-      }))
+      // color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      color: getMaterialColor(material),
+      weight: quantity,
+      label: capitalizeFirstLetter(material),
+      value: `${quantity} kg`,
+      percentage: `${((quantity / inventoryBreakdown.total_quantity) * 100).toFixed(1)}%`,
+      subSegments: inventoryBreakdown.material_types[material]
+        ? Object.entries(inventoryBreakdown.material_types[material]).map(
+          ([type, subQuantity]) => ({
+            name: type,
+            amount: subQuantity,
+          })
+        )
+        : [],
+    }))
     : [];
 
   if (isLoading) return <div>Loading...</div>;
@@ -255,10 +255,9 @@ const Inventory = () => {
               key={tab.value}
               value={tab.value}
               className={`px-1 py-2 rounded-none
-                ${
-                  currentTab === tab.value
-                    ? 'border-b-2 border-green-500 !text-green-600 font-medium'
-                    : 'text-gray-500 hover:text-gray-700'
+                ${currentTab === tab.value
+                  ? 'border-b-2 border-green-500 !text-green-600 font-medium'
+                  : 'text-gray-500 hover:text-gray-700'
                 }
                   `}
             >
@@ -312,10 +311,20 @@ const Inventory = () => {
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src='https://github.com/shadcn.png' />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarImage src={item?.vendor?.photo} />
+                        <AvatarFallback
+                          style={{ backgroundColor: generateRandomBackgroundColor() }}
+                          className='w-[24px] h-[24px] rounded-full text-white'
+                        >
+                          {getInitials(
+                            item?.vendor?.business_name[0] ||
+                            `${item?.vendor?.first_name} ${item?.vendor?.last_name}`
+                          )}
+                        </AvatarFallback>
                       </Avatar>
-                      <span className='text-sm text-tertiary'>{item.vendor?.account_name ?? 'N/A'}</span>
+                      <span className='font-medium text-sm text-primary capitalize'>
+                        {item?.vendor?.business_name || (item?.vendor?.first_nam ? `${item?.vendor?.first_name} ${item?.vendor?.last_name}` : 'N/A')}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
