@@ -83,7 +83,7 @@ const AddInventory = () => {
   }
 
   const { data: materials, isLoading: isLoadingMaterials } = useFetchMaterials()
-  const { data: materialTypes, isLoading: isLoadingMaterialTypes } = useFetchMaterialTypes(getMaterialId(inventoryDataToEdit.material || formik.values.material))
+  const { data: materialTypes, isLoading: isLoadingMaterialTypes } = useFetchMaterialTypes(getMaterialId(inventoryDataToEdit?.material || formik.values.material))
   const { data: materialState, isLoading: isLoadingMaterialState } = useFetchMaterialState()
 
   useEffect(() => {
