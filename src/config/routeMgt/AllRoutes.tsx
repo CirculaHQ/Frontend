@@ -91,7 +91,7 @@ const authenticatedRoutes = [
     element: <AddVendor />,
   },
   {
-    path: appRoute.vendor_details,
+    path: appRoute.vendorDetails().format,
     element: <VendorDetails />,
   },
   {

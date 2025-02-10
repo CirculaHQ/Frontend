@@ -1,4 +1,4 @@
-import { ModuleHeader, TextBadge } from '@/components/shared';
+import { BackButton, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Button,
   DropdownMenu,
@@ -9,14 +9,25 @@ import {
 } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { useNavigate } from 'react-router-dom';
+import { useFetchVendor } from '@/hooks/api/queries/contacts';
+import { BUSINESS } from '@/types';
+import { capitalizeFirstLetterOfEachWord } from '@/utils/textFormatter';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const VendorDetails = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const { data, isLoading } = useFetchVendor(id);
+  const isBusiness = data?.type === BUSINESS;
+
+  if (isLoading) return <p>Fetching vendor details...</p>;
+  if (!data) return <p>No vendor data found</p>;
+
+  const name = isBusiness ? data?.account_name : `${data?.first_name} ${data?.last_name}`;
 
   const vendorData = {
     'Business information': {
-      'Business name': 'Squash Inc.',
+      'Business name': capitalizeFirstLetterOfEachWord(name),
       'Phone number': '+2348012345678',
       'Email address': 'hi@squash.co',
       'Role in value chain': 'Distributor',
@@ -55,19 +66,27 @@ const VendorDetails = () => {
 
   return (
     <div className='p-4'>
-      <button
-        onClick={() => navigate(appRoute.vendors)}
-        className='text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4'
-      >
-        <Icon name='arrow-left' className='w-5 h-5' /> Back to Vendors
-      </button>
+      <BackButton route={appRoute.vendors} label='Back to Vendors' />
       <div className='flex justify-between items-center mb-6'>
-        <div className='bg-white p-[3px] rounded-2xl shadow-md mr-4'>
-          <div className='bg-[#F5F5F5] rounded-2xl w-[72px] h-[72px] border border-[#D5D7DA] flex flex-col items-center justify-center'>
-            <Icon name='persona' className='w-9 h-9' />
+        <div className='mr-4'>
+          <div className='bg-[#F5F5F5] rounded-full w-[56px] h-[56px] border flex flex-col items-center justify-center'>
+            {!data.photo ? (
+              <Icon name='persona' className='w-9 h-9 rounded-full' />
+            ) : (
+              <img
+                src={data.photo}
+                width={56}
+                height={56}
+                alt='pics'
+                className='object-cover rounded-full'
+              />
+            )}
           </div>
         </div>
-        <ModuleHeader title={vendorData['Business information']['Business name']}>
+        <ModuleHeader
+          title={vendorData['Business information']['Business name']}
+          description={data?.email}
+        >
           <div className='flex flex-row items-center gap-3'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -85,7 +104,12 @@ const VendorDetails = () => {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button>Secondary</Button>
-            <Button>Edit details</Button>
+            <Button
+              type='button'
+              onClick={() => navigate(`${appRoute.add_vendor}?type=${data.type}&id=${data.id}`)}
+            >
+              Edit details
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant='secondary'>Contact</Button>

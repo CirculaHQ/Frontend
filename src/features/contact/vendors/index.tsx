@@ -1,4 +1,4 @@
-import { FilterModule, ModuleHeader, TextBadge } from '@/components/shared';
+import { EmptyState, FilterModule, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Avatar,
   AvatarFallback,
@@ -18,28 +18,72 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useEditVendor } from '@/hooks/api/mutations/contacts';
+import { useExportVendors, useFetchVendors } from '@/hooks/api/queries/contacts';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Customer } from '@/types/customers';
+import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+const limit = 20;
+const initialParams = {
+  offset: 0,
+  search: '',
+  state: '',
+  type: '',
+  country: '',
+  archived: false,
+  limit,
+};
 
 const Vendors = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [currentPage, setCurrentPage] = useState(1);
-  const reportsPerPage = 20; // Adjust as needed
-  const totalPages = Math.ceil(100 / reportsPerPage);
+  const [params, setParams] = useState({ ...initialParams });
+
+  const { data, isLoading } = useFetchVendors(params);
+  const { exportVendors, isLoading: isExporting } = useExportVendors();
+  const { mutateAsync: editVendor, isLoading: isEditingVendor } = useEditVendor();
+
+  const vendors = data?.results || [];
+  const totalPages = data ? Math.ceil(data.count / limit) : 0;
+
+  const customerTypes = [
+    { label: 'business', icon: <TextBadge text='B' /> },
+    { label: 'individual', icon: <TextBadge text='I' /> },
+  ];
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
+    setParams({ ...params, offset: page - 1 });
   };
-  const templates = Array(5).fill(null);
+
+  const onSearchChange = (search: string) => {
+    setParams({ ...params, search });
+  };
+
+  const toggleArchive = () => {
+    setParams({ ...params, archived: !params.archived });
+  };
+
+  const archiveVendor = async (e: any, vendor: Customer) => {
+    e.stopPropagation();
+    const { id } = vendor;
+    await editVendor({ vendorId: id, payload: { archived: !vendor.archived } });
+  };
 
   return (
     <div>
       <ModuleHeader title='Vendors'>
         <div className='flex flex-row items-center gap-3'>
-          <Button>Show archive</Button>
-          <Button>Export</Button>
+          <Button disabled={isLoading} onClick={toggleArchive}>
+            {params.archived ? 'Hide' : 'Show'} archive
+          </Button>
+          <Button onClick={exportVendors} disabled={isExporting} isLoading={isExporting}>
+            Export
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='secondary'>Add vendor</Button>
@@ -48,14 +92,20 @@ const Vendors = () => {
               align='end'
               className='text-sm font-medium text-secondary rounded-[8px] px-1'
             >
-              <DropdownMenuItem className='py-2  rounded-[8px] justify-between' onClick={() => navigate(`${appRoute.add_vendor}?type=business`)}>Business <TextBadge text='B'/></DropdownMenuItem>
-              <DropdownMenuItem className='py-2 rounded-[8px] justify-between' onClick={() => navigate(`${appRoute.add_vendor}?type=individual`)}>Individual <TextBadge text='I'/></DropdownMenuItem>
+              {customerTypes.map((item) => (
+                <DropdownMenuItem
+                  key={item.label}
+                  className='py-2 rounded-[8px] justify-between capitalize'
+                  onClick={() => navigate(`${appRoute.add_vendor}?type=${item.label}`)}
+                >
+                  {item.label} {item.icon}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </ModuleHeader>
-      <FilterModule containerClass='mt-8' />
-
+      <FilterModule onSearchChange={onSearchChange} containerClass='mt-8' />
       <div className='mt-2'>
         {!isMobile ? (
           <Table>
@@ -70,28 +120,38 @@ const Vendors = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
+              {vendors.map((vendor) => (
+                <TableRow className='cursor-pointer' key={vendor?.id} onClick={() => navigate(`${appRoute.vendorDetails(vendor.id).path}`)}>
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src='https://github.com/shadcn.png' />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarImage src={vendor?.photo} />
+                        <AvatarFallback
+                          style={{ backgroundColor: generateRandomBackgroundColor() }}
+                          className='w-[24px] h-[24px] rounded-full text-white'
+                        >
+                          {getInitials(
+                            vendor?.business_name[0] ||
+                            `${vendor?.first_name} ${vendor?.last_name}`
+                          )}
+                        </AvatarFallback>
                       </Avatar>
-                      <span className='font-medium text-sm text-primary'>Circular HQ</span>
+                      <span className='font-medium text-sm text-primary capitalize'>
+                        {vendor?.business_name || `${vendor?.first_name} ${vendor?.last_name}`}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    admin@circulahq.com
+                    {vendor?.email}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    +2348012345679
+                    {vendor?.phone_number}
                   </TableCell>
-                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    Lagos, NG
+                  <TableCell className='w-[300px] text-tertiary font-normal text-sm capitalize'>
+                    {vendor?.state}
                   </TableCell>
-                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    Individual
+                  <TableCell className='w-[300px] text-tertiary font-normal text-sm capitalize'>
+                    {vendor?.type}
                   </TableCell>
                   <TableCell className='w-7'>
                     <DropdownMenu>
@@ -114,7 +174,9 @@ const Vendors = () => {
                         <DropdownMenuItem className='py-2 rounded-[8px]'>
                           Assign inventory
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>Archive</DropdownMenuItem>
+                        <DropdownMenuItem className='py-2 rounded-[8px]' onClick={(e) => archiveVendor(e, vendor)}>
+                          Archive
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -131,18 +193,26 @@ const Vendors = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className='cursor-pointer' key={index}>
+              {vendors.map((vendor) => (
+                <TableRow className='cursor-pointer' key={vendor?.id}>
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src='https://github.com/shadcn.png' />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarImage src={vendor.photo} />
+                        <AvatarFallback
+                          style={{ backgroundColor: generateRandomBackgroundColor() }}
+                          className='w-[24px] h-[24px] rounded-full text-white'
+                        >
+                          {getInitials(
+                            vendor?.business_name[0] ||
+                            `${vendor?.first_name} ${vendor?.last_name}`
+                          )}
+                        </AvatarFallback>
                       </Avatar>
-                      <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>Circular HQ</span>
-                      <h4 className='font-normal text-sm text-tertiary'>admin@circulahq.com</h4>
-                      </div>
+                      <span className='font-medium text-sm text-primary capitalize'>
+                        {vendor?.business_name || `${vendor?.first_name} ${vendor?.last_name}`}
+                      </span>
+                      <h4 className='font-normal text-sm text-tertiary'>{vendor?.email}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-7'>
@@ -166,7 +236,9 @@ const Vendors = () => {
                         <DropdownMenuItem className='py-2 rounded-[8px]'>
                           Assign inventory
                         </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>Archive</DropdownMenuItem>
+                        <DropdownMenuItem className='py-2 rounded-[8px]' onClick={(e) => archiveVendor(e, vendor)}>
+                          Archive
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -175,13 +247,25 @@ const Vendors = () => {
             </TableBody>
           </Table>
         )}
-        <TablePagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-          totalReports={100}
-          reportsPerPage={reportsPerPage}
-        />
+        {data?.results?.length !== 0 && (
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalReports={data?.count ?? 0}
+            reportsPerPage={limit}
+          />
+        )}
+        {!isLoading && !vendors?.length ? (
+          <EmptyState
+            icon='users-right'
+            title='No vendors yet'
+            description='Add a vendor and they will show up here.'
+            className='mt-8'
+          />
+        ) : (
+          ''
+        )}
       </div>
     </div>
   );

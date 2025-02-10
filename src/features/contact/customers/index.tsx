@@ -85,7 +85,7 @@ const Customers = () => {
       <ModuleHeader title='Customers'>
         <div className='flex flex-row items-center gap-3'>
           <Button disabled={isLoading} onClick={toggleArchive}>
-            {!params.archived ? 'Show' : 'Hide'} archive
+            {params.archived ? 'Hide' : 'Show'} archive
           </Button>
           <Button onClick={exportCustomers} disabled={isExporting} isLoading={isExporting}>
             Export
@@ -141,27 +141,27 @@ const Customers = () => {
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
                           {getInitials(
-                            customer.business_name[0] ||
-                              `${customer.first_name} ${customer.last_name}`
+                            customer?.business_name[0] ||
+                              `${customer?.first_name} ${customer?.last_name}`
                           )}
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
-                        {customer.business_name || `${customer.first_name} ${customer.last_name}`}
+                        {customer?.business_name || `${customer?.first_name} ${customer?.last_name}`}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    {customer.email}
+                    {customer?.email}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    {customer.phone_number}
+                    {customer?.phone_number}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm capitalize'>
-                    {customer.state}
+                    {customer?.state}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm capitalize'>
-                    {customer.type}
+                    {customer?.type}
                   </TableCell>
                   <TableCell className='w-7'>
                     <DropdownMenu>
@@ -210,26 +210,26 @@ const Customers = () => {
             </TableHeader>
             <TableBody>
               {customers.map((customer) => (
-                <TableRow className='cursor-pointer' key={customer.id}>
+                <TableRow className='cursor-pointer' key={customer?.id}>
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src={customer.photo} />
+                        <AvatarImage src={customer?.photo} />
                         <AvatarFallback
                           style={{ backgroundColor: generateRandomBackgroundColor() }}
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
                           {getInitials(
-                            customer.business_name[0] ||
-                              `${customer.first_name} ${customer.last_name}`
+                            customer?.business_name[0] ||
+                              `${customer?.first_name} ${customer?.last_name}`
                           )}
                         </AvatarFallback>
                       </Avatar>
                       <div className='flex flex-col items-start'>
                         <span className='font-medium text-sm text-primary'>
-                          {customer.business_name || `${customer.first_name} ${customer.last_name}`}
+                          {customer?.business_name || `${customer?.first_name} ${customer?.last_name}`}
                         </span>
-                        <h4 className='font-normal text-sm text-tertiary'>{customer.email}</h4>
+                        <h4 className='font-normal text-sm text-tertiary'>{customer?.email}</h4>
                       </div>
                     </div>
                   </TableCell>

@@ -1,4 +1,4 @@
-import { FormSection, ModuleHeader } from '@/components/shared';
+import { BackButton, FormSection, ModuleHeader, SelectFile } from '@/components/shared';
 import {
   Button,
   Icon,
@@ -12,50 +12,120 @@ import {
   Textarea,
   DatePicker,
 } from '@/components/ui';
+import { ROLE_IN_VALUE_CHAIN } from '@/config/common';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useAddVendor, useEditVendor } from '@/hooks/api/mutations/contacts';
+import { useGetUserInfo } from '@/hooks/useGetUserInfo';
+import { countries, states } from '@/mocks';
+import { AccountType, INDIVIDUAL } from '@/types';
+import { Customer } from '@/types/customers';
+import { uploadToCloudinary } from '@/utils/cloudinary-helper';
 import { useFormik } from 'formik';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const AddVendor = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-
+  const { userID } = useGetUserInfo();
+  const vendorId = searchParams.get('id') as string;
   const type = searchParams.get('type');
   const isBusiness = type === 'business';
+  const customerType = searchParams.get('type')?.toLowerCase() ?? INDIVIDUAL;
+
+  const { mutateAsync: addVendor, isLoading: isAddingVendor } = useAddVendor();
+  const { mutateAsync: editVendor, isLoading: isEditingVendor } = useEditVendor();
+
+  //const { data, isLoading: isLoadingCustomer } = useFetchCustomer(vendorId);
+
+  const button = {
+    loading: vendorId ? isEditingVendor : isAddingVendor,
+    name: vendorId ? 'Edit' : 'Add',
+  };
+
+  const data: any = {}
+
+  const [state, setState] = useState({
+    selectedFile: null,
+    preview: '',
+    isUploading: false,
+  });
 
   const formik = useFormik({
     initialValues: {
-      businessName: '',
-      phoneNumber: '',
+      business_name: '',
+      phone_number: '',
       email: '',
       lga: '',
-      accountNumber: '',
-      accountName: '',
-      firstName: '',
-      lastName: '',
+      account_number: '',
+      account_name: '',
+      first_name: '',
+      last_name: '',
       nickname: '',
+      state: '',
+      bank_name: '',
+      country: '',
+      role: '',
+      notes: '',
+      address: '',
     },
-    onSubmit: (values) => {},
+    onSubmit: async (values) => {
+      let payload = { ...values, type: customerType as AccountType, user: userID } as Customer;
+      let res
+
+      if (state.selectedFile) {
+        setState({ ...state, isUploading: true });
+        const res = await uploadToCloudinary(state.selectedFile);
+        if ('secure_url' in res) {
+          payload.photo = res?.secure_url;
+        }
+        setState({ ...state, isUploading: false });
+      }
+
+      if (!vendorId) {
+        res =await addVendor(payload);
+      } else {
+        res = await editVendor({ vendorId, payload });
+      }
+      navigate(appRoute.vendorDetails(res.id).path)
+    },
   });
+
+  const selectImage = (e: any) => {
+    const { file, preview } = e;
+    setState({ ...state, selectedFile: file, preview });
+  };
+
+  const ButtonComp = () => (
+    <>
+      <Button
+        disabled={button.loading || state.isUploading}
+        type='button'
+        variant='outline'
+        onClick={() => navigate(appRoute.vendors)}
+      >
+        Cancel
+      </Button>
+      <Button
+        disabled={button.loading || state.isUploading}
+        type='submit'
+        variant='secondary'
+        isLoading={button.loading || state.isUploading}
+      >
+        {button.name} vendor
+      </Button>
+    </>
+  )
 
   return (
     <div className='md:p-6 mx-auto'>
-      <button
-        onClick={() => navigate(appRoute.vendors)}
-        className='text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4'
-      >
-        <Icon name='arrow-left' className='w-5 h-5' /> Back to customers
-      </button>
+      <BackButton route={appRoute.vendors} label='Back to vendors' />
       <ModuleHeader title={`Add ${isBusiness ? 'Business' : 'Individual'} Vendor`} className='mb-10'>
         <div className='flex flex-row items-center gap-3'>
-          <Button variant='outline' onClick={() => navigate(appRoute.vendors)}>
-            Cancel
-          </Button>
-          <Button variant='secondary'>Add vendor</Button>
+          <ButtonComp />
         </div>
       </ModuleHeader>
-
-      <form>
+      <form onSubmit={formik.handleSubmit}>
         <FormSection
           title={`${isBusiness ? 'Business' : 'Personal'} Information`}
           description='Supporting text goes here'
@@ -68,19 +138,27 @@ const AddVendor = () => {
             <div className='flex items-center gap-4'>
               <div className='bg-white p-[3px] rounded-2xl shadow-md'>
                 <div className='bg-[#F5F5F5] rounded-2xl w-[72px] h-[72px] border border-[#D5D7DA] flex flex-col items-center justify-center'>
-                  <Icon name='persona' className='w-9 h-9' />
+                  {!data?.photo && !state.selectedFile ? (
+                    <Icon name='persona' className='w-9 h-9' />
+                  ) : (
+                    <img
+                      src={state.preview || data?.photo}
+                      alt='pics'
+                      width={72}
+                      height={72}
+                      className='object-cover object-top w-[72px] h-[72px] rounded-2xl'
+                    />
+                  )}
                 </div>
               </div>
-
               <div className='flex flex-col'>
-                <Button className='w-fit mb-1'>Upload image</Button>
+                <SelectFile onSelect={selectImage} fileTypes='image/png, image/jpg' />
                 <p className='text-xs text-gray-500'>
                   .png, .jpg, files up to 2MB. Recommended size is 128x128px.
                 </p>
               </div>
             </div>
           </div>
-
           {!isBusiness && (
             <div className='flex flex-col md:flex-row items-start md:items-center md:justify-between gap-4 w-full'>
               <Input
@@ -88,38 +166,36 @@ const AddVendor = () => {
                 type='text'
                 placeholder='e.g. John'
                 label='First name'
-                name='firstName'
+                name='first_name'
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values.firstName}
+                value={formik.values.first_name}
                 errorMessage={
-                  formik.errors.firstName && formik.touched.firstName ? formik.errors.firstName : ''
+                  formik.errors.first_name && formik.touched.first_name ? formik.errors.first_name : ''
                 }
               />
-
               <Input
                 id='last-name'
                 type='text'
                 placeholder='e.g. Doe'
                 label='Last name'
-                name='lastName'
+                name='last_name'
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values.lastName}
+                value={formik.values.last_name}
                 errorMessage={
-                  formik.errors.lastName && formik.touched.lastName ? formik.errors.lastName : ''
+                  formik.errors.last_name && formik.touched.last_name ? formik.errors.last_name : ''
                 }
               />
             </div>
           )}
-
           {!isBusiness && (
             <div className='w-full'>
               <Input
                 id='nick-name'
                 type='text'
                 placeholder='e.g. Johnny'
-                label='Nickname(Optional)'
+                label='Nickname (Optional)'
                 name='nickname'
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -139,18 +215,17 @@ const AddVendor = () => {
               type='text'
               placeholder='e.g. Circula'
               label='Business name'
-              name='businessName'
+              name='business_name'
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.businessName}
+              value={formik.values.business_name}
               errorMessage={
-                formik.errors.businessName && formik.touched.businessName
-                  ? formik.errors.businessName
+                formik.errors.business_name && formik.touched.business_name
+                  ? formik.errors.business_name
                   : ''
               }
             />
           )}
-
           {!isBusiness && (
             <div className='w-full'>
               <Label className='mb-1.5'>Date of birth</Label>
@@ -162,17 +237,16 @@ const AddVendor = () => {
             type='text'
             placeholder='NG +2348012345678'
             label='Phone number'
-            name='phoneNumber'
+            name='phone_number'
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            value={formik.values.phoneNumber}
+            value={formik.values.phone_number}
             errorMessage={
-              formik.errors.phoneNumber && formik.touched.phoneNumber
-                ? formik.errors.phoneNumber
+              formik.errors.phone_number && formik.touched.phone_number
+                ? formik.errors.phone_number
                 : ''
             }
           />
-
           <Input
             id='email'
             type='email'
@@ -184,28 +258,33 @@ const AddVendor = () => {
             value={formik.values.email}
             errorMessage={formik.errors.email && formik.touched.email ? formik.errors.email : ''}
           />
-
           <div className='w-full flex flex-col gap-1.5'>
             <Label>Role in value chain</Label>
-            <Select>
+            <Select
+              value={formik.values.role}
+              onValueChange={(value) => formik.setFieldValue('role', value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder='Select role' className='text-placeholder font-normal' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='m@example.com'>Supplier</SelectItem>
-                <SelectItem value='m@google.com'>Retailer</SelectItem>
+                {ROLE_IN_VALUE_CHAIN.map((item) => (
+                  <SelectItem key={item.name} value={item.name}>{item.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </FormSection>
-
         <FormSection
           title={`${isBusiness ? 'Business' : 'Personal'} Address`}
           description='Supporting text goes here'
         >
           <div className='w-full flex flex-col gap-1.5'>
             <Label>Country</Label>
-            <Select>
+            <Select
+              value={formik.values.country}
+              onValueChange={(value) => formik.setFieldValue('country', value)}
+            >
               <SelectTrigger>
                 <SelectValue
                   placeholder='Select country'
@@ -213,14 +292,21 @@ const AddVendor = () => {
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='m@example.com'>Nigeria</SelectItem>
-                <SelectItem value='m@google.com'>Ghana</SelectItem>
+                {countries.map((country) => (
+                  <SelectItem key={country.label} value={country.value}>
+                    {country.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
-
-          <Textarea label='Address' placeholder='Your address' />
-
+          <Textarea
+            id='address'
+            label='Address'
+            placeholder='Your address'
+            onChange={formik.handleChange}
+            value={formik.values.address}
+          />
           <Input
             id='lga'
             type='text'
@@ -232,84 +318,79 @@ const AddVendor = () => {
             value={formik.values.lga}
             errorMessage={formik.errors.lga && formik.touched.lga ? formik.errors.lga : ''}
           />
-
           <div className='w-full flex flex-col gap-1.5'>
             <Label>State</Label>
-            <Select>
+            <Select
+              value={formik.values.state}
+              onValueChange={(value) => formik.setFieldValue('state', value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder='Select state' className='text-placeholder font-normal' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='m@example.com'>Lagos</SelectItem>
-                <SelectItem value='m@google.com'>Abuja</SelectItem>
+                {states.map((state) => (
+                  <SelectItem key={state.label} value={state.value}>
+                    {state.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </FormSection>
-
         <FormSection title='Bank Details' description='Supporting text goes here'>
-          <div className='w-full flex flex-col gap-1.5'>
-            <Label>Bank name</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue
-                  placeholder='Select your bank name'
-                  className='text-placeholder font-normal'
-                />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='m@example.com'>First Bank</SelectItem>
-                <SelectItem value='m@google.com'>GT Bank</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
+          <Input
+            id='bank-name'
+            type='text'
+            placeholder='e.g. Access Bank'
+            label='Bank name'
+            name='bank_name'
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.bank_name}
+            errorMessage={
+              formik.errors.bank_name && formik.touched.bank_name ? formik.errors.bank_name : ''
+            }
+          />
           <Input
             id='account-number'
             type='text'
             placeholder='e.g. 0000000000'
             label='Account number'
-            name='accountNumber'
+            name='account_number'
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            value={formik.values.accountNumber}
+            value={formik.values.account_number}
             errorMessage={
-              formik.errors.accountNumber && formik.touched.accountNumber
-                ? formik.errors.accountNumber
+              formik.errors.account_number && formik.touched.account_number
+                ? formik.errors.account_number
                 : ''
             }
           />
-
           <Input
             id='account-name'
             type='text'
             placeholder='e.g. Circula'
             label='Account name'
-            name='accountName'
+            name='account_name'
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            value={formik.values.accountName}
+            value={formik.values.account_name}
             errorMessage={
-              formik.errors.accountName && formik.touched.accountName
-                ? formik.errors.accountName
+              formik.errors.account_name && formik.touched.account_name
+                ? formik.errors.account_name
                 : ''
             }
           />
-
           <Textarea
             id='notes'
             placeholder='SWIFT code, Routing number, etc.'
             label='Additional notes (Optional)'
+            onChange={formik.handleChange}
+            value={formik.values.notes}
           />
         </FormSection>
-
         <div className='flex justify-end gap-4 mt-8'>
-          <Button variant='outline' onClick={() => navigate(appRoute.vendors)}>
-            Cancel
-          </Button>
-          <Button type='submit' variant='secondary' onClick={() => navigate(appRoute.vendor_details)}>
-            Add vendor
-          </Button>
+          <ButtonComp />
         </div>
       </form>
     </div>
