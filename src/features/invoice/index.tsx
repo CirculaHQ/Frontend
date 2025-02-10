@@ -264,8 +264,26 @@ const Invoices = () => {
                       </h4>
                     </div>
                   </TableCell>
-                  <TableCell className="w-[300px] text-tertiary font-normal text-sm">
-                    Sorting
+                  <TableCell className='w-[300px]'>
+                    <div className='flex flex-row items-center gap-3 justify-start'>
+                      <Avatar className='w-6 h-6 rounded-full'>
+                        <AvatarImage src='' />
+                        <AvatarFallback
+                          style={{ backgroundColor: generateRandomBackgroundColor() }}
+                          className='w-[24px] h-[24px] rounded-full text-white'
+                        >
+                          {/* {getInitials(
+                            customer.business_name[0] ||
+                              `${customer.first_name} ${customer.last_name}`
+                          )} */}
+                          EU
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className='font-medium text-sm text-primary capitalize'>
+                        {/* {customer.business_name || `${customer.first_name} ${customer.last_name}`} */}
+                        Emeka Umeh
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="w-7">
                     <DropdownMenu>
