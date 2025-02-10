@@ -112,58 +112,58 @@ const FormSection: React.FC<{
         </Select>
       </div>
       <div>
-      {items.map((item) => (
-        <div key={item.id} className='flex flex-col gap-4 mb-2'>
-          <div className='w-full grid grid-cols-12 items-start gap-3'>
-            {/* Item Name - Takes up most space */}
-            <div className={items.length > 1?  'col-span-5 md:col-span-7' : 'col-span-7 md:col-span-7'}>
-              <Input
-                type='text'
-                label='Item name'
-                value={item.itemName}
-                onChange={(e) => handleItemChange(item.id, 'itemName', e.target.value)}
-              />
-            </div>
-
-            {/* Quantity - Small fixed width */}
-            <div className='col-span-2 md:col-span-2'>
-              <Input
-                type='number'
-                label='Qty'
-                value={item.quantity}
-                onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)}
-                min='1'
-              />
-            </div>
-
-            {/* Unit Price - Medium fixed width */}
-            <div
-              className={items.length > 1 ? 'col-span-3 md:col-span-2' : 'col-span-3 md:col-span-3'}
-            >
-              <Input
-                type='number'
-                label='Unit price'
-                value={item.unitPrice}
-                onChange={(e) => handleItemChange(item.id, 'unitPrice', e.target.value)}
-                min='0'
-              />
-            </div>
-
-            {/* Delete Icon - Only show if there's more than one item */}
-            {items.length > 1 && (
-              <div className='col-span-2 md:col-span-1 flex justify-center'>
-                <div className='h-10 w-10 bg-[#FAFAFA] rounded-lg flex items-center justify-center mt-6'>
-                  <Icon
-                    name='trash'
-                    className='w-4 h-4 text-[#A4A7AE] cursor-pointer hover:text-red-500 transition-colors'
-                    onClick={() => handleRemoveItem(item.id)}
-                  />
-                </div>
+        {items.map((item) => (
+          <div key={item.id} className='flex flex-col gap-4 mb-2'>
+            <div className='w-full grid grid-cols-12 items-start gap-3'>
+              {/* Item Name - Takes up most space */}
+              <div className={items.length > 1 ? 'col-span-5 md:col-span-7' : 'col-span-7 md:col-span-7'}>
+                <Input
+                  type='text'
+                  label='Item name'
+                  value={item.itemName}
+                  onChange={(e) => handleItemChange(item.id, 'itemName', e.target.value)}
+                />
               </div>
-            )}
+
+              {/* Quantity - Small fixed width */}
+              <div className='col-span-2 md:col-span-2'>
+                <Input
+                  type='number'
+                  label='Qty'
+                  value={item.quantity}
+                  onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)}
+                  min='1'
+                />
+              </div>
+
+              {/* Unit Price - Medium fixed width */}
+              <div
+                className={items.length > 1 ? 'col-span-3 md:col-span-2' : 'col-span-3 md:col-span-3'}
+              >
+                <Input
+                  type='number'
+                  label='Unit price'
+                  value={item.unitPrice}
+                  onChange={(e) => handleItemChange(item.id, 'unitPrice', e.target.value)}
+                  min='0'
+                />
+              </div>
+
+              {/* Delete Icon - Only show if there's more than one item */}
+              {items.length > 1 && (
+                <div className='col-span-2 md:col-span-1 flex justify-center'>
+                  <div className='h-10 w-10 bg-[#FAFAFA] rounded-lg flex items-center justify-center mt-6'>
+                    <Icon
+                      name='trash'
+                      className='w-4 h-4 text-[#A4A7AE] cursor-pointer hover:text-red-500 transition-colors'
+                      onClick={() => handleRemoveItem(item.id)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
       </div>
 
       <div
@@ -206,9 +206,7 @@ const FormSection: React.FC<{
       <Input
         id='additionalNote'
         type='text'
-        placeholder='₦'
         label='Additional Note'
-        tag='%'
         name='additionalNote'
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
@@ -222,7 +220,11 @@ const FormSection: React.FC<{
 
       <div className='w-full flex flex-col gap-1.5'>
         <Label>Bank account</Label>
-        <Select>
+        <Select
+          onValueChange={(value) => {
+            formik.setFieldValue('bank', { name: value});
+          }}
+        >
           <SelectTrigger>
             <SelectValue
               placeholder='Select your bank account'
@@ -230,8 +232,8 @@ const FormSection: React.FC<{
             />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='m@example.com'>First Bank</SelectItem>
-            <SelectItem value='m@google.com'>GT Bank</SelectItem>
+            <SelectItem value='First Bank'>First Bank</SelectItem>
+            <SelectItem value='GT Bank'>GT Bank</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -268,6 +270,9 @@ const CreateInvoice = () => {
       email: '',
       amount: '',
       quantity: '',
+      bank: {
+        name: ''
+      }
     },
     onSubmit: (values) => {
       if (isMobile) {
@@ -336,6 +341,7 @@ const CreateInvoice = () => {
       taxId: '00XXXXX1234X0XX',
     },
     invoiceData: {
+      title: formik.values.title,
       number: '#INV - 185',
       date: '12 Nov, 2024',
       dueDate: '15 Nov, 2024',
@@ -344,9 +350,9 @@ const CreateInvoice = () => {
       tax: parseFloat(formik.values.salesTax) || 0,
       discount: parseFloat(formik.values.discount) || 0,
       total: 1000,
-      additionalNote: 'test',
+      additionalNote: formik.values.additionalNote,
       bankDetails: {
-        name: 'ABCD BANK',
+        name: formik.values.bank.name,
         ifsCode: 'ABCD000XXXX',
         swiftCode: 'ABCDUSBBXXX',
         accountNumber: '3747489 2300011',

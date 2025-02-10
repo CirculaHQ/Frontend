@@ -1,5 +1,8 @@
 import { FilterModule, ModuleHeader } from '@/components/shared';
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
   Badge,
   Button,
   DateRangePicker,
@@ -18,33 +21,71 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 type MetricCardProps = {
-  title: string;
-  count: string;
-  amount: string;
+  title?: string;
+  count?: string;
+  amount?: string;
   icon: string;
+  currency?: string;
 };
 
-const MetricCard = memo(({ title, count, amount, icon }: MetricCardProps) => {
+const MetricCard = memo(({ icon, currency }: MetricCardProps) => {
+  const status = [
+    { name: 'Paid invoice (31)', amount: '1,500.00', count: '200.00' },
+    { name: 'Awaiting (200)', amount: '1,000.00', count: '2,000.00' },
+    { name: 'Overdue (200)', amount: '2,000.00', count: '4,000.00' }
+  ]
+
+  const [state, setState] = useState<any>(status[0])
+  const isMobile = useIsMobile();
+
   return (
-    <div className="h-[106px] flex gap-4 w-full flex-col items-start justify-center">
-      <div className="flex flex-row items-center gap-1">
-        <Icon name={icon} className="w-6 h-6" />
-        <span className="text-primary font-semibold text-2xl">{amount}</span>
-      </div>
-      <div className="flex flex-col items-start">
-        <h1 className="text-tertiary font-normal text-xs">{count}</h1>
-        <h4 className="text-primary text-sm font-semibold">{title}</h4>
-      </div>
-    </div>
+    <>
+      {isMobile ? (
+        <div className='border rounded-xl py-2 px-4 w-full'>
+          <div className="flex flex-row items-center gap-1 mb-4">
+            <Icon name={icon} className="w-6 h-6" />
+            <span className="text-primary font-semibold text-lg">{currency}{state.amount}</span>
+          </div>
+          <div className='space-y-4'>
+            {status.map((item) => (
+              <div className="flex flex-col items-start">
+                <h1 className="text-tertiary font-normal text-xs">{item.name}</h1>
+                <h4 className="text-primary text-sm font-semibold">{currency}{item.count}</h4>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) :
+        (<div className="h-[106px] flex gap-4 w-full flex-col items-start justify-center">
+          <div className="flex flex-row items-center gap-1">
+            <Icon name={icon} className="w-6 h-6" />
+            <span className="text-primary font-semibold text-2xl">{currency}{state.amount}</span>
+          </div>
+          <div className="flex flex-col items-start">
+            <h1 className="text-tertiary font-normal text-xs">{state.name}</h1>
+            <h4 className="text-primary text-sm font-semibold">{currency}{state.count}</h4>
+          </div>
+          <div className='flex items-center space-x-1'>
+            {status.map((item) => (
+              <button key={item.name} onClick={() => setState(item)}>
+                <Icon name='dot' fill={state?.name === item.name ? '#181D27' : '#E9EAEB'} className='w-3 h-3' />
+              </button>
+            ))}
+          </div>
+        </div>)
+      }
+    </>
   );
 });
+
 const Invoices = () => {
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
   const totalPages = Math.ceil(100 / reportsPerPage);
@@ -62,7 +103,7 @@ const Invoices = () => {
             <Icon name="arrow-up-right" className="w-5 h-5 text-secondary" />
             Export report
           </Button>
-          <Button variant="secondary" onClick={() => {navigate(appRoute.create_invoice)}}>
+          <Button variant="secondary" onClick={() => { navigate(appRoute.create_invoice) }}>
             <Icon name="plus" className="w-5 h-5 text-[#FAFAFA]" />
             New invoice
           </Button>
@@ -72,31 +113,22 @@ const Invoices = () => {
         <span className="text-primary font-semibold text-lg">Your balance</span>
         <DateRangePicker />
       </div>
-
-      <div className="flex flex-col md:flex-row  items-center justify-between w-full mt-8 gap-6">
+      <div className="grid grid-cols-2 sm:flex flex-col md:flex-row items-center justify-between w-full mt-4 gap-6">
         <MetricCard
-          title="Awaiting (31)"
-          count="₦200.00"
           icon="flag"
-          amount="₦1.56m"
+          currency='₦'
         />
         <MetricCard
-          title="Overdue (31)"
-          count="$200.00"
           icon="us-flag"
-          amount="$1,000.00"
+          currency='$'
         />
         <MetricCard
-          title="Paid invoice (200)"
-          count="￡200.00"
           icon="uk-flag"
-          amount="£1,000.00"
+          currency='￡'
         />
         <MetricCard
-          title="Paid invoice (200)"
-          count="€200.00"
           icon="france-flag"
-          amount="€1,000.00"
+          currency='€'
         />
       </div>
       <FilterModule containerClass="mt-8" />
@@ -108,7 +140,7 @@ const Invoices = () => {
               <TableRow>
                 <TableHead className="w-[100px]">Invoice ID</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Activity</TableHead>
+                <TableHead>Customers</TableHead>
                 <TableHead>Material</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Amount</TableHead>
@@ -130,8 +162,26 @@ const Invoices = () => {
                     </div>
                   </TableCell>
 
-                  <TableCell className="w-[300px] text-tertiary font-normal text-sm">
-                    Sorting
+                  <TableCell className='w-[300px]'>
+                    <div className='flex flex-row items-center gap-3 justify-start'>
+                      <Avatar className='w-6 h-6 rounded-full'>
+                        <AvatarImage src='' />
+                        <AvatarFallback
+                          style={{ backgroundColor: generateRandomBackgroundColor() }}
+                          className='w-[24px] h-[24px] rounded-full text-white'
+                        >
+                          {/* {getInitials(
+                            customer.business_name[0] ||
+                              `${customer.first_name} ${customer.last_name}`
+                          )} */}
+                          EU
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className='font-medium text-sm text-primary capitalize'>
+                        {/* {customer.business_name || `${customer.first_name} ${customer.last_name}`} */}
+                        Emeka Umeh
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="w-[200px] text-tertiary font-normal text-sm">
                     <div className="flex flex-col items-start">
@@ -214,8 +264,26 @@ const Invoices = () => {
                       </h4>
                     </div>
                   </TableCell>
-                  <TableCell className="w-[300px] text-tertiary font-normal text-sm">
-                    Sorting
+                  <TableCell className='w-[300px]'>
+                    <div className='flex flex-row items-center gap-3 justify-start'>
+                      <Avatar className='w-6 h-6 rounded-full'>
+                        <AvatarImage src='' />
+                        <AvatarFallback
+                          style={{ backgroundColor: generateRandomBackgroundColor() }}
+                          className='w-[24px] h-[24px] rounded-full text-white'
+                        >
+                          {/* {getInitials(
+                            customer.business_name[0] ||
+                              `${customer.first_name} ${customer.last_name}`
+                          )} */}
+                          EU
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className='font-medium text-sm text-primary capitalize'>
+                        {/* {customer.business_name || `${customer.first_name} ${customer.last_name}`} */}
+                        Emeka Umeh
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="w-7">
                     <DropdownMenu>
