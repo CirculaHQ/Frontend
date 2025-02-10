@@ -17,7 +17,7 @@ const ModuleHeader = ({ title, children, className, description }: ModuleHeaderP
     >
       <div className='flex flex-col items-start'>
         <h1 className='text-2xl font-semibold text-primary'>{title}</h1>
-        {description && <p className='text-tertiary font-normal text-base'>{description}</p>}
+        {description && <p className='text-tertiary font-normal text-sm'>{description}</p>}
       </div>
       {children}
     </div>

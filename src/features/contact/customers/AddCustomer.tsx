@@ -23,6 +23,7 @@ import { AccountType, BUSINESS, INDIVIDUAL } from '@/types';
 import { useFetchCustomer } from '@/hooks/api/queries/contacts';
 import { uploadToCloudinary } from '@/utils/cloudinary-helper';
 import { Customer } from '@/types/customers';
+import { ROLE_IN_VALUE_CHAIN } from '@/config/common';
 
 export default function AddCustomer() {
   const navigate = useNavigate();
@@ -112,6 +113,27 @@ export default function AddCustomer() {
     }
   }, [customerId, data]);
 
+  const ButtonComp = () => (
+    <>
+      <Button
+        disabled={button.loading}
+        type='button'
+        variant='outline'
+        onClick={() => navigate(appRoute.customers)}
+      >
+        Cancel
+      </Button>
+      <Button
+        disabled={button.loading || state.isUploading}
+        type='submit'
+        variant='secondary'
+        isLoading={button.loading || state.isUploading}
+      >
+        {button.name} customer
+      </Button>
+    </>
+  )
+
   if (isLoadingCustomer) return <p>Fetching customer details...</p>;
 
   return (
@@ -122,17 +144,7 @@ export default function AddCustomer() {
         className='mb-10'
       >
         <div className='flex flex-row items-center gap-3'>
-          <Button
-            type='button'
-            variant='outline'
-            disabled={button.loading}
-            onClick={() => navigate(appRoute.customers)}
-          >
-            Cancel
-          </Button>
-          <Button disabled={button.loading} type='button' variant='secondary'>
-            {button.name} customer
-          </Button>
+          <ButtonComp />
         </div>
       </ModuleHeader>
       <form onSubmit={formik.handleSubmit}>
@@ -280,8 +292,9 @@ export default function AddCustomer() {
                 <SelectValue placeholder='Select role' className='text-placeholder font-normal' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='m@example.com'>Supplier</SelectItem>
-                <SelectItem value='m@google.com'>Retailer</SelectItem>
+                {ROLE_IN_VALUE_CHAIN.map((item) => (
+                  <SelectItem key={item.name} value={item.name}>{item.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -401,22 +414,7 @@ export default function AddCustomer() {
           />
         </FormSection>
         <div className='flex justify-end gap-4 mt-8'>
-          <Button
-            disabled={button.loading}
-            type='button'
-            variant='outline'
-            onClick={() => navigate(appRoute.customers)}
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={button.loading || state.isUploading}
-            type='submit'
-            variant='secondary'
-            isLoading={button.loading || state.isUploading}
-          >
-            {button.name} customer
-          </Button>
+          <ButtonComp />
         </div>
       </form>
     </div>

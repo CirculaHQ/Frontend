@@ -15,13 +15,21 @@ import {
   AvatarImage,
   AvatarFallback,
 } from '@/components/ui';
+import { CURRENCIES } from '@/config/common';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useAddInventory, useUpdateInventory } from '@/hooks/api/mutations/inventory';
+import { useFetchVendors } from '@/hooks/api/queries/contacts';
 import { useFetchMaterials, useFetchMaterialState, useFetchMaterialTypes } from '@/hooks/api/queries/inventory';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
+import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
 import { useFormik } from 'formik';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+const initialParams = {
+  search: '',
+  archived: false
+};
 
 const AddInventory = () => {
   const updateInventory = useUpdateInventory();
@@ -29,6 +37,7 @@ const AddInventory = () => {
   const { userID } = useGetUserInfo();
   const navigate = useNavigate();
   const location = useLocation();
+  const [params, setParams] = useState({ ...initialParams });
   const inventoryType = location.state?.type || 'in';
   const inventoryDataToEdit = location.state?.inventoryData;
   const isEditMode = !!inventoryDataToEdit;
@@ -82,6 +91,7 @@ const AddInventory = () => {
     return materials?.find((item) => item.name === material)?.id ?? ''
   }
 
+  const { data: vendors, isLoading: isLoadingVendors } = useFetchVendors(params);
   const { data: materials, isLoading: isLoadingMaterials } = useFetchMaterials()
   const { data: materialTypes, isLoading: isLoadingMaterialTypes } = useFetchMaterialTypes(getMaterialId(inventoryDataToEdit?.material || formik.values.material))
   const { data: materialState, isLoading: isLoadingMaterialState } = useFetchMaterialState()
@@ -156,28 +166,28 @@ const AddInventory = () => {
                     className='text-placeholder font-normal'
                   />
                 </SelectTrigger>
-                <SelectContent>
-                  {/* {vendors.map((vendor) => (
-                  <SelectItem key={vendor.id} value={vendor.id}>
-                    <div className='flex flex-row items-center gap-2 justify-start'>
-                      <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src={vendor.avatar} />
-                        <AvatarFallback>{vendor.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <span className='text-sm text-primary'>{vendor.name}</span>
-                    </div>
-                  </SelectItem>
-                ))} */}
-                  <SelectItem value='James Hopper'>
-                    <div className='flex flex-row items-center gap-2 justify-start'>
-                      <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src='https://github.com/shadcn.png' />
-                        <AvatarFallback>CN</AvatarFallback>
-                      </Avatar>
-                      <span className='text-sm text-primary'>James Hopper</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value='2d77d70f-17e2-40af-a258-673b5d422e0f'>John Doe</SelectItem>
+                <SelectContent loading={isLoadingVendors}>
+                  {vendors?.results?.map((vendor) => (
+                    <SelectItem key={vendor?.id} value={vendor?.id}>
+                      <div className='flex flex-row items-center gap-2 justify-start'>
+                        <Avatar className='w-6 h-6 rounded-full'>
+                          <AvatarImage src={vendor?.photo} />
+                          <AvatarFallback
+                            style={{ backgroundColor: generateRandomBackgroundColor() }}
+                            className='w-[24px] h-[24px] rounded-full text-white'
+                          >
+                            {getInitials(
+                              vendor?.business_name[0] ||
+                              `${vendor?.first_name} ${vendor?.last_name}`
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className='font-medium text-sm text-primary capitalize'>
+                          {vendor?.business_name || `${vendor?.first_name} ${vendor?.last_name}`}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
                   <SelectSeparator />
                   <div className='text-tertiary font-normal text-sm px-4 py-2'>
                     Can't find vendor?
@@ -340,7 +350,22 @@ const AddInventory = () => {
               </SelectContent>
             </Select>
           </div>
-
+          <div className='w-full flex flex-col gap-1.5'>
+            <Label>Currency</Label>
+            <Select
+              value={formik.values.currency}
+              onValueChange={(value) => formik.setFieldValue('currency', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder='Select currency' className='text-placeholder font-normal' />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCIES.map((item) => (
+                  <SelectItem key={item.shortCode} value={item.shortCode}>{item.name} - {item.shortCode}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Input
             id='amount'
             type='text'
@@ -356,7 +381,6 @@ const AddInventory = () => {
                 : undefined
             }
           />
-
           <Input
             id='quantity'
             type='text'
@@ -374,7 +398,6 @@ const AddInventory = () => {
             }
           />
         </FormSection>
-
         <div className='flex justify-end gap-4 mt-8'>
           <Button variant='outline' onClick={() => navigate(appRoute.inventory)}>
             Cancel

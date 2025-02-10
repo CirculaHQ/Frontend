@@ -30,7 +30,10 @@ export const appRoute = {
   create_invoice: `/invoices/create-invoice`,
 
   add_vendor: `/vendors/add-vendor`,
-  vendor_details: `/vendors/vendor-details`,
+  vendorDetails: (id?: number | string) => ({
+    format: `/vendors/:id`,
+    path: `/vendors/${id}`,
+  }),
   customer_details: `/customers/customer-details`,
 
   add_customer: `/customers/add-customer`,
