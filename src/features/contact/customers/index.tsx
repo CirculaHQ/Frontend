@@ -65,7 +65,7 @@ const Customers = () => {
 
   const navigateToEditCustomer = (e: any, customer: Customer) => {
     e.stopPropagation();
-    navigate(`${appRoute.add_customer}?type=${customer.type}&id=${customer.id}`);
+    navigate(`${appRoute.editCustomer(customer.id)}`);
   };
 
   const toggleArchive = () => {

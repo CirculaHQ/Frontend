@@ -24,6 +24,10 @@ import { useFetchCustomer } from '@/hooks/api/queries/contacts';
 import { uploadToCloudinary } from '@/utils/cloudinary-helper';
 import { Customer } from '@/types/customers';
 import { ROLE_IN_VALUE_CHAIN } from '@/config/common';
+import { AddCustomerSchema } from '@/validation-schema/contact';
+import { format } from 'date-fns';
+
+const formatDate = (date: string | number | Date) => format(new Date(date), 'yyyy-MM-dd');
 
 export default function AddCustomer() {
   const navigate = useNavigate();
@@ -34,14 +38,16 @@ export default function AddCustomer() {
     preview: '',
     isUploading: false,
   });
-  const customerType = searchParams.get('type')?.toLowerCase() ?? INDIVIDUAL;
-  const isBusiness = customerType === BUSINESS;
   const customerId = searchParams.get('id') as string;
+  
   const { mutate: addCustomer, isLoading: isAddingCustomer } = useAddCustomer((e) => navigate(e));
   const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer((e) =>
     navigate(e)
   );
   const { data, isLoading: isLoadingCustomer } = useFetchCustomer(customerId);
+
+  const isBusiness = data?.type === BUSINESS;
+  const customerType = data?.type ?? INDIVIDUAL;
 
   const button = {
     loading: customerId ? isEditingCustomer : isAddingCustomer,
@@ -65,7 +71,9 @@ export default function AddCustomer() {
       role: '',
       notes: '',
       address: '',
+      date_of_birth: ''
     },
+    validationSchema: isBusiness ? AddCustomerSchema.Business : AddCustomerSchema.Individual,
     onSubmit: async (values) => {
       let payload = { ...values, type: customerType as AccountType, user: userID } as Customer;
 
@@ -109,6 +117,7 @@ export default function AddCustomer() {
         role: data.role ?? '',
         notes: data.notes ?? '',
         address: data.address ?? '',
+        date_of_birth: data.date_of_birth ?? '',
       });
     }
   }, [customerId, data]);
@@ -253,7 +262,13 @@ export default function AddCustomer() {
           {!isBusiness && (
             <div className='w-full'>
               <Label className='mb-1.5'>Date of birth</Label>
-              <DatePicker />
+              <DatePicker
+              date={formik.values.date_of_birth ? new Date(formik.values.date_of_birth) : undefined}
+              onDateChange={(date) => {
+                const formattedDate = date ? formatDate(date) : '';
+                formik.setFieldValue('date_of_birth', formattedDate);
+              }}
+              />
             </div>
           )}
           <Input
@@ -330,6 +345,11 @@ export default function AddCustomer() {
             placeholder='Your address'
             onChange={formik.handleChange}
             value={formik.values.address}
+            errorMessage={
+              formik.errors.address && formik.touched.address
+                ? formik.errors.address
+                : ''
+            }
           />
           <Input
             id='lga'

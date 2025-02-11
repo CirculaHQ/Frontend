@@ -12,6 +12,7 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchCustomer } from '@/hooks/api/queries/contacts';
 import { BUSINESS } from '@/types';
 import { capitalizeFirstLetterOfEachWord } from '@/utils/textFormatter';
+import { format } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const CustomerDetails = () => {
@@ -25,10 +26,28 @@ const CustomerDetails = () => {
 
   const name = isBusiness ? data?.business_name : `${data?.first_name} ${data?.last_name}`;
 
-  const customerData = {
+  const customerDataForBusiness = {
+    'Business information': {
+      'Business name': capitalizeFirstLetterOfEachWord(name),
+      'Phone number': data?.phone_number || 'N/A',
+      'Email address': data?.email || 'N/A',
+      'Role in value chain': data?.role || 'N/A',
+      supportingText: 'Supporting text goes here',
+    },
+    'Business address': {
+      Country: capitalizeFirstLetterOfEachWord(data?.country) || 'N/A',
+      Address: data?.address || 'N/A',
+      District: capitalizeFirstLetterOfEachWord(data?.lga) || 'N/A',
+      Region: capitalizeFirstLetterOfEachWord(data?.state) || 'N/A',
+      supportingText: 'Supporting text goes here',
+    }
+  };
+
+  const customerDataForIndividual = {
     'Personal information': {
       Name: capitalizeFirstLetterOfEachWord(name),
-      'Date of birth': `${data.date_of_birth || 'N/A'}`,
+      Nickname: data?.nickname || 'N/A',
+      'Date of Birth': data?.date_of_birth ? format(data?.date_of_birth, "PP") : 'N/A',
       'Phone number': `${data.phone_number || 'N/A'}`,
       'Email address': `${data.email || 'N/A'}`,
       'Role in value chain': `${data?.role || 'N/A'}`,
@@ -41,18 +60,24 @@ const CustomerDetails = () => {
       Region: `${capitalizeFirstLetterOfEachWord(data.state || 'N/A')}`,
       supportingText: 'Supporting text goes here',
     },
-    'Bank details': {
-      'Bank name': `${capitalizeFirstLetterOfEachWord(data.bank_name || 'N/A')}`,
-      'Account number': `${data.account_number || 'N/A'}`,
-      'Account name': `${capitalizeFirstLetterOfEachWord(data.account_name || 'N/A')}`,
-      //   'Additional notes': 'SWIFT code: 1234',
-      supportingText: 'Supporting text goes here',
-    },
   };
 
+  const customerData = {
+    ...(isBusiness ? customerDataForBusiness : customerDataForIndividual),
+    'Bank details': {
+      'Bank name': capitalizeFirstLetterOfEachWord(data?.bank_name) || 'N/A',
+      'Account number': data?.account_number || 'N/A',
+      'Account name': capitalizeFirstLetterOfEachWord(data?.account_name) || 'N/A',
+      'Additional notes': data?.notes || 'N/A',
+      supportingText: 'Supporting text goes here',
+    },
+  }
+
   const icons: { [key: string]: string } = {
-    Name: 'building',
-    'Date of birth': 'calendar',
+    Name: 'user-03',
+    Nickname: 'face-smile',
+    'Date of Birth': 'calendar',
+    'Business name': 'building',
     'Phone number': 'phone',
     'Email address': 'mail-01',
     'Role in value chain': 'users-01',
@@ -63,8 +88,10 @@ const CustomerDetails = () => {
     'Bank name': 'bank',
     'Account number': 'hash',
     'Account name': 'user-circle',
-    // 'Additional notes': 'sticker-circle',
+    'Additional notes': 'sticker-circle',
   };
+
+  const title = isBusiness ? customerDataForBusiness['Business information']['Business name'] : customerDataForIndividual['Personal information']['Name']
 
   return (
     <div>
@@ -85,7 +112,7 @@ const CustomerDetails = () => {
             )}
           </div>
         </div>
-        <ModuleHeader title={customerData['Personal information']['Name']}>
+        <ModuleHeader title={title}>
           <div className='flex flex-row items-center gap-3'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -104,7 +131,7 @@ const CustomerDetails = () => {
             </DropdownMenu>
             <Button
               type='button'
-              onClick={() => navigate(`${appRoute.add_customer}?type=${data.type}&id=${data.id}`)}
+              onClick={() => navigate(`${appRoute.editCustomer(data.id)}`)}
             >
               Edit details
             </Button>

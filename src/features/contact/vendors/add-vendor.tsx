@@ -15,35 +15,36 @@ import {
 import { ROLE_IN_VALUE_CHAIN } from '@/config/common';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useAddVendor, useEditVendor } from '@/hooks/api/mutations/contacts';
+import { useFetchVendor } from '@/hooks/api/queries/contacts';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import { countries, states } from '@/mocks';
-import { AccountType, INDIVIDUAL } from '@/types';
+import { AccountType, BUSINESS, INDIVIDUAL } from '@/types';
 import { Customer } from '@/types/customers';
 import { uploadToCloudinary } from '@/utils/cloudinary-helper';
+import { format } from 'date-fns';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+
+const formatDate = (date: string | number | Date) => format(new Date(date), 'yyyy-MM-dd');
 
 const AddVendor = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { userID } = useGetUserInfo();
   const vendorId = searchParams.get('id') as string;
-  const type = searchParams.get('type');
-  const isBusiness = type === 'business';
-  const customerType = searchParams.get('type')?.toLowerCase() ?? INDIVIDUAL;
 
   const { mutateAsync: addVendor, isLoading: isAddingVendor } = useAddVendor();
   const { mutateAsync: editVendor, isLoading: isEditingVendor } = useEditVendor();
+  const { data, isLoading: isLoadingVendor } = useFetchVendor(vendorId);
 
-  //const { data, isLoading: isLoadingCustomer } = useFetchCustomer(vendorId);
+  const isBusiness = data?.type === BUSINESS;
+  const customerType = data?.type ?? INDIVIDUAL;
 
   const button = {
     loading: vendorId ? isEditingVendor : isAddingVendor,
     name: vendorId ? 'Edit' : 'Add',
   };
-
-  const data: any = {}
 
   const [state, setState] = useState({
     selectedFile: null,
@@ -68,6 +69,7 @@ const AddVendor = () => {
       role: '',
       notes: '',
       address: '',
+      date_of_birth: ''
     },
     onSubmit: async (values) => {
       let payload = { ...values, type: customerType as AccountType, user: userID } as Customer;
@@ -83,11 +85,11 @@ const AddVendor = () => {
       }
 
       if (!vendorId) {
-        res =await addVendor(payload);
+        res = await addVendor(payload);
       } else {
         res = await editVendor({ vendorId, payload });
       }
-      navigate(appRoute.vendorDetails(res.id).path)
+      navigate(appRoute.vendorDetails(vendorId).path)
     },
   });
 
@@ -95,6 +97,29 @@ const AddVendor = () => {
     const { file, preview } = e;
     setState({ ...state, selectedFile: file, preview });
   };
+
+  useEffect(() => {
+    if (vendorId && data) {
+      formik.setValues({
+        business_name: data.business_name ?? '',
+        phone_number: data.phone_number ?? '',
+        email: data.email ?? '',
+        lga: data.lga ?? '',
+        account_number: data.account_number ?? '',
+        account_name: data.account_name ?? '',
+        first_name: data.first_name ?? '',
+        last_name: data.last_name ?? '',
+        nickname: data.nickname ?? '',
+        state: data.state ?? '',
+        bank_name: data.bank_name ?? '',
+        country: data.country ?? '',
+        role: data.role ?? '',
+        notes: data.notes ?? '',
+        address: data.address ?? '',
+        date_of_birth: data?.date_of_birth ? formatDate(data.date_of_birth) : '',
+      });
+    }
+  }, [vendorId, data]);
 
   const ButtonComp = () => (
     <>
@@ -117,8 +142,10 @@ const AddVendor = () => {
     </>
   )
 
+  if (isLoadingVendor) return <p>Fetching vendor details...</p>;
+
   return (
-    <div className='md:p-6 mx-auto'>
+    <div className='mx-auto'>
       <BackButton route={appRoute.vendors} label='Back to vendors' />
       <ModuleHeader title={`Add ${isBusiness ? 'Business' : 'Individual'} Vendor`} className='mb-10'>
         <div className='flex flex-row items-center gap-3'>
@@ -229,7 +256,13 @@ const AddVendor = () => {
           {!isBusiness && (
             <div className='w-full'>
               <Label className='mb-1.5'>Date of birth</Label>
-              <DatePicker />
+              <DatePicker
+                date={formik.values.date_of_birth ? new Date(formik.values.date_of_birth) : undefined}
+                onDateChange={(date) => {
+                  const formattedDate = date ? formatDate(date) : '';
+                  formik.setFieldValue('date_of_birth', formattedDate);
+                }}
+              />
             </div>
           )}
           <Input
