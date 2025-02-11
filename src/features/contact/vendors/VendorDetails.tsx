@@ -37,8 +37,8 @@ const VendorDetails = () => {
     'Business address': {
       Country: capitalizeFirstLetterOfEachWord(data?.country) || 'N/A',
       Address: data?.address || 'N/A',
-      'L.G.A.': capitalizeFirstLetterOfEachWord(data?.lga) || 'N/A',
-      State: capitalizeFirstLetterOfEachWord(data?.state) || 'N/A',
+      District: capitalizeFirstLetterOfEachWord(data?.lga) || 'N/A',
+      Region: capitalizeFirstLetterOfEachWord(data?.state) || 'N/A',
       supportingText: 'Supporting text goes here',
     }
   };
