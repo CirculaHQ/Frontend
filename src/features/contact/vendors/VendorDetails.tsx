@@ -12,6 +12,7 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchVendor } from '@/hooks/api/queries/contacts';
 import { BUSINESS } from '@/types';
 import { capitalizeFirstLetterOfEachWord } from '@/utils/textFormatter';
+import { format } from 'date-fns';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const VendorDetails = () => {
@@ -25,47 +26,75 @@ const VendorDetails = () => {
 
   const name = isBusiness ? data?.account_name : `${data?.first_name} ${data?.last_name}`;
 
-  const vendorData = {
+  const vendorDataForBusiness = {
     'Business information': {
       'Business name': capitalizeFirstLetterOfEachWord(name),
-      'Phone number': '+2348012345678',
-      'Email address': 'hi@squash.co',
-      'Role in value chain': 'Distributor',
+      'Phone number': data?.phone_number || 'N/A',
+      'Email address': data?.email || 'N/A',
+      'Role in value chain': data?.role || 'N/A',
       supportingText: 'Supporting text goes here',
     },
     'Business address': {
-      Country: 'Nigeria',
-      Address: '421 Berrylane Street',
-      'L.G.A.': 'Lagos',
-      State: 'Lagos',
+      Country: capitalizeFirstLetterOfEachWord(data?.country) || 'N/A',
+      Address: data?.address || 'N/A',
+      'L.G.A.': capitalizeFirstLetterOfEachWord(data?.lga) || 'N/A',
+      State: capitalizeFirstLetterOfEachWord(data?.state) || 'N/A',
       supportingText: 'Supporting text goes here',
-    },
-    'Bank details': {
-      'Bank name': 'Access Bank',
-      'Account number': '0123456789',
-      'Account name': 'Squash Inc.',
-      'Additional notes': 'SWIFT code: 1234',
-      supportingText: 'Supporting text goes here',
-    },
+    }
   };
 
+  const vendorDataForIndividual = {
+    'Personal information': {
+      'Name': capitalizeFirstLetterOfEachWord(name),
+      Nickname: data?.nickname || 'N/A',
+      'Date of Birth': data?.date_of_birth ? format(data?.date_of_birth, "PP") : 'N/A',
+      'Phone number': data?.phone_number || 'N/A',
+      'Email address': data?.email || 'N/A',
+      'Role in value chain': data?.role || 'N/A',
+      supportingText: 'Supporting text goes here',
+    },
+    'Personal address': {
+      Country: capitalizeFirstLetterOfEachWord(data?.country) || 'N/A',
+      Address: data?.address || 'N/A',
+      District: capitalizeFirstLetterOfEachWord(data?.lga) || 'N/A',
+      Region: capitalizeFirstLetterOfEachWord(data?.state) || 'N/A',
+      supportingText: 'Supporting text goes here',
+    }
+  };
+
+  const vendorData = {
+    ...(isBusiness ? vendorDataForBusiness : vendorDataForIndividual),
+    'Bank details': {
+      'Bank name': capitalizeFirstLetterOfEachWord(data?.bank_name) || 'N/A',
+      'Account number': data?.account_number || 'N/A',
+      'Account name': capitalizeFirstLetterOfEachWord(data?.account_name) || 'N/A',
+      'Additional notes': data?.notes || 'N/A',
+      supportingText: 'Supporting text goes here',
+    },
+  }
+
   const icons: { [key: string]: string } = {
+    Name: 'user-03',
+    Nickname: 'face-smile',
+    'Date of Birth': 'calendar',
     'Business name': 'building',
     'Phone number': 'phone',
     'Email address': 'mail-01',
     'Role in value chain': 'users-01',
     Country: 'flag-01',
     Address: 'marker-pin',
-    'L.G.A.': 'mark',
-    State: 'mark',
+    District: 'mark',
+    Region: 'mark',
     'Bank name': 'bank',
     'Account number': 'hash',
     'Account name': 'user-circle',
     'Additional notes': 'sticker-circle',
   };
 
+  const title = isBusiness ? vendorDataForBusiness['Business information']['Business name'] : vendorDataForIndividual['Personal information']['Name']
+
   return (
-    <div className='p-4'>
+    <div>
       <BackButton route={appRoute.vendors} label='Back to Vendors' />
       <div className='flex justify-between items-center mb-6'>
         <div className='mr-4'>
@@ -84,7 +113,7 @@ const VendorDetails = () => {
           </div>
         </div>
         <ModuleHeader
-          title={vendorData['Business information']['Business name']}
+          title={title}
           description={data?.email}
         >
           <div className='flex flex-row items-center gap-3'>
@@ -106,7 +135,7 @@ const VendorDetails = () => {
             <Button>Secondary</Button>
             <Button
               type='button'
-              onClick={() => navigate(`${appRoute.add_vendor}?type=${data.type}&id=${data.id}`)}
+              onClick={() => navigate(`${appRoute.editVendor(data?.id)}`)}
             >
               Edit details
             </Button>

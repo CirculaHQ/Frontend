@@ -74,6 +74,11 @@ const Vendors = () => {
     await editVendor({ vendorId: id, payload: { archived: !vendor.archived } });
   };
 
+  const navigateToEditVendor = (e: any, vendor: Customer) => {
+    e.stopPropagation()
+    navigate(`${appRoute.editVendor(vendor?.id)}`)
+  }
+
   return (
     <div>
       <ModuleHeader title='Vendors'>
@@ -168,7 +173,7 @@ const Vendors = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem className='py-2  rounded-[8px]' onClick={(e) => navigateToEditVendor(e, vendor)}>
                           Edit details
                         </DropdownMenuItem>
                         <DropdownMenuItem className='py-2 rounded-[8px]'>
@@ -230,7 +235,7 @@ const Vendors = () => {
                         align='end'
                         className='text-sm font-medium text-secondary rounded-[8px] px-1'
                       >
-                        <DropdownMenuItem className='py-2  rounded-[8px]'>
+                        <DropdownMenuItem className='py-2  rounded-[8px]' onClick={(e) => navigateToEditVendor(e, vendor)}>
                           Edit details
                         </DropdownMenuItem>
                         <DropdownMenuItem className='py-2 rounded-[8px]'>

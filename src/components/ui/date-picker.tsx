@@ -101,6 +101,14 @@ export function DatePicker({
     return age
   }
 
+  React.useEffect(() => {
+    if (date) {
+      setSelectedDate(date)
+      setMonth(date.getMonth())
+      setYear(date.getFullYear())
+    }
+  },[date])
+
   return (
     <Popover>
       <PopoverTrigger asChild>
