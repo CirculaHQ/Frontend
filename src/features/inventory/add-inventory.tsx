@@ -177,9 +177,10 @@ const AddInventory = () => {
                             className='w-[24px] h-[24px] rounded-full text-white'
                           >
                             {getInitials(
-                              vendor?.business_name[0] ||
+                            vendor?.business_name ?
+                              vendor?.business_name[0] :
                               `${vendor?.first_name} ${vendor?.last_name}`
-                            )}
+                          )}
                           </AvatarFallback>
                         </Avatar>
                         <span className='font-medium text-sm text-primary capitalize'>

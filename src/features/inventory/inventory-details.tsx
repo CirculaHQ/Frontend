@@ -25,7 +25,7 @@ const InventoryDetails = () => {
       'Inventory ID': inventory.id,
       Type: inventory.type,
       'Date received': inventory.date_received,
-      Vendor: inventory.vendor,
+      Vendor: inventory?.vendor?.first_name ? `${inventory?.vendor?.first_name} ${inventory?.vendor?.last_name}` : 'N/A',
       Material: inventory.material,
       'Material type': inventory.material_type,
       supportingText: 'Supporting text goes here',
