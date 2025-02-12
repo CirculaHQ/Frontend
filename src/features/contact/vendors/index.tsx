@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import { EmptyState, FilterModule, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Avatar,
@@ -78,6 +79,8 @@ const Vendors = () => {
     e.stopPropagation()
     navigate(`${appRoute.editVendor(vendor?.id)}`)
   }
+
+  if (isLoading) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center'/>;
 
   return (
     <div>

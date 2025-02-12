@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import {
   EmptyState,
   FilterModule,
@@ -128,10 +129,6 @@ const Inventory = () => {
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
     useFetchInventoryBreakdown();
 
-  if (loadingInventoryBreakdown) {
-    return <div>Loading material distribution...</div>;
-  }
-
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
       // color: '#' + Math.floor(Math.random() * 16777215).toString(16),
@@ -151,7 +148,7 @@ const Inventory = () => {
     }))
     : [];
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading || loadingInventoryBreakdown) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center' />;
 
   return (
     <div className='mb-10'>

@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import { EmptyState, FilterModule, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Avatar,
@@ -78,7 +79,7 @@ const Customers = () => {
     editCustomer({ customerId: id, payload: { archived: !customer.archived } });
   };
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center'/>;
 
   return (
     <div>

@@ -4,18 +4,19 @@ import { AxiosError, AxiosResponse } from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
 export interface OperationPayload {
-    id: string | null;
-    operation_type: string;
-    start_date: string | undefined;
-    start_time: string | undefined;
-    end_date: string | undefined;
-    end_time: string | undefined;
-    input_quantity: number;
-    input_source: string;
-    quantity_produced: number;
-    waste_produced: number;
-    user: string;
-    inventory: string;
+  id: string | null;
+  operation_type: string;
+  start_date: string | undefined;
+  start_time: string | undefined;
+  end_date: string | undefined;
+  end_time: string | undefined;
+  input_quantity: number;
+  input_source: string;
+  quantity_produced: number;
+  waste_produced: number;
+  user: string;
+  inventory: string;
+  status?: 'success' | 'pending' | 'failed' | 'overdue' | null | undefined;
 }
 
 type ErrorType = { error: string; success: boolean };
