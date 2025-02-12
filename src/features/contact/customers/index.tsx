@@ -141,7 +141,7 @@ const Customers = () => {
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
                           {getInitials(
-                            customer?.business_name[0] ||
+                            customer?.business_name ? customer?.business_name[0] :
                               `${customer?.first_name} ${customer?.last_name}`
                           )}
                         </AvatarFallback>
@@ -220,7 +220,7 @@ const Customers = () => {
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
                           {getInitials(
-                            customer?.business_name[0] ||
+                            customer?.business_name ? customer?.business_name[0] :
                               `${customer?.first_name} ${customer?.last_name}`
                           )}
                         </AvatarFallback>

@@ -317,13 +317,14 @@ const Inventory = () => {
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
                           {getInitials(
-                            item?.vendor?.business_name[0] ||
-                            `${item?.vendor?.first_name} ${item?.vendor?.last_name}`
+                            item?.vendor?.business_name ?
+                              item?.vendor?.business_name[0] :
+                              `${item?.vendor?.first_name} ${item?.vendor?.last_name}`
                           )}
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
-                        {item?.vendor?.business_name || (item?.vendor?.first_nam ? `${item?.vendor?.first_name} ${item?.vendor?.last_name}` : 'N/A')}
+                        {item?.vendor?.business_name || (item?.vendor?.first_name ? `${item?.vendor?.first_name} ${item?.vendor?.last_name}` : 'N/A')}
                       </span>
                     </div>
                   </TableCell>

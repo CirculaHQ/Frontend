@@ -136,8 +136,9 @@ const Vendors = () => {
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
                           {getInitials(
-                            vendor?.business_name[0] ||
-                            `${vendor?.first_name} ${vendor?.last_name}`
+                            vendor?.business_name ?
+                              vendor?.business_name[0] :
+                              `${vendor?.first_name} ${vendor?.last_name}`
                           )}
                         </AvatarFallback>
                       </Avatar>
@@ -209,8 +210,9 @@ const Vendors = () => {
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
                           {getInitials(
-                            vendor?.business_name[0] ||
-                            `${vendor?.first_name} ${vendor?.last_name}`
+                            vendor?.business_name ?
+                              vendor?.business_name[0] :
+                              `${vendor?.first_name} ${vendor?.last_name}`
                           )}
                         </AvatarFallback>
                       </Avatar>
