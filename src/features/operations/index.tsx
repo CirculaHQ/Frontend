@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import { EmptyState, FilterModule, LineDistribution, ModuleHeader, StatCard } from '@/components/shared';
 import {
   Badge,
@@ -25,7 +26,6 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Operation } from '@/types/operations';
 import { getMaterialColor } from '@/utils/materials';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -66,10 +66,6 @@ const Operations = () => {
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
     useFetchInventoryBreakdown();
 
-  if (loadingInventoryBreakdown) {
-    return <div>Loading material distribution...</div>;
-  }
-
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
       color: getMaterialColor(material),
@@ -88,7 +84,8 @@ const Operations = () => {
     }))
     : [];
 
-  if (isLoading) return <div>Loading Operations...</div>;
+  if (isLoading || loadingInventoryBreakdown) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center' />;
+
   return (
     <div>
       <ModuleHeader title='Operations'>
@@ -212,7 +209,7 @@ const Operations = () => {
                   </TableCell>
 
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    <Badge variant='failed'>Completed</Badge>
+                    <Badge variant={item.status}>{item.status}</Badge>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     {item.quantity_produced}

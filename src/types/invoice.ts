@@ -1,3 +1,5 @@
+import { Customer } from "./customers";
+
 export interface LineItem {
     id: string;
     item_name: string;
@@ -38,9 +40,9 @@ export interface Invoice {
     tax: string;
     discount: string;
     notes: string;
-    status: string;
+    status: 'success' | 'pending' | 'failed' | 'overdue' | null | undefined;
     user: string;
-    customer: string;
+    customer: Customer;
     account: string;
 }
 
@@ -49,4 +51,8 @@ export interface InvoicesResponse {
     next: string;
     previous: string;
     results: Invoice[]
+}
+
+export interface InvoicesParams {
+    
 }

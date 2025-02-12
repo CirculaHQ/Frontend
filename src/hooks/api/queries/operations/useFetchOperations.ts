@@ -4,14 +4,14 @@ import { QUERYKEYS } from '@/utils/query-keys';
 import { OperationPayload } from '../../mutations/operations/useAddOperation';
 
 interface OperationQueryParams {
-    inventory_id?: string | null;
-    inventory_material?: string;
-    inventory_material_type?: string;
-    limit?: number;
-    offset?: number;
-    operation_type?: string;
-    ordering?: string;
-    search?: string;
+  inventory_id?: string | null;
+  inventory_material?: string;
+  inventory_material_type?: string;
+  limit?: number;
+  offset?: number;
+  operation_type?: string;
+  ordering?: string;
+  search?: string;
 }
 
 interface InventoryResponse {

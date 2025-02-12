@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import { FilterModule, ModuleHeader } from '@/components/shared';
 import {
   Avatar,
@@ -20,8 +21,10 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useFetchInvoices } from '@/hooks/api/queries/invoices/useInvoicesQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
+import { generateRandomBackgroundColor, getCurrencySymbol, getInitials } from '@/utils/textFormatter';
+import { differenceInDays, format, parseISO } from 'date-fns';
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -83,27 +86,67 @@ const MetricCard = memo(({ icon, currency }: MetricCardProps) => {
   );
 });
 
+const limit = 20;
+const initialParams = {
+  offset: 0,
+  search: '',
+  state: '',
+  type: '',
+  country: '',
+  archived: false,
+  limit,
+};
+
 const Invoices = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const [params, setParams] = useState({ ...initialParams });
   const [currentPage, setCurrentPage] = useState(1);
   const reportsPerPage = 20;
   const totalPages = Math.ceil(100 / reportsPerPage);
 
+  const { data, isLoading: isLoadingInvoices } = useFetchInvoices(params)
+
+  const invoices = data?.results || [];
+
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
-  const templates = Array(5).fill(null);
+
+  const onSearchChange = (search: string) => {
+    setParams({ ...params, search });
+  };
+
+  const getDaysAgo = (isoDate: string): number => {
+    const givenDate = parseISO(isoDate);
+    return differenceInDays(new Date(), givenDate);
+  };
+
+  const calculateTotalCost = (items: any[], tax: string, discount: string): number => {
+    const subTotal = items.reduce((total, item) => total + item.quantity * item.unit_price, 0);
+    return (subTotal + Number(tax)) - Number(discount)
+  };
+
+  if (isLoadingInvoices) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center' />;
 
   return (
     <div>
       <ModuleHeader title="Invoices">
         <div className="flex flex-row items-center gap-3">
+          {!isMobile && (
+            <div className='flex flex-row items-center w-full justify-start gap-5'>
+              <DateRangePicker showRange={true} />
+              <div className='flex flex-row items-center gap-1'>
+                <span className='text-tertiary font-semibold text-sm'>All material</span>
+                <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+              </div>
+            </div>
+          )}
           <Button>
             <Icon name="arrow-up-right" className="w-5 h-5 text-secondary" />
             Export report
           </Button>
-          <Button variant="secondary" onClick={() => { navigate(appRoute.create_invoice) }}>
+          <Button variant="secondary" onClick={() => navigate(appRoute.create_invoice)}>
             <Icon name="plus" className="w-5 h-5 text-[#FAFAFA]" />
             New invoice
           </Button>
@@ -111,7 +154,6 @@ const Invoices = () => {
       </ModuleHeader>
       <div className="flex flex-row items-center w-full justify-between mt-8">
         <span className="text-primary font-semibold text-lg">Your balance</span>
-        <DateRangePicker />
       </div>
       <div className="grid grid-cols-2 sm:flex flex-col md:flex-row items-center justify-between w-full mt-4 gap-6">
         <MetricCard
@@ -131,7 +173,7 @@ const Invoices = () => {
           currency='€'
         />
       </div>
-      <FilterModule containerClass="mt-8" />
+      <FilterModule onSearchChange={onSearchChange} containerClass="mt-8" />
 
       <div className="mt-2">
         {!isMobile ? (
@@ -141,64 +183,50 @@ const Invoices = () => {
                 <TableHead className="w-[100px]">Invoice ID</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Customers</TableHead>
-                <TableHead>Material</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className="cursor-pointer" key={index}>
-                  <TableCell className="w-[100px]">INV - 182</TableCell>
+              {invoices.map((invoice) => (
+                <TableRow className="cursor-pointer" key={invoice?.code}>
+                  <TableCell className="w-[100px]">{invoice?.code}</TableCell>
                   <TableCell className="w-[200px]">
                     <div className="flex flex-col items-start">
                       <span className="font-medium text-sm text-primary">
-                        5 days ago
+                        {getDaysAgo(invoice.created_at) ? `${getDaysAgo(invoice.created_at)} days ago` : 'Today'}
                       </span>
                       <h4 className="font-normal text-sm text-tertiary">
-                        13/07/2020
+                        {format(invoice?.created_at, 'dd/MM/yyyy')}
                       </h4>
                     </div>
                   </TableCell>
-
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src='' />
+                        <AvatarImage src={invoice?.customer?.photo} />
                         <AvatarFallback
                           style={{ backgroundColor: generateRandomBackgroundColor() }}
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
-                          {/* {getInitials(
-                            customer.business_name[0] ||
-                              `${customer.first_name} ${customer.last_name}`
-                          )} */}
-                          EU
+                          {getInitials(
+                            invoice?.customer?.business_name ? invoice?.customer?.business_name[0] :
+                              `${invoice?.customer?.first_name || ''} ${invoice?.customer?.last_name || ''}`
+                          )}
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
-                        {/* {customer.business_name || `${customer.first_name} ${customer.last_name}`} */}
-                        Emeka Umeh
+                        {invoice?.customer?.business_name || `${invoice?.customer?.first_name || ''} ${invoice?.customer?.last_name || ''}`}
                       </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="w-[200px] text-tertiary font-normal text-sm">
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium text-sm text-primary">
-                        Clear Glass
-                      </span>
-                      <h4 className="font-normal text-sm text-tertiary">
-                        Glass
-                      </h4>
                     </div>
                   </TableCell>
 
                   <TableCell className="w-[300px] text-tertiary font-normal text-sm">
-                    <Badge variant="failed">Completed</Badge>
+                    <Badge variant={invoice.status} className='capitalize'>{invoice.status}</Badge>
                   </TableCell>
                   <TableCell className="w-[300px] text-tertiary font-normal text-sm">
-                    ₦1,593,775.80
+                    {getCurrencySymbol(invoice?.currency)?.symbol}{calculateTotalCost(invoice?.breakdown, invoice.tax, invoice.discount)?.toLocaleString()}
                   </TableCell>
                   <TableCell className="w-7">
                     <DropdownMenu>
@@ -252,8 +280,8 @@ const Invoices = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {templates.map((_, index) => (
-                <TableRow className="cursor-pointer" key={index}>
+              {invoices.map((invoice) => (
+                <TableRow className="cursor-pointer" key={invoice?.code}>
                   <TableCell className="w-[200px] text-tertiary font-normal text-sm">
                     <div className="flex flex-col items-start">
                       <span className="font-medium text-sm text-primary">
@@ -267,21 +295,19 @@ const Invoices = () => {
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
                       <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src='' />
+                        <AvatarImage src={invoice?.customer?.photo} />
                         <AvatarFallback
                           style={{ backgroundColor: generateRandomBackgroundColor() }}
                           className='w-[24px] h-[24px] rounded-full text-white'
                         >
-                          {/* {getInitials(
-                            customer.business_name[0] ||
-                              `${customer.first_name} ${customer.last_name}`
-                          )} */}
-                          EU
+                          {getInitials(
+                            invoice?.customer?.business_name ? invoice?.customer?.business_name[0] :
+                              `${invoice?.customer?.first_name} ${invoice?.customer?.last_name}`
+                          )}
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
-                        {/* {customer.business_name || `${customer.first_name} ${customer.last_name}`} */}
-                        Emeka Umeh
+                        {invoice?.customer?.business_name || `${invoice?.customer?.first_name} ${invoice?.customer?.last_name}`}
                       </span>
                     </div>
                   </TableCell>
