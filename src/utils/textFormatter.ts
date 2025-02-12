@@ -1,3 +1,5 @@
+import { CURRENCIES } from "@/config/common";
+
 export function capitalizeFirstLetter(word: string): string {
   if (word?.length === 0) {
     return word; // Return empty string if word is empty
@@ -37,3 +39,8 @@ export const generateRandomBackgroundColor = (): string => {
   // Return RGB color as a string for use in inline styles
   return `rgb(${r}, ${g}, ${b})`;
 };
+
+export const getCurrencySymbol = (shortCode: string) => {
+  if (!shortCode) return {}
+  return CURRENCIES.find((currency) => currency.shortCode === shortCode) 
+}

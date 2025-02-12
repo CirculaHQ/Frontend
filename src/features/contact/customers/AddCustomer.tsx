@@ -39,7 +39,7 @@ export default function AddCustomer() {
     isUploading: false,
   });
   const customerId = searchParams.get('id') as string;
-  
+
   const { mutate: addCustomer, isLoading: isAddingCustomer } = useAddCustomer((e) => navigate(e));
   const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer((e) =>
     navigate(e)
@@ -263,11 +263,11 @@ export default function AddCustomer() {
             <div className='w-full'>
               <Label className='mb-1.5'>Date of birth</Label>
               <DatePicker
-              date={formik.values.date_of_birth ? new Date(formik.values.date_of_birth) : undefined}
-              onDateChange={(date) => {
-                const formattedDate = date ? formatDate(date) : '';
-                formik.setFieldValue('date_of_birth', formattedDate);
-              }}
+                date={formik.values.date_of_birth ? new Date(formik.values.date_of_birth) : undefined}
+                onDateChange={(date) => {
+                  const formattedDate = date ? formatDate(date) : '';
+                  formik.setFieldValue('date_of_birth', formattedDate);
+                }}
               />
             </div>
           )}

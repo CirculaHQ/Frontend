@@ -1,6 +1,7 @@
 // Create a new component InvoicePreview.tsx
 import React from 'react';
 import { Icon } from '@/components/ui';
+import { LineItem } from '@/types/invoice';
 
 interface InvoicePreviewProps {
   companyInfo: {
@@ -16,17 +17,12 @@ interface InvoicePreviewProps {
     number: string;
     date: string;
     dueDate: string;
-    items: Array<{
-      id: string;
-      itemName: string;
-      quantity: number;
-      unitPrice: number;
-      amount: number;
-    }>;
+    items: LineItem[];
     subtotal: number;
     tax: number;
     discount: number;
     total: number;
+    currency: string;
     additionalNote: string;
     bankDetails: {
       name: string;
@@ -38,13 +34,7 @@ interface InvoicePreviewProps {
 }
 
 const InvoicePreview: React.FC<InvoicePreviewProps> = ({ companyInfo, invoiceData }) => {
-  const { title, additionalNote, date, dueDate, number, items } = invoiceData
-
-  const calculateLineTotal = (item: any) => {
-    const { unitPrice, quantity } = item
-    if (!unitPrice || !quantity) return '-----'
-    if (unitPrice && quantity) return unitPrice * quantity
-  }
+  const { title, additionalNote, date, dueDate, number, items, currency } = invoiceData
 
   return (
     <div className="bg-white px-8 py-4 shadow-sm border">
@@ -103,11 +93,11 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ companyInfo, invoiceDat
           <tbody>
             {items.map((item) => (
               <tr key={item.id} className="border-b">
-                <td className="py-3">{item.itemName || '-----'}</td>
+                <td className="py-3">{item.item_name || '-----'}</td>
                 <td className="py-3">{item.quantity || '-----'}</td>
-                <td className="py-3 text-right">${item.unitPrice || '-----'}</td>
+                <td className="py-3 text-right">{currency}{item.unit_price ? Number(item.unit_price).toLocaleString() : '-----'}</td>
                 <td className="py-3 text-right">
-                  ${calculateLineTotal(item)}
+                  {currency}{item?.amount ? Number(item?.amount).toLocaleString() : '-----'}
                 </td>
               </tr>
             ))}
@@ -120,23 +110,27 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ companyInfo, invoiceDat
         <div className="w-1/2">
           <div className="flex justify-between py-2 border-t border-t-[#D7DAE0]">
             <span className="text-[#1A1C21] font-semibold">Subtotal</span>
-            <span className="font-medium text-[#5E6470] text-xs">${invoiceData.subtotal.toFixed(2)}</span>
+            <span className="font-medium text-[#5E6470] text-xs">{currency}{Number(invoiceData.subtotal.toFixed(2)).toLocaleString()}</span>
           </div>
           <div className="flex justify-between py-2 border-t border-t-[#D7DAE0]">
             <span className="text-[#1A1C21] font-semibold">Tax ({invoiceData.tax}%)</span>
-            <span className="font-medium text-[#5E6470] text-xs">${(invoiceData.subtotal * invoiceData.tax / 100).toFixed(2)}</span>
+            <span className="font-medium text-[#5E6470] text-xs">{currency}{(invoiceData.subtotal * invoiceData.tax / 100).toFixed(2)}</span>
           </div>
           <div className="flex justify-between py-2 border-t border-t-[#D7DAE0]">
-            <span className="text-[#1A1C21] font-semibold">Discount</span>
-            <span className="font-medium text-[#5E6470] text-xs">${invoiceData.discount.toFixed(2)}</span>
+            <span className="text-[#1A1C21] font-semibold">Discount ({invoiceData.discount}%)</span>
+            <span className="font-medium text-[#5E6470] text-xs">{currency}{(invoiceData.subtotal * invoiceData.discount / 100).toFixed(2)}</span>
           </div>
-          <div className="flex justify-between py-2 border-t font-semibold">
+          {/* <div className="flex justify-between py-2 border-t font-semibold">
             <span className="text-[#1A1C21] font-semibold">Total</span>
-            <span className='text-[#1A1C21] font-medium text-xs'>${invoiceData.total.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between py-2 border-t-2 border-b-2 border-t-[#181D27] border-b-[#181D27]">
+            <span className='text-[#1A1C21] font-medium text-xs'>{currency}{Number(invoiceData.total.toFixed(2)).toLocaleString()}</span>
+          </div> */}
+          {/* <div className="flex justify-between py-2 border-t-2 border-b-2 border-t-[#181D27] border-b-[#181D27]">
             <span className="font-medium">Amount due</span>
-            <span className="font-bold">US$ {invoiceData.total.toFixed(2)}</span>
+            <span className="font-bold">US{currency} {Number(invoiceData.total.toFixed(2)).toLocaleString()}</span>
+          </div> */}
+          <div className="flex justify-between py-2 border-t-2 border-b-2 border-t-[#181D27] border-b-[#181D27]">
+            <span className="font-medium">Total</span>
+            <span className="font-bold">{currency} {Number(invoiceData.total.toFixed(2)).toLocaleString()}</span>
           </div>
         </div>
       </div>
