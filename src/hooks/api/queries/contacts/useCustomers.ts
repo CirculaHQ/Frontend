@@ -16,7 +16,7 @@ const useFetchCustomers = (params: CustomersParams) => {
     );
   };
 
-  const { data, isLoading, isError, error } = useQuery({
+  return useQuery({
     queryKey: [QUERYKEYS.FETCH_CUSTOMERS, JSON.stringify(params)],
     refetchOnWindowFocus: false,
     queryFn: () => fetchCustomers(),
@@ -24,13 +24,6 @@ const useFetchCustomers = (params: CustomersParams) => {
     retry: false,
     keepPreviousData: true,
   });
-
-  return {
-    data,
-    isLoading,
-    isError,
-    error,
-  };
 };
 
 const useFetchCustomer = (id?: string) => {

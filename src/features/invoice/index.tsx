@@ -23,8 +23,8 @@ import {
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchInvoices } from '@/hooks/api/queries/invoices/useInvoicesQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { generateRandomBackgroundColor, getCurrencySymbol, getInitials } from '@/utils/textFormatter';
-import { differenceInDays, format, parseISO } from 'date-fns';
+import { generateRandomBackgroundColor, getCurrencySymbol, getDaysAgo, getInitials } from '@/utils/textFormatter';
+import { format } from 'date-fns';
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -102,11 +102,10 @@ const Invoices = () => {
   const navigate = useNavigate();
   const [params, setParams] = useState({ ...initialParams });
   const [currentPage, setCurrentPage] = useState(1);
-  const reportsPerPage = 20;
-  const totalPages = Math.ceil(100 / reportsPerPage);
 
   const { data, isLoading: isLoadingInvoices } = useFetchInvoices(params)
 
+  const totalPages = data ? Math.ceil(data.count / limit) : 0;
   const invoices = data?.results || [];
 
   const onPageChange = (page: number) => {
@@ -117,17 +116,12 @@ const Invoices = () => {
     setParams({ ...params, search });
   };
 
-  const getDaysAgo = (isoDate: string): number => {
-    const givenDate = parseISO(isoDate);
-    return differenceInDays(new Date(), givenDate);
-  };
-
   const calculateTotalCost = (items: any[], tax: string, discount: string): number => {
     const subTotal = items.reduce((total, item) => total + item.quantity * item.unit_price, 0);
     return (subTotal + Number(tax)) - Number(discount)
   };
 
-  if (isLoadingInvoices) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center' />;
+  if (isLoadingInvoices) return <PageLoader />;
 
   return (
     <div>
@@ -358,8 +352,8 @@ const Invoices = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={onPageChange}
-          totalReports={100}
-          reportsPerPage={reportsPerPage}
+          totalReports={data?.count ?? 0}
+          reportsPerPage={limit}
         />
       </div>
     </div>

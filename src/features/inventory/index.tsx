@@ -148,7 +148,7 @@ const Inventory = () => {
     }))
     : [];
 
-  if (isLoading || loadingInventoryBreakdown) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center' />;
+  if (isLoading || loadingInventoryBreakdown) return <PageLoader />;
 
   return (
     <div className='mb-10'>
