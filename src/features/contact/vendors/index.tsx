@@ -80,7 +80,7 @@ const Vendors = () => {
     navigate(`${appRoute.editVendor(vendor?.id)}`)
   }
 
-  if (isLoading) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center'/>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div>

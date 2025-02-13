@@ -79,7 +79,7 @@ const Customers = () => {
     editCustomer({ customerId: id, payload: { archived: !customer.archived } });
   };
 
-  if (isLoading) return <PageLoader containerClassName='h-[80vh] w-full flex justify-center items-center'/>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div>

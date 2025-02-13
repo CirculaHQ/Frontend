@@ -1,4 +1,5 @@
 import { CURRENCIES } from "@/config/common";
+import { differenceInDays, parseISO } from "date-fns";
 
 export function capitalizeFirstLetter(word: string): string {
   if (word?.length === 0) {
@@ -44,3 +45,8 @@ export const getCurrencySymbol = (shortCode: string) => {
   if (!shortCode) return {}
   return CURRENCIES.find((currency) => currency.shortCode === shortCode) 
 }
+
+export const getDaysAgo = (isoDate: string): number => {
+  const givenDate = parseISO(isoDate);
+  return differenceInDays(new Date(), givenDate);
+};
