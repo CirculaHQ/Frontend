@@ -27,12 +27,17 @@ import AddOperation from '@/features/operations/add-operation';
 import AddCustomer from '@/features/contact/customers/AddCustomer';
 import CreateInvoice from '@/features/invoice/create-invoice';
 import InvoiceDetails from '@/features/invoice/invoice-details';
+import Activities from '@/features/dashboard/Activities';
 
 // Separate arrays for authenticated and public routes
 const authenticatedRoutes = [
   {
     path: appRoute.home,
     element: <Dashboard />,
+  },
+  {
+    path: appRoute.activities,
+    element: <Activities />,
   },
   {
     path: appRoute.dashboard,
