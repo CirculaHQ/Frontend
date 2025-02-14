@@ -104,6 +104,18 @@ export const CreateInvoiceForm: React.FC<{
         }
     }, [items])
 
+    useEffect(() => {
+        if (formik.values.customer) {
+            formik.setFieldValue('customer', formik.values.customer)
+        }
+    }, [customers])
+
+    useEffect(() => {
+        if (formik.values.account) {
+            formik.setFieldValue('account', formik.values.account)
+        }
+    }, [banks])
+
     return (
         <form className='w-full flex flex-col gap-4' onSubmit={formik.handleSubmit}>
             <div className='w-full flex flex-col gap-1.5'>
@@ -281,9 +293,9 @@ export const CreateInvoiceForm: React.FC<{
                     onChange={(e) => handleTax(e, '')}
                     onBlur={formik.handleBlur}
                     value={salesTax.amount}
-                    // errorMessage={
-                    //     formik.errors.tax && formik.touched.tax ? formik.errors.tax : ''
-                    // }
+                // errorMessage={
+                //     formik.errors.tax && formik.touched.tax ? formik.errors.tax : ''
+                // }
                 />
                 <Input
                     id='salesTax'
@@ -295,9 +307,9 @@ export const CreateInvoiceForm: React.FC<{
                     onBlur={formik.handleBlur}
                     value={salesTax.percent}
                     containerClassName='w-[150px]'
-                    // errorMessage={
-                    //     formik.errors.tax && formik.touched.tax ? formik.errors.tax : ''
-                    // }
+                // errorMessage={
+                //     formik.errors.tax && formik.touched.tax ? formik.errors.tax : ''
+                // }
                 />
             </div>
 
@@ -310,9 +322,9 @@ export const CreateInvoiceForm: React.FC<{
                     onChange={(e) => handleDiscount(e, '')}
                     onBlur={formik.handleBlur}
                     value={discount.amount}
-                    // errorMessage={
-                    //     formik.errors.discount && formik.touched.discount ? formik.errors.discount : ''
-                    // }
+                // errorMessage={
+                //     formik.errors.discount && formik.touched.discount ? formik.errors.discount : ''
+                // }
                 />
                 <Input
                     id='discount'
@@ -324,9 +336,9 @@ export const CreateInvoiceForm: React.FC<{
                     onBlur={formik.handleBlur}
                     value={discount.percent}
                     containerClassName='w-[150px]'
-                    // errorMessage={
-                    //     formik.errors.discount && formik.touched.discount ? formik.errors.discount : ''
-                    // }
+                // errorMessage={
+                //     formik.errors.discount && formik.touched.discount ? formik.errors.discount : ''
+                // }
                 />
             </div>
 
