@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import { BackButton, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Button,
@@ -21,7 +22,7 @@ const VendorDetails = () => {
   const { data, isLoading } = useFetchVendor(id);
   const isBusiness = data?.type === BUSINESS;
 
-  if (isLoading) return <p>Fetching vendor details...</p>;
+  if (isLoading) return <PageLoader />;
   if (!data) return <p>No vendor data found</p>;
 
   const name = isBusiness ? data?.account_name : `${data?.first_name} ${data?.last_name}`;

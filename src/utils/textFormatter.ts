@@ -42,8 +42,8 @@ export const generateRandomBackgroundColor = (): string => {
 };
 
 export const getCurrencySymbol = (shortCode: string) => {
-  if (!shortCode) return {}
-  return CURRENCIES.find((currency) => currency.shortCode === shortCode) 
+  if (!shortCode) return { symbol: '' }
+  return CURRENCIES.find((currency) => currency.shortCode === shortCode)
 }
 
 export const getDaysAgo = (isoDate: string): number => {

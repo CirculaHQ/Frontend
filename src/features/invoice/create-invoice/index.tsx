@@ -1,25 +1,30 @@
-import { InvoicePreview, ModuleHeader } from "@/components/shared";
-import { Button, Icon } from "@/components/ui";
+import { BackButton, InvoicePreview, ModuleHeader } from "@/components/shared";
+import { Button } from "@/components/ui";
 import { appRoute } from "@/config/routeMgt/routePaths";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Customer } from "@/types/customers";
 import { useFormik } from "formik";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { CreateInvoiceForm } from "./create-invoice-form";
 import { capitalizeFirstLetterOfEachWord, getCurrencySymbol } from "@/utils/textFormatter";
 import { useGetUserInfo } from "@/hooks/useGetUserInfo";
 import { LineItem } from "@/types/invoice";
 import { format } from "date-fns";
 import { Bank } from "@/types/settings";
-import { useCreateInvoice } from "@/hooks/api/mutations/invoices/useInvoices";
+import { useCreateInvoice, useEditInvoice } from "@/hooks/api/mutations/invoices/useInvoices";
+import { useFetchInvoice } from "@/hooks/api/queries/invoices/useInvoicesQuery";
+import { PageLoader } from "@/components/loaders";
 
 const CreateInvoice = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-
+  const [searchParams] = useSearchParams()
+  const invoiceId = searchParams.get('invoiceId') ?? ''
   const { userID } = useGetUserInfo();
 
+  const [salesTax, setSalesTax] = useState({ amount: '', percent: '' })
+  const [discount, setDiscount] = useState({ amount: '', percent: '' })
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null)
   const [currentView, setCurrentView] = useState<'form' | 'preview'>('form');
@@ -28,49 +33,57 @@ const CreateInvoice = () => {
   ]);
 
   const { mutateAsync: createInvoice, isLoading: isCreatingInvoice } = useCreateInvoice()
+  const { mutateAsync: editInvoice, isLoading: isEditingInvoice } = useEditInvoice(invoiceId)
+  const { data: editInvoiceData, isLoading: isLoadingInvoice } = useFetchInvoice(invoiceId ?? '')
 
   const formik = useFormik({
     initialValues: {
       title: '',
       currency: '',
-      tax: '',
-      discount: '',
       notes: '',
       due_date: '',
       customer: '',
       account: '',
     },
     onSubmit: async (values) => {
-      const { tax, discount } = values
       const payload = {
         ...values,
         account: selectedBank?.id || '',
         user: userID,
-        discount: discount ? (calculateSubTotal() * Number(discount) /100) : '',
-        tax: tax ? (calculateSubTotal() * Number(tax) /100) : '',
+        discount: discount.amount || '',
+        tax: salesTax.amount || '',
         breakdown: items.map(({ item_name, quantity, unit_price }) => {
           return { item_name, quantity, unit_price }
         })
       }
 
-      if (isMobile) {
-        setCurrentView('preview');
+      if (!invoiceId) {
+        // Handles create invoice
+        if (isMobile) {
+          setCurrentView('preview');
+        } else {
+          await createInvoice(payload)
+          navigate(appRoute.invoices)
+        }
       } else {
-        const res = await createInvoice(payload)
-        if (res) navigate(appRoute.invoices)
+        // Handles edit invoice
+        if (isMobile) {
+          setCurrentView('preview');
+        } else {
+          await editInvoice(payload)
+          navigate(appRoute.invoices)
+        }
       }
     },
   });
 
-  const calculateSubTotal = (): number => {
+  const calculateSubTotal = (items: any): number => {
     return items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
   };
 
   const calculateTotal = (): number => {
     const subTotal = items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
-    const tax = subTotal * Number(formik.values.tax) / 100
-    const discount = subTotal * Number(formik.values.discount) / 100
-    return subTotal + tax - discount;
+    return subTotal + Number(salesTax.amount) - Number(discount.amount);
   };
 
   const handleAddItem = () => {
@@ -130,9 +143,9 @@ const CreateInvoice = () => {
       date: format(new Date(), 'PP'),
       dueDate: formik.values.due_date ? format(formik.values.due_date, 'PP') : '-----',
       items,
-      subtotal: calculateSubTotal(),
-      tax: parseFloat(formik.values.tax) || 0,
-      discount: parseFloat(formik.values.discount) || 0,
+      subtotal: calculateSubTotal(items),
+      tax: salesTax.amount || 0,
+      discount: discount.amount || 0,
       total: calculateTotal(),
       currency: getCurrencySymbol(formik.values.currency)?.symbol,
       additionalNote: formik.values.notes,
@@ -157,24 +170,52 @@ const CreateInvoice = () => {
     <CreateInvoiceForm
       formik={formik}
       items={items}
+      invoiceId={invoiceId}
       handleItemChange={handleItemChange}
       handleAddItem={handleAddItem}
       handleRemoveItem={handleRemoveItem}
       handleSelectCustomer={handleSelectCustomer}
       handleSelectBank={handleSelectBank}
-      isCreatingInvoice={isCreatingInvoice}
+      isLoading={isCreatingInvoice || isEditingInvoice}
+      salesTax={salesTax}
+      setSalesTax={setSalesTax}
+      discount={discount}
+      setDiscount={setDiscount}
     />
   )
+
+  const renderPreview = () => (
+    <InvoicePreview
+      companyInfo={previewData.companyInfo}
+      invoiceData={previewData.invoiceData}
+    />
+  )
+
+  useEffect(() => {
+    if (invoiceId && editInvoiceData) {
+      const subTotal = calculateSubTotal(editInvoiceData?.breakdown)
+      formik.setValues({
+        title: editInvoiceData?.title || '',
+        currency: editInvoiceData?.currency || '',
+        notes: editInvoiceData?.notes || '',
+        due_date: editInvoiceData?.due_date || '',
+        customer: editInvoiceData?.customer?.id || '',
+        account: editInvoiceData?.account?.bank_name || '',
+      })
+      if (editInvoiceData?.breakdown) setItems(editInvoiceData?.breakdown)
+      if (editInvoiceData?.customer) setSelectedCustomer(editInvoiceData?.customer)
+      if (editInvoiceData?.account) setSelectedBank(editInvoiceData?.account)
+      if (editInvoiceData?.tax) setSalesTax({ amount: editInvoiceData?.tax, percent: (Number(editInvoiceData?.tax) / subTotal) * 100 })
+      if (editInvoiceData?.discount) setDiscount({ amount: editInvoiceData?.discount, percent: (Number(editInvoiceData?.discount) / subTotal) * 100 })
+    }
+  }, [invoiceId, editInvoiceData])
+
+  if (isLoadingInvoice && !editInvoiceData) return <PageLoader />;
 
   return (
     <div className='mx-auto'>
       <div className='flex justify-between items-center mb-4'>
-        <button
-          onClick={() => navigate(appRoute.invoices)}
-          className='text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1'
-        >
-          <Icon name='arrow-left' className='w-5 h-5' /> Back to invoices
-        </button>
+        <BackButton route={appRoute.invoices} label='Back to invoices' />
         {isMobile && (
           <Button
             variant='outline'
@@ -184,7 +225,7 @@ const CreateInvoice = () => {
           </Button>
         )}
       </div>
-      <ModuleHeader title='Create new invoice' className='mb-10' />
+      <ModuleHeader title={`${invoiceId ? 'Edit' : 'Create new'} invoice`} className='mb-10' />
       {isMobile ? (
         // Mobile Layout
         <div>
@@ -197,10 +238,7 @@ const CreateInvoice = () => {
               </h3>
 
               <div className='bg-[#F5F5F5] p-4 mt-1.5'>
-                <InvoicePreview
-                  companyInfo={previewData.companyInfo}
-                  invoiceData={previewData.invoiceData}
-                />
+                {renderPreview()}
               </div>
             </div>
           )
@@ -216,10 +254,7 @@ const CreateInvoice = () => {
             </h3>
 
             <div className='bg-[#F5F5F5] p-4 mt-1.5'>
-              <InvoicePreview
-                companyInfo={previewData.companyInfo}
-                invoiceData={previewData.invoiceData}
-              />
+              {renderPreview()}
             </div>
           </div>
         </div>

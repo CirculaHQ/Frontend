@@ -92,12 +92,16 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ companyInfo, invoiceDat
           </thead>
           <tbody>
             {items.map((item) => (
-              <tr key={item.id} className="border-b">
+              <tr key={`${item.id}${item.item_name}`} className="border-b">
                 <td className="py-3">{item.item_name || '-----'}</td>
                 <td className="py-3">{item.quantity || '-----'}</td>
                 <td className="py-3 text-right">{currency}{item.unit_price ? Number(item.unit_price).toLocaleString() : '-----'}</td>
                 <td className="py-3 text-right">
-                  {currency}{item?.amount ? Number(item?.amount).toLocaleString() : '-----'}
+                  {currency}
+                  {item.unit_price && item.quantity ?
+                    Number(item.unit_price * item.quantity).toLocaleString() :
+                    '-----'
+                  }
                 </td>
               </tr>
             ))}
@@ -113,24 +117,18 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ companyInfo, invoiceDat
             <span className="font-medium text-[#5E6470] text-xs">{currency}{Number(invoiceData.subtotal.toFixed(2)).toLocaleString()}</span>
           </div>
           <div className="flex justify-between py-2 border-t border-t-[#D7DAE0]">
-            <span className="text-[#1A1C21] font-semibold">Tax ({invoiceData.tax}%)</span>
-            <span className="font-medium text-[#5E6470] text-xs">{currency}{(invoiceData.subtotal * invoiceData.tax / 100).toFixed(2)}</span>
+            <span className="text-[#1A1C21] font-semibold">Tax ({((invoiceData.tax / invoiceData.subtotal) * 100) || 0}%)</span>
+            <span className="font-medium text-[#5E6470] text-xs">{currency}{Number(invoiceData.tax).toFixed(2)}</span>
           </div>
           <div className="flex justify-between py-2 border-t border-t-[#D7DAE0]">
-            <span className="text-[#1A1C21] font-semibold">Discount ({invoiceData.discount}%)</span>
-            <span className="font-medium text-[#5E6470] text-xs">{currency}{(invoiceData.subtotal * invoiceData.discount / 100).toFixed(2)}</span>
+            <span className="text-[#1A1C21] font-semibold">Discount ({((invoiceData.discount / invoiceData.subtotal) * 100) || 0}%)</span>
+            <span className="font-medium text-[#5E6470] text-xs">{currency}{Number(invoiceData.discount).toFixed(2)}</span>
           </div>
-          {/* <div className="flex justify-between py-2 border-t font-semibold">
-            <span className="text-[#1A1C21] font-semibold">Total</span>
-            <span className='text-[#1A1C21] font-medium text-xs'>{currency}{Number(invoiceData.total.toFixed(2)).toLocaleString()}</span>
-          </div> */}
-          {/* <div className="flex justify-between py-2 border-t-2 border-b-2 border-t-[#181D27] border-b-[#181D27]">
-            <span className="font-medium">Amount due</span>
-            <span className="font-bold">US{currency} {Number(invoiceData.total.toFixed(2)).toLocaleString()}</span>
-          </div> */}
           <div className="flex justify-between py-2 border-t-2 border-b-2 border-t-[#181D27] border-b-[#181D27]">
-            <span className="font-medium">Total</span>
-            <span className="font-bold">{currency} {Number(invoiceData.total.toFixed(2)).toLocaleString()}</span>
+            <span className="font-bold">Total</span>
+            <span className="font-bold">
+              {currency}{Number(invoiceData.total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
           </div>
         </div>
       </div>

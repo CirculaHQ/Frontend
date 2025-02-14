@@ -1,7 +1,7 @@
 import { Customer } from "./customers";
 
 export interface LineItem {
-    id: string;
+    id?: string;
     item_name: string;
     quantity: number;
     unit_price: number;
@@ -43,7 +43,10 @@ export interface Invoice {
     status: 'success' | 'pending' | 'failed' | 'overdue' | null | undefined;
     user: string;
     customer: Customer;
-    account: string;
+    account: {
+        account_name: string;
+        account_number: string;
+    };
 }
 
 export interface InvoicesResponse {

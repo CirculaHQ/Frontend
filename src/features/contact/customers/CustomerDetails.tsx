@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import { BackButton, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Button,
@@ -21,7 +22,7 @@ const CustomerDetails = () => {
   const { data, isLoading } = useFetchCustomer(id);
   const isBusiness = data?.type === BUSINESS;
 
-  if (isLoading) return <p>Fetching customer details...</p>;
+  if (isLoading) return <PageLoader />;
   if (!data) return <p>No customer data found</p>;
 
   const name = isBusiness ? data?.business_name : `${data?.first_name} ${data?.last_name}`;
