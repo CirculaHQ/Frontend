@@ -12,3 +12,12 @@ export const ROLE_IN_VALUE_CHAIN = [
     { name: 'Supplier' },
     { name: 'Retailer' }
 ]
+
+export const chartDurationFilter = [
+    { name: '1D' },
+    { name: '5D' },
+    { name: '1M' },
+    { name: '6M' },
+    { name: '1Y' },
+    { name: 'Max' }
+]

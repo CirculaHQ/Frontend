@@ -17,3 +17,5 @@ export interface RecentActivitiesResponse {
     previous: string | null;
     results: Activity[];
 }
+
+export type ChartResponse = Record<string, number>

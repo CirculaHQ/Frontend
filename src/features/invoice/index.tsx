@@ -121,6 +121,11 @@ const Invoices = () => {
     return (subTotal + Number(tax)) - Number(discount)
   };
 
+  const editInvoice = (e: any, invoiceId: string) => {
+    e.stopPropagation()
+    navigate(appRoute.editInvoice(invoiceId))
+  }
+
   if (isLoadingInvoices) return <PageLoader />;
 
   return (
@@ -130,10 +135,6 @@ const Invoices = () => {
           {!isMobile && (
             <div className='flex flex-row items-center w-full justify-start gap-5'>
               <DateRangePicker showRange={true} />
-              <div className='flex flex-row items-center gap-1'>
-                <span className='text-tertiary font-semibold text-sm'>All material</span>
-                <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
-              </div>
             </div>
           )}
           <Button>
@@ -184,7 +185,11 @@ const Invoices = () => {
             </TableHeader>
             <TableBody>
               {invoices.map((invoice) => (
-                <TableRow className="cursor-pointer" key={invoice?.code}>
+                <TableRow
+                  className="cursor-pointer"
+                  key={invoice?.code}
+                  onClick={() => navigate(`${appRoute.invoiceDetails(invoice.id).path}`)}
+                >
                   <TableCell className="w-[100px]">{invoice?.code}</TableCell>
                   <TableCell className="w-[200px]">
                     <div className="flex flex-col items-start">
@@ -236,7 +241,7 @@ const Invoices = () => {
                         align="end"
                         className="text-sm font-medium text-secondary rounded-[8px] px-1"
                       >
-                        <DropdownMenuItem className="py-2  rounded-[8px]">
+                        <DropdownMenuItem className="py-2  rounded-[8px]" onClick={(e) => editInvoice(e, invoice.id)}>
                           <Icon
                             name="edit"
                             className="w-4 h-4 text-quaternary"
@@ -319,7 +324,7 @@ const Invoices = () => {
                         align="end"
                         className="text-sm font-medium text-secondary rounded-[8px] px-1"
                       >
-                        <DropdownMenuItem className="py-2  rounded-[8px]">
+                        <DropdownMenuItem className="py-2  rounded-[8px]" onClick={(e) => editInvoice(e, invoice.id)}>
                           <Icon
                             name="edit"
                             className="w-4 h-4 text-quaternary"

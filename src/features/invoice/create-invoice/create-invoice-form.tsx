@@ -21,9 +21,9 @@ import { useFetchBanks } from '@/hooks/api/queries/settings/useBanks';
 import { Customer } from '@/types/customers';
 import { LineItem } from '@/types/invoice';
 import { Bank } from '@/types/settings';
-import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
+import { generateRandomBackgroundColor, getCurrencySymbol, getInitials } from '@/utils/textFormatter';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const formatDate = (date: string | number | Date) => format(new Date(date), 'yyyy-MM-dd');
@@ -36,8 +36,13 @@ export const CreateInvoiceForm: React.FC<{
     handleRemoveItem: (id: string) => void;
     handleSelectCustomer: (customer: Customer) => void;
     handleSelectBank: (bank: Bank) => void;
-    isCreatingInvoice: boolean;
-}> = ({ formik, items, handleItemChange, handleAddItem, handleRemoveItem, handleSelectCustomer, handleSelectBank, isCreatingInvoice }) => {
+    isLoading: boolean;
+    salesTax: { amount: string, percent: string };
+    setSalesTax: (e: any) => void;
+    discount: { amount: string, percent: string };
+    setDiscount: (e: any) => void;
+    invoiceId?: string;
+}> = ({ formik, items, handleItemChange, handleAddItem, handleRemoveItem, handleSelectCustomer, handleSelectBank, isLoading, salesTax, setSalesTax, discount, setDiscount, invoiceId }) => {
     const navigate = useNavigate();
 
     const limit = 20;
@@ -55,6 +60,49 @@ export const CreateInvoiceForm: React.FC<{
 
     const customers = data?.results || [];
     const banks = allBanks?.results || [];
+
+    const currencySymbol = formik?.values?.currency ? `(${getCurrencySymbol(formik?.values?.currency)?.symbol})` : ''
+
+    const calculateSubTotal = (items: LineItem[]): number => {
+        return items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+    };
+
+    const handleTax = (e: any, type: string) => {
+        const { value } = e.target
+        const subTotal = calculateSubTotal(items)
+        if (type === 'percent') {
+            const amount = subTotal * (value / 100) || ''
+            setSalesTax({ amount, percent: value })
+        } else {
+            const percent = (value / subTotal) * 100 || ''
+            setSalesTax({ amount: value, percent })
+        }
+    }
+
+    const handleDiscount = (e: any, type: string) => {
+        const { value } = e.target
+        const subTotal = calculateSubTotal(items)
+        if (type === 'percent') {
+            const amount = subTotal * (value / 100) || ''
+            setDiscount({ amount, percent: value })
+        } else {
+            const percent = (value / subTotal) * 100 || ''
+            setDiscount({ amount: value, percent })
+        }
+    }
+
+    useEffect(() => {
+        if (salesTax.percent) {
+            const subTotal = calculateSubTotal(items)
+            const amount = subTotal * (Number(salesTax.percent) / 100) || ''
+            setSalesTax({ ...salesTax, amount })
+        }
+        if (discount.percent) {
+            const subTotal = calculateSubTotal(items)
+            const amount = subTotal * (Number(discount.percent) / 100) || ''
+            setDiscount({ ...discount, amount })
+        }
+    }, [items])
 
     return (
         <form className='w-full flex flex-col gap-4' onSubmit={formik.handleSubmit}>
@@ -224,36 +272,63 @@ export const CreateInvoiceForm: React.FC<{
             >
                 + Add Item
             </div>
+            <div className='flex items-center gap-x-2'>
+                <Input
+                    id='salesTax'
+                    type='text'
+                    label={`Sales tax ${currencySymbol}`}
+                    name='tax'
+                    onChange={(e) => handleTax(e, '')}
+                    onBlur={formik.handleBlur}
+                    value={salesTax.amount}
+                    // errorMessage={
+                    //     formik.errors.tax && formik.touched.tax ? formik.errors.tax : ''
+                    // }
+                />
+                <Input
+                    id='salesTax'
+                    type='text'
+                    label='Sales tax (%)'
+                    tag='%'
+                    name='tax'
+                    onChange={(e) => handleTax(e, 'percent')}
+                    onBlur={formik.handleBlur}
+                    value={salesTax.percent}
+                    containerClassName='w-[150px]'
+                    // errorMessage={
+                    //     formik.errors.tax && formik.touched.tax ? formik.errors.tax : ''
+                    // }
+                />
+            </div>
 
-            <Input
-                id='salesTax'
-                type='text'
-                placeholder='Enter tax percentage e.g 2'
-                label='Sales tax'
-                tag='%'
-                name='tax'
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.tax}
-                errorMessage={
-                    formik.errors.tax && formik.touched.tax ? formik.errors.tax : ''
-                }
-            />
-
-            <Input
-                id='discount'
-                type='text'
-                placeholder='Enter tax percentage e.g 10'
-                label='Discount'
-                tag='%'
-                name='discount'
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.discount}
-                errorMessage={
-                    formik.errors.discount && formik.touched.discount ? formik.errors.discount : ''
-                }
-            />
+            <div className='flex items-center gap-x-2'>
+                <Input
+                    id='discount'
+                    type='text'
+                    label={`Discount ${currencySymbol}`}
+                    name='discount'
+                    onChange={(e) => handleDiscount(e, '')}
+                    onBlur={formik.handleBlur}
+                    value={discount.amount}
+                    // errorMessage={
+                    //     formik.errors.discount && formik.touched.discount ? formik.errors.discount : ''
+                    // }
+                />
+                <Input
+                    id='discount'
+                    type='text'
+                    label='Discount'
+                    tag='%'
+                    name='discount'
+                    onChange={(e) => handleDiscount(e, 'percent')}
+                    onBlur={formik.handleBlur}
+                    value={discount.percent}
+                    containerClassName='w-[150px]'
+                    // errorMessage={
+                    //     formik.errors.discount && formik.touched.discount ? formik.errors.discount : ''
+                    // }
+                />
+            </div>
 
             <Input
                 id='additionalNote'
@@ -295,11 +370,11 @@ export const CreateInvoiceForm: React.FC<{
             </div>
 
             <div className='flex justify-end gap-4 mt-8'>
-                <Button variant='outline' disabled={isCreatingInvoice} onClick={() => navigate(appRoute.invoices)}>
+                <Button variant='outline' disabled={isLoading} onClick={() => navigate(appRoute.invoices)}>
                     Cancel
                 </Button>
-                <Button type='submit' variant='secondary' disabled={isCreatingInvoice} isLoading={isCreatingInvoice}>
-                    Create invoice
+                <Button type='submit' variant='secondary' disabled={isLoading} isLoading={isLoading}>
+                    {invoiceId ? 'Edit' : 'Create'} invoice
                 </Button>
             </div>
         </form>

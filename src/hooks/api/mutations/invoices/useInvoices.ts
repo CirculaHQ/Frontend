@@ -23,3 +23,24 @@ export const useCreateInvoice = () => {
     },
   });
 };
+
+export const useEditInvoice = (invoiceId: string) => {
+  const queryClient = useQueryClient();
+
+  const editInvoice = async (data: CreateInvoicePayload): Promise<CreateInvoicePayload> => {
+    const response = await request<CreateInvoicePayload>('PUT', `/invoices/${invoiceId}`, data, false, false);
+    return response;
+  };
+
+  return useMutation({
+    mutationFn: editInvoice,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [QUERYKEYS.FETCH_INVOICES] });
+      await queryClient.invalidateQueries({ queryKey: [QUERYKEYS.FETCH_INVOICE, invoiceId] });
+      showToast('Invoice edited successfully!', 'success');
+    },
+    onError: (err: any) => {
+      showToast('Failed to edit invoice. Please try again.', 'error');
+    },
+  });
+};
