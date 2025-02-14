@@ -13,17 +13,20 @@ import {
     TablePagination,
     TableRow,
 } from '@/components/ui';
+import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchRecentActivities } from '@/hooks/api/queries/dashboard/useDashboard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getDaysAgo } from '@/utils/textFormatter';
 import { format } from 'date-fns';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const limit = 10
-const initialParams = { offset: 0, limit };
+export default function RecentActivities({ isPaginated, containerClassName = '' }: { isPaginated: boolean, containerClassName?: string }) {
+    const limit = isPaginated ? 20 : 5
+    const initialParams = { offset: 0, limit };
 
-export default function RecentActivities() {
     const isMobile = useIsMobile();
+    const navigate = useNavigate()
     const [currentPage, setCurrentPage] = useState(1);
     const [params, setParams] = useState({ ...initialParams });
 
@@ -38,10 +41,14 @@ export default function RecentActivities() {
     };
 
     return (
-        <>
-            <div className='flex flex-row w-full items-center justify-between mt-10'>
+        <div className={containerClassName}>
+            <div className='flex flex-row w-full items-center justify-between'>
                 <h2 className='text-primary font-semibold text-lg'>Recent activities</h2>
-                <span className='text-tertiary font-semibold text-sm cursor-pointer'>View all</span>
+                {!isPaginated && (
+                    <button onClick={() => navigate(appRoute.activities)}>
+                        <span className='text-tertiary font-semibold text-sm cursor-pointer'>View all</span>
+                    </button>
+                )}
             </div>
             <div className='mt-5'>
                 {!isMobile ? (
@@ -162,14 +169,16 @@ export default function RecentActivities() {
                         </TableBody>
                     </Table>
                 )}
-                <TablePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={onPageChange}
-                    totalReports={data?.count ?? 0}
-                    reportsPerPage={limit}
-                />
+                {isPaginated && (
+                    <TablePagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={onPageChange}
+                        totalReports={data?.count ?? 0}
+                        reportsPerPage={limit}
+                    />
+                )}
             </div>
-        </>
+        </div>
     )
 }

@@ -10,7 +10,7 @@ const Dashboard = () => {
         <Inventory />
       </div>
       <Sales />
-      <RecentActivities />
+      <RecentActivities isPaginated={false} containerClassName='mt-10' />
     </div>
   );
 };
