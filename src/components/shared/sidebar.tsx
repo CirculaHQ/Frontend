@@ -21,6 +21,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
 } from '@/components/ui';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -29,6 +32,7 @@ import { useSignOut } from 'react-auth-kit';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useEffect, useState } from 'react';
 import { getUserProfile, UserProfile } from '@/hooks/api/mutations/settings/user-profile';
+import { getInitials } from '@/utils/textFormatter';
 
 const items = [
   {
@@ -166,7 +170,7 @@ export function AppSidebar() {
                               className={cn(
                                 'text-tertiary font-inter text-sm w-full justify-between px-2 py-1.5 cursor-pointer',
                                 isActive(subItem.url) &&
-                                  ' bg-[#FAFAFA] rounded-[4px] text-secondary_hover font-medium'
+                                ' bg-[#FAFAFA] rounded-[4px] text-secondary_hover font-medium'
                               )}
                             >
                               {isActive(subItem.url) && (
@@ -190,9 +194,8 @@ export function AppSidebar() {
                     >
                       <Icon
                         name={item.icon}
-                        className={`w-[18px] h-[18px] font-medium ${
-                          isActive(item.url) ? 'text-secondary_hover' : ''
-                        }`}
+                        className={`w-[18px] h-[18px] font-medium ${isActive(item.url) ? 'text-secondary_hover' : ''
+                          }`}
                         fill='none'
                       />
                       <span className='font-medium'>{item.title}</span>
@@ -204,22 +207,25 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className='bg-white'>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
+                <SidebarMenuButton className='border p-3 h-auto'>
                   {userProfile ? (
                     <>
-                      {/* <img 
-                        src={userProfile.picture} 
-                        alt="Profile" 
-                        className="w-6 h-6 rounded-full mr-2" 
-                      /> */}
-
-                      <div>
-                        <p className='text-primary font-semibold capitalize'>
+                      <Avatar className='w-10 h-10 rounded-full'>
+                        <AvatarImage src={userProfile.picture} />
+                        <AvatarFallback
+                          style={{ backgroundColor: '#2C6000' }}
+                          className='w-10 h-10 rounded-full text-white'
+                        >
+                          {getInitials(`${userProfile?.first_name} ${userProfile?.last_name}`)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className='w-[70%]'>
+                        <p className='text-primary font-semibold capitalize truncate'>
                           {userProfile.first_name} {userProfile.last_name}
                         </p>
                         <p className='text-tertiary font-normal text-sm'>{userProfile.email}</p>
