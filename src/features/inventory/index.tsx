@@ -33,6 +33,7 @@ import {
 } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useTableFilters } from '@/hooks';
 import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useFetchInventory } from '@/hooks/api/queries/inventory';
@@ -42,62 +43,25 @@ import { capitalizeFirstLetter, generateRandomBackgroundColor, getInitials } fro
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const INVENTORY_IN = 'inventory-in';
-const INVENTORY_OUT = 'inventory-out';
-const PROCESSED_MATERIALS = 'processed-materials';
-const RAW_MATERIALS = 'raw-materials';
 const TOTAL_MATERIALS = 'Total materials';
-
 const tabs = [
-  { label: 'Inventory in', value: 'inventory-in' },
-  { label: 'Inventory out', value: 'inventory-out' },
-  { label: 'Raw materials', value: 'raw-materials' },
-  { label: 'Processed materials', value: 'processed-materials' },
+  { label: 'Raw materials', value: 'raw' },
+  { label: 'Ready for sale', value: 'ready' },
+  { label: 'Waste', value: 'waste' },
 ];
 
 const Inventory = () => {
+  const { params, handleSearchChange, currentPage, setCurrentPage, onPageChange } = useTableFilters({})
   const [searchParams, setSearchParams] = useSearchParams();
   const [summary, setSummary] = useState(TOTAL_MATERIALS);
-  const currentTab = searchParams.get('tab') ?? INVENTORY_IN;
+  const currentTab = searchParams.get('tab') ?? 'raw';
   const deleteInventory = useDeleteInventory();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [currentPage, setCurrentPage] = useState(1);
-  const reportsPerPage = 20;
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const getType = (tab: string) => {
-    switch (tab) {
-      case INVENTORY_IN:
-        return 'in';
-      case INVENTORY_OUT:
-        return 'out';
-      case PROCESSED_MATERIALS:
-        return 'processed';
-      case RAW_MATERIALS:
-        return 'raw';
-    }
-  };
+  const { data, isLoading } = useFetchInventory({ stage: currentTab });
 
-  const queryParams = {
-    limit: reportsPerPage,
-    offset: (currentPage - 1) * reportsPerPage,
-    search: searchQuery,
-    type: getType(currentTab),
-  };
-
-  const { data, isLoading } = useFetchInventory(queryParams);
-
-  const totalPages = data ? Math.ceil(data.count / reportsPerPage) : 0;
-
-  const handleSearchChange = (newSearchQuery: string) => {
-    setSearchQuery(newSearchQuery);
-    setCurrentPage(1); // Reset to first page when searching
-  };
-
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
 
   const handleDeleteInventory = async (e: any, id: string) => {
     e.stopPropagation();
@@ -444,14 +408,13 @@ const Inventory = () => {
             </TableBody>
           </Table>
         )}
-
         {data?.results.length !== 0 && (
           <TablePagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}
             totalReports={data?.count || 0}
-            reportsPerPage={reportsPerPage}
+            reportsPerPage={params.limit}
           />
         )}
       </div>

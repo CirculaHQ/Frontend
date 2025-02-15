@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useTableFilters } from '@/hooks';
 import { useFetchInvoices } from '@/hooks/api/queries/invoices/useInvoicesQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { generateRandomBackgroundColor, getCurrencySymbol, getDaysAgo, getInitials } from '@/utils/textFormatter';
@@ -86,35 +87,22 @@ const MetricCard = memo(({ icon, currency }: MetricCardProps) => {
   );
 });
 
-const limit = 20;
 const initialParams = {
-  offset: 0,
-  search: '',
   state: '',
   type: '',
   country: '',
   archived: false,
-  limit,
 };
 
 const Invoices = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [params, setParams] = useState({ ...initialParams });
-  const [currentPage, setCurrentPage] = useState(1);
+  const { params, handleSearchChange, currentPage, onPageChange } = useTableFilters({ ...initialParams })
 
   const { data, isLoading: isLoadingInvoices } = useFetchInvoices(params)
 
-  const totalPages = data ? Math.ceil(data.count / limit) : 0;
+  const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
   const invoices = data?.results || [];
-
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const onSearchChange = (search: string) => {
-    setParams({ ...params, search });
-  };
 
   const calculateTotalCost = (items: any[], tax: string, discount: string): number => {
     const subTotal = items.reduce((total, item) => total + item.quantity * item.unit_price, 0);
@@ -168,7 +156,7 @@ const Invoices = () => {
           currency='€'
         />
       </div>
-      <FilterModule onSearchChange={onSearchChange} containerClass="mt-8" />
+      <FilterModule onSearchChange={handleSearchChange} containerClass="mt-8" />
 
       <div className="mt-2">
         {!isMobile ? (
@@ -358,7 +346,7 @@ const Invoices = () => {
           totalPages={totalPages}
           onPageChange={onPageChange}
           totalReports={data?.count ?? 0}
-          reportsPerPage={limit}
+          reportsPerPage={params.limit}
         />
       </div>
     </div>

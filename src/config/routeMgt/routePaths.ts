@@ -8,7 +8,10 @@ export const appRoute = {
   reset_password: `/reset-password`,
 
   operations: `/operations`,
-  operations_details: `/operations/operations-details`,
+  operationDetails: (id?: number | string) => ({
+    format: `/operations/:operationId`,
+    path: `/operations/${id}`,
+  }),
   add_operation: `/operations/add-operation`,
   editOperation: (id?: number | string) => `/operations/add-operation?operationId=${id}`,
 

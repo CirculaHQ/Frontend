@@ -65,7 +65,7 @@ export default function RecentActivities({ isPaginated, containerClassName = '' 
                         </TableHeader>
                         <TableBody>
                             {activities.map((activity) => (
-                                <TableRow className='cursor-pointer' key={activity?.data?.code}>
+                                <TableRow className='cursor-pointer' key={activity?.data?.invoice_id || activity?.data?.code}>
                                     <TableCell className='w-[250px] whitespace-nowrap'>{activity?.data?.code}</TableCell>
                                     <TableCell className='w-[200px]'>
                                         <div className='flex flex-col items-start'>
@@ -129,7 +129,7 @@ export default function RecentActivities({ isPaginated, containerClassName = '' 
                         </TableHeader>
                         <TableBody>
                             {activities.map((activity) => (
-                                <TableRow className='cursor-pointer' key={activity?.data?.code}>
+                                <TableRow className='cursor-pointer' key={activity?.data?.invoice_id}>
                                     <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                                         <div className='flex flex-col items-start'>
                                             <span className='font-medium text-sm text-primary'>Clear Glass</span>
