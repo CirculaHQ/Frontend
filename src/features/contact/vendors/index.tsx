@@ -19,51 +19,37 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useTableFilters } from '@/hooks';
 import { useEditVendor } from '@/hooks/api/mutations/contacts';
 import { useExportVendors, useFetchVendors } from '@/hooks/api/queries/contacts';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Customer } from '@/types/customers';
 import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const limit = 20;
 const initialParams = {
-  offset: 0,
-  search: '',
   state: '',
   type: '',
   country: '',
   archived: false,
-  limit,
 };
 
 const Vendors = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [params, setParams] = useState({ ...initialParams });
+  const { params, handleSearchChange, currentPage, onPageChange, setParams } = useTableFilters({ ...initialParams })
 
   const { data, isLoading } = useFetchVendors(params);
   const { exportVendors, isLoading: isExporting } = useExportVendors();
   const { mutateAsync: editVendor, isLoading: isEditingVendor } = useEditVendor();
 
   const vendors = data?.results || [];
-  const totalPages = data ? Math.ceil(data.count / limit) : 0;
+  const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
 
   const customerTypes = [
     { label: 'business', icon: <TextBadge text='B' /> },
     { label: 'individual', icon: <TextBadge text='I' /> },
   ];
-
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-    setParams({ ...params, offset: page - 1 });
-  };
-
-  const onSearchChange = (search: string) => {
-    setParams({ ...params, search });
-  };
 
   const toggleArchive = () => {
     setParams({ ...params, archived: !params.archived });
@@ -113,7 +99,7 @@ const Vendors = () => {
           </DropdownMenu>
         </div>
       </ModuleHeader>
-      <FilterModule onSearchChange={onSearchChange} containerClass='mt-8' />
+      <FilterModule onSearchChange={handleSearchChange} containerClass='mt-8' />
       <div className='mt-2'>
         {!isMobile ? (
           <Table>
@@ -263,7 +249,7 @@ const Vendors = () => {
             totalPages={totalPages}
             onPageChange={onPageChange}
             totalReports={data?.count ?? 0}
-            reportsPerPage={limit}
+            reportsPerPage={params.limit}
           />
         )}
         {!isLoading && !vendors?.length ? (

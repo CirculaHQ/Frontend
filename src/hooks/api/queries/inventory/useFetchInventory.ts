@@ -14,7 +14,7 @@ interface InventoryQueryParams {
   search?: string;
   type?: string;
   vendor?: string;
-  stage?: 'raw' | 'ready for sale' | 'waste';
+  stage?: 'raw' | 'ready for sale' | 'waste' | 'ready';
 }
 
 interface InventoryResponse {

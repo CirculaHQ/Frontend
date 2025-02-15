@@ -1,4 +1,5 @@
-import { ModuleHeader, TextBadge } from '@/components/shared';
+import { PageLoader } from '@/components/loaders';
+import { BackButton, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Button,
   DropdownMenu,
@@ -9,47 +10,34 @@ import {
 } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { useNavigate } from 'react-router-dom';
+import { useFetchOperation } from '@/hooks/api/queries/operations/useOperationsQuery';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { OperationSummary, Operations } from './components';
 
 const OperationsDetails = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { operationId } = useParams()
+  const currentTab = searchParams.get('tab') ?? 'Operation summary'
+  const { data, isLoading } = useFetchOperation(operationId ?? '');
 
-  const vendorData = {
-    'Inventory details': {
-      'Inventory ID': 'ID-47890875',
-      'Date received': '2 November, 1989',
-      Material: 'Plastics',
-      'Material type': 'Polyethylene Terephthalate (PET)',
-      supportingText: 'Supporting text goes here',
-    },
-    'Specifications and details': {
-      Quantity: '500kg',
-      'Quantity produced': '500kg',
-      'Quantity wasted': '90kg',
-      supportingText: 'Supporting text goes here',
-    },
+  const tabs = [
+    { name: 'Operation summary' },
+    { name: 'Operations' }
+  ]
+
+  const handleChangeTab = (tab: string) => {
+    setSearchParams({ tab });
   };
 
-  const icons: { [key: string]: string } = {
-    'Inventory ID': 'hash',
-    'Date received': 'calendar',
-    Material: 'tag-03',
-    'Material type': 'tag-01',
-    Quantity: 'scales',
-    'Quantity produced': 'scales',
-    'Quantity wasted': 'scales',
-  };
+  if (isLoading) return <PageLoader />;
+  if (!data) return <p>No data found!!!</p>
 
   return (
     <div className='p-4'>
-      <button
-        onClick={() => navigate(appRoute.vendors)}
-        className='text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 mb-4'
-      >
-        <Icon name='arrow-left' className='w-5 h-5' /> Back to Customers
-      </button>
+      <BackButton route={appRoute.operations} label='Back to operations' />
       <div className='flex justify-between items-center mb-6'>
-        <ModuleHeader title={vendorData['Inventory details']['Inventory ID']}>
+        <ModuleHeader title={data?.code}>
           <div className='flex flex-row items-center gap-3'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -66,7 +54,7 @@ const OperationsDetails = () => {
                 <DropdownMenuItem className='py-2 rounded-[8px]'>Action three</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button>Edit details</Button>
+            <Button onClick={() => navigate(appRoute.editOperation(data.id))}>Edit details</Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant='secondary'>Generate report</Button>
@@ -92,41 +80,26 @@ const OperationsDetails = () => {
           </div>
         </ModuleHeader>
       </div>
-
-      <Tabs defaultValue='operations_summary'>
+      <Tabs defaultValue={currentTab} onValueChange={handleChangeTab}>
         <TabsList className='flex border-b mb-6 text-left justify-start'>
-          <TabsTrigger
-            value='operations_summary'
-            className='px-4 py-2 border-b-2 border-green-500 text-green-600 font-medium'
-          >
-            Operations summary
-          </TabsTrigger>
-          <TabsTrigger value='operations' className='px-4 py-2 text-gray-500 hover:text-gray-700'>
-            Operations
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value='operations_summary'>
-          {Object.entries(vendorData).map(([sectionTitle, sectionData]) => (
-            <div key={sectionTitle} className='mb-6 mt-6'>
-              <h3 className='text-base font-bold text-secondary mb-2'>{sectionTitle}</h3>
-              <p className='text-xs text-quaternary mb-4'>{sectionData.supportingText}</p>
-              <div className='grid grid-cols-1 gap-4'>
-                {Object.entries(sectionData)
-                  .filter(([key]) => key !== 'supportingText')
-                  .map(([key, value]) => (
-                    <div key={key} className='flex flex-col sm:flex-row gap-3 sm:items-center'>
-                      <Icon name={icons[key]} className='w-4 h-4 text-quaternary hidden sm:block' />
-                      <div className='flex flex-col sm:flex-row sm:items-center w-full'>
-                        <p className='text-xs text-quaternary w-full sm:w-48'>{key}</p>
-                        <p className='text-sm font-medium text-secondary sm:flex-1'>{value}</p>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.name}
+              value={tab.name}
+              className={`
+                px-4 py-2 border-b-2 font-medium ${currentTab === tab.name ? 'border-green-500 !text-green-600' : 'text-gray-500 hover:text-gray-700'}
+                `}
+            >
+              {tab.name}
+            </TabsTrigger>
           ))}
+        </TabsList>
+        <TabsContent value={tabs[0].name}>
+          <OperationSummary operationId={operationId} />
         </TabsContent>
-        <TabsContent value='operations'>{/* operations content goes here */}</TabsContent>
+        <TabsContent value={tabs[1].name}>
+          <Operations operationId={operationId} />
+        </TabsContent>
       </Tabs>
     </div>
   );

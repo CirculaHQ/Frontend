@@ -65,7 +65,7 @@ const authenticatedRoutes = [
     element: <AddOperation />,
   },
   {
-    path: appRoute.operations_details,
+    path: appRoute.operationDetails().format,
     element: <OperationsDetails />,
   },
   {

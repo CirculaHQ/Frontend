@@ -4,10 +4,6 @@ import {
   Badge,
   Button,
   DateRangePicker,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Icon,
   Select,
   SelectContent,
@@ -23,6 +19,7 @@ import {
   TableRow,
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
+import { useTableFilters } from '@/hooks';
 import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -31,36 +28,23 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const PRODUCED = 'Produced';
+const initialParams = {
+  type: '',
+};
 
 const Operations = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [currentPage, setCurrentPage] = useState(1);
-  const reportsPerPage = 20;
-  const totalPages = Math.ceil(100 / reportsPerPage);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { params, handleSearchChange, currentPage, onPageChange } = useTableFilters({ ...initialParams })
   const [summary, setSummary] = useState(PRODUCED);
 
-  const queryParams = {
-    limit: reportsPerPage,
-    offset: (currentPage - 1) * reportsPerPage,
-    search: searchQuery,
-  };
+  const { data, isLoading } = useFetchOperations(params);
 
-  const { data, isLoading } = useFetchOperations(queryParams);
+  const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
 
-  const handleSearchChange = (newSearchQuery: string) => {
-    setSearchQuery(newSearchQuery);
-    setCurrentPage(1);
-  };
-
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const navigateToEditOperation = (e: any, operation: any) => {
+  const navigateToView = (e: any, operationId: any) => {
     e.stopPropagation();
-    navigate(appRoute.editOperation(operation.id));
+    navigate(appRoute.operationDetails(operationId).path);
   };
 
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
@@ -183,14 +167,14 @@ const Operations = () => {
                 <TableHead>Material</TableHead>
                 <TableHead>Activity</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Quantity produced</TableHead>
-                <TableHead>Waste produced</TableHead>
+                <TableHead>Produced</TableHead>
+                <TableHead>Wasted</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data?.results.map((item) => (
-                <TableRow className='cursor-pointer' key={item.id}>
+                <TableRow className='cursor-pointer' key={item.id} onClick={(e) => navigateToView(e, item.id)}>
                   <TableCell className='w-[100px]'>{item.id}</TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
@@ -207,40 +191,17 @@ const Operations = () => {
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
                     {item.operation_type}
                   </TableCell>
-
-                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
+                  <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <Badge variant={item.status}>{item.status}</Badge>
                   </TableCell>
-                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    {item.quantity_produced}
+                  <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
+                    {item.quantity_produced}kg
                   </TableCell>
-                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    {item.waste_produced}
+                  <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
+                    {item.waste_produced}kg
                   </TableCell>
                   <TableCell className='w-7'>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <div className='w-4 h-4'>
-                          <Icon name='horizontal-dots' className='w-4 h-4 text-quaternary' />
-                        </div>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align='end'
-                        className='text-sm font-medium text-secondary rounded-[8px] px-1'
-                      >
-                        <DropdownMenuItem className='py-2  rounded-[8px]' onClick={(e) => navigateToEditOperation(e, item)}>
-                          <Icon name='edit' className='w-4 h-4 text-quaternary' />
-                          Edit details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
-                          <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
-                          <Icon name='trash' className='w-4 h-4 text-quaternary' />
-                          Delete operation
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Icon name='chevron-right' className='w-4 h-4 text-quaternary' />
                   </TableCell>
                 </TableRow>
               ))}
@@ -257,7 +218,7 @@ const Operations = () => {
             </TableHeader>
             <TableBody>
               {data?.results.map((item) => (
-                <TableRow className='cursor-pointer' key={item.id}>
+                <TableRow className='cursor-pointer' key={item.id} onClick={(e) => navigateToView(e, item.id)}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
                       <span className='font-medium text-sm text-primary'>Clear Glass</span>
@@ -268,42 +229,22 @@ const Operations = () => {
                     {item.operation_type}
                   </TableCell>
                   <TableCell className='w-7'>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <div className='w-4 h-4'>
-                          <Icon name='horizontal-dots' className='w-4 h-4 text-quaternary' />
-                        </div>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align='end'
-                        className='text-sm font-medium text-secondary rounded-[8px] px-1'
-                      >
-                        <DropdownMenuItem className='py-2  rounded-[8px]' onClick={(e) => navigateToEditOperation(e, item)}>
-                          <Icon name='edit' className='w-4 h-4 text-quaternary' />
-                          Edit details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
-                          <Icon name='arrow-up-right' className='w-4 h-4 text-quaternary' /> Export
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className='py-2 rounded-[8px]'>
-                          <Icon name='trash' className='w-4 h-4 text-quaternary' />
-                          Delete operation
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Icon name='chevron-right' className='w-4 h-4 text-quaternary' />
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         )}
-        <TablePagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-          totalReports={100}
-          reportsPerPage={reportsPerPage}
-        />
+        {data?.results.length !== 0 && (
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalReports={data?.count ?? 0}
+            reportsPerPage={params.limit}
+          />
+        )}
       </div>
     </div>
   );
