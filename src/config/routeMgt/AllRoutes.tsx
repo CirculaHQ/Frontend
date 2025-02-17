@@ -28,6 +28,8 @@ import AddCustomer from '@/features/contact/customers/AddCustomer';
 import CreateInvoice from '@/features/invoice/create-invoice';
 import InvoiceDetails from '@/features/invoice/invoice-details';
 import Activities from '@/features/dashboard/Activities';
+import Onboarding from '@/features/onboarding';
+import PlansAndPricing from '@/features/onboarding/plans-and-pricing';
 
 // Separate arrays for authenticated and public routes
 const authenticatedRoutes = [
@@ -42,6 +44,14 @@ const authenticatedRoutes = [
   {
     path: appRoute.dashboard,
     element: <Dashboard />,
+  },
+  {
+    path: appRoute.onboarding,
+    element: <Onboarding />,
+  },
+  {
+    path: appRoute.onboarding_plans,
+    element: <PlansAndPricing />,
   },
   {
     path: appRoute.invoices,

@@ -1,4 +1,4 @@
-import { Operation, OperationsResponse, OperationType } from "@/types/operations";
+import { Operation, OperationsBreakdownResponse, OperationsResponse, OperationType } from "@/types/operations";
 import request from "@/utils/api";
 import { QUERYKEYS } from "@/utils/query-keys";
 import { useQuery } from "react-query";
@@ -42,6 +42,20 @@ export const useFetchOperation = (operationId: string) => {
         refetchOnWindowFocus: false,
         enabled: !!operationId,
         queryFn: () => fetchOperationsByBatch(),
+        select: (res) => res,
+        retry: false,
+    });
+};
+
+export const useFetchOperationsBreakdown = () => {
+    const fetchOperationsBreakdown = async (): Promise<OperationsBreakdownResponse> => {
+        return await request<OperationsBreakdownResponse>('GET', `/operations/breakdown`, null, false, true);
+    };
+
+    return useQuery({
+        queryKey: [QUERYKEYS.FETCH_OPERATIONS_BREAKDOWN],
+        refetchOnWindowFocus: false,
+        queryFn: () => fetchOperationsBreakdown(),
         select: (res) => res,
         retry: false,
     });

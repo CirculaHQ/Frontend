@@ -20,8 +20,9 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
-import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
+import { useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
+import { useFetchOperationsBreakdown } from '@/hooks/api/queries/operations/useOperationsQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMaterialColor } from '@/utils/materials';
 import { useState } from 'react';
@@ -47,8 +48,8 @@ const Operations = () => {
     navigate(appRoute.operationDetails(operationId).path);
   };
 
-  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
-    useFetchInventoryBreakdown();
+  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchInventoryBreakdown({})
+  // const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchOperationsBreakdown();
 
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({

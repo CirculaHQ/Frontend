@@ -83,3 +83,16 @@ export interface AddSubOperationResponse {
 export interface CustomersParams {
     [key: string]: string | number | boolean | undefined;
 }
+
+interface MaterialData {
+    total: number;
+    materials: {
+        [material: string]: number;
+    };
+}
+
+export interface OperationsBreakdownResponse {
+    produced: MaterialData;
+    waste: MaterialData;
+    operations: MaterialData;
+}

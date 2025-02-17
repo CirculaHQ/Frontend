@@ -1,12 +1,15 @@
 import { useQuery } from 'react-query';
 import request from '@/utils/api';
 import { QUERYKEYS } from '@/utils/query-keys';
+import { InventoryBreakdownResponse } from '@/types/inventory';
+import { generateQueryParams } from '@/utils/objectFormatter';
 
 interface Material {
     id: string;
     created_at: string;
     updated_at: string;
     name: string;
+    material?: string;
 }
 
 export const useFetchMaterials = () => {
@@ -24,8 +27,8 @@ export const useFetchMaterials = () => {
 };
 
 export const useFetchMaterialTypes = (material: string) => {
-    const fetchMaterialTypes = async (): Promise<MaterialsResponse> => {
-        return await request<MaterialsResponse>('GET', `/inventory/get_material_types?material=${material}`, null, false, true);
+    const fetchMaterialTypes = async (): Promise<Material[]> => {
+        return await request<Material[]>('GET', `/inventory/get_material_types?material=${material}`, null, false, true);
     };
 
     return useQuery({
@@ -39,14 +42,28 @@ export const useFetchMaterialTypes = (material: string) => {
 };
 
 export const useFetchMaterialState = () => {
-    const fetchMaterialState = async (): Promise<MaterialsResponse> => {
-        return await request<MaterialsResponse>('GET', `/inventory/get_material_state`, null, false, true);
+    const fetchMaterialState = async (): Promise<Material[]> => {
+        return await request<Material[]>('GET', `/inventory/get_material_state`, null, false, true);
     };
 
     return useQuery({
         queryKey: [QUERYKEYS.FETCH_MATERIAL_STATE],
         refetchOnWindowFocus: false,
         queryFn: () => fetchMaterialState(),
+        select: (res) => res,
+        retry: false,
+    });
+};
+
+export const useFetchInventoryBreakdown = (params: any) => {
+    const fetchInventoryBreakdown = async (): Promise<InventoryBreakdownResponse> => {
+        return await request<InventoryBreakdownResponse>('GET', `/inventory/breakdown${generateQueryParams(params)}`, null, false, true);
+    };
+
+    return useQuery({
+        queryKey: [QUERYKEYS.FETCH_INVENTORY_BREAKDOWN, params],
+        refetchOnWindowFocus: false,
+        queryFn: () => fetchInventoryBreakdown(),
         select: (res) => res,
         retry: false,
     });

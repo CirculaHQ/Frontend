@@ -16,7 +16,8 @@ export const appRoute = {
   editOperation: (id?: number | string) => `/operations/add-operation?operationId=${id}`,
 
   settings: `/settings`,
-
+  onboarding: `/onboarding`,
+  onboarding_plans: `/onboarding/plans-and-pricing`,
   dashboard: `/dashboard`,
   activities: '/dashboard/activities',
   inventory: `/inventory`,

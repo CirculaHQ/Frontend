@@ -6,7 +6,7 @@ import AccountSettings from './components/AccountSettings';
 
 const Settings = () => {
   return (
-    <div className='md:p-6 mx-auto'>
+    <div className='mx-auto'>
       <ModuleHeader title='Settings' className='mb-10' />
 
       <Tabs defaultValue='profile'>
