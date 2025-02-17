@@ -10,7 +10,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <main className='w-full'>
         <Navbar />
         <TooltipProvider>
-          <div className='mx-auto mt-8 px-4 md:px-6 pb-6 w-full max-w-full md:max-w-[96%]'>
+          <div className='mx-auto mt-8 px-4 md:px-6 pb-6 w-full max-w-full md:max-w-[90%]'>
             {children}
           </div>
         </TooltipProvider>

@@ -36,6 +36,12 @@ import { getInitials } from '@/utils/textFormatter';
 
 const items = [
   {
+    title: 'Finish Onboarding',
+    url: '/onboarding',
+    icon: 'dotpoints-02',
+    stats: true
+  },
+  {
     title: 'Dashboard',
     url: '/',
     icon: 'dashboard',
@@ -127,8 +133,8 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className='bg-white border-l border-l-[#E9EAEB]' side={isMobile ? 'right' : 'left'}>
-      <SidebarContent className='pt-5 pr-5 bg-white'>
+    <Sidebar className='bg-white border-l border-l-[#E9EAEB] w-[280px]' side={isMobile ? 'right' : 'left'}>
+      <SidebarContent className='pt-5 pr-2 bg-white'>
         <SidebarGroup>
           <SidebarGroupLabel className='mb-6'>
             <img src={Logo} width={100} height={128} alt='Logo' />
@@ -198,7 +204,17 @@ export function AppSidebar() {
                           }`}
                         fill='none'
                       />
-                      <span className='font-medium'>{item.title}</span>
+                      <span className='font-medium w-full'>{item.title}</span>
+                      {item.stats && (
+                        <div className='flex items-center justify-between w-[70px]'>
+                          <span className='border rounded-xl px-2 py-1 text-xs font-medium'>0/10</span>
+                          <Icon
+                              name='alert-triangle'
+                              className={`w-[16px] h-[16px] font-medium ml-2`}
+                              fill='none'
+                            />
+                        </div>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )

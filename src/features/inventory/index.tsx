@@ -35,33 +35,46 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
 import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
-import { useFetchInventoryBreakdown } from '@/hooks/api/mutations/inventory/useFetchInventoryBreakdown';
-import { useFetchInventory } from '@/hooks/api/queries/inventory';
+import { useFetchInventory, useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMaterialColor } from '@/utils/materials';
 import { capitalizeFirstLetter, generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const TOTAL_MATERIALS = 'Total materials';
 const tabs = [
   { label: 'Raw materials', value: 'raw' },
   { label: 'Ready for sale', value: 'ready' },
   { label: 'Waste', value: 'waste' },
 ];
+const summaryOptions = [
+  { label: 'Total materials', value: '' },
+  { label: 'Raw materials', value: 'raw' },
+  { label: 'Ready for sale', value: 'ready' },
+  //{ label: 'Waste', value: 'waste' },
+]
 
 const Inventory = () => {
   const { params, handleSearchChange, currentPage, setCurrentPage, onPageChange } = useTableFilters({})
   const [searchParams, setSearchParams] = useSearchParams();
-  const [summary, setSummary] = useState(TOTAL_MATERIALS);
+  const [summary, setSummary] = useState(summaryOptions[0].label);
   const currentTab = searchParams.get('tab') ?? 'raw';
   const deleteInventory = useDeleteInventory();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
   const { data, isLoading } = useFetchInventory({ stage: currentTab });
+  const { data: totalInventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchInventoryBreakdown({});
+  const { data: rawInventoryBreakdown, isLoading: loadingRawInventoryBreakdown } = useFetchInventoryBreakdown({ stage: 'raw' });
+  const { data: readyInventoryBreakdown, isLoading: loadingReadyInventoryBreakdown } = useFetchInventoryBreakdown({ stage: 'ready' });
 
   const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
+
+  const inventoryBreakdown = useMemo(() => {
+    if (summary === summaryOptions[2].label) return readyInventoryBreakdown
+    if (summary === summaryOptions[1].label) return rawInventoryBreakdown
+    return totalInventoryBreakdown
+  }, [summary, readyInventoryBreakdown, rawInventoryBreakdown, totalInventoryBreakdown])
 
   const handleDeleteInventory = async (e: any, id: string) => {
     e.stopPropagation();
@@ -90,9 +103,6 @@ const Inventory = () => {
     e.stopPropagation();
   };
 
-  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } =
-    useFetchInventoryBreakdown();
-
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
       // color: '#' + Math.floor(Math.random() * 16777215).toString(16),
@@ -112,7 +122,7 @@ const Inventory = () => {
     }))
     : [];
 
-  if (isLoading || loadingInventoryBreakdown) return <PageLoader />;
+  if (isLoading || loadingInventoryBreakdown || loadingRawInventoryBreakdown || loadingReadyInventoryBreakdown) return <PageLoader />;
 
   return (
     <div className='mb-10'>
@@ -168,16 +178,26 @@ const Inventory = () => {
       {!isMobile ? (
         <div className='my-8 border-t border-border'>
           <div className='grid grid-cols-3'>
-            <StatCard containerClassName='pt-6' label='Total material (kg)' value='292,400.00' />
             <StatCard
-              containerClassName='pt-6 px-6 border-x border-x-border'
-              label='Raw material (kg)'
-              value='292,400.00'
+              containerClassName='pt-6 cursor-pointer'
+              label='Total material (kg)'
+              value={totalInventoryBreakdown?.total_quantity?.toLocaleString()}
+              onClick={() => setSummary(summaryOptions[0].label)}
+              isActive={summary === summaryOptions[0].label}
             />
             <StatCard
-              containerClassName='pt-6 px-6'
-              label='Processed material (kg)'
-              value='292,400.00'
+              containerClassName='pt-6 px-6 border-x border-x-border cursor-pointer'
+              label='Raw material (kg)'
+              value={rawInventoryBreakdown?.total_quantity?.toLocaleString()}
+              onClick={() => setSummary(summaryOptions[1].label)}
+              isActive={summary === summaryOptions[1].label}
+            />
+            <StatCard
+              containerClassName='pt-6 px-6 cursor-pointer'
+              label='Ready for sale (kg)'
+              value={readyInventoryBreakdown?.total_quantity?.toLocaleString()}
+              onClick={() => setSummary(summaryOptions[2].label)}
+              isActive={summary === summaryOptions[2].label}
             />
           </div>
           <div className='mt-4'>
@@ -197,9 +217,9 @@ const Inventory = () => {
                 <SelectValue placeholder='Summary' className='text-placeholder font-normal' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='Total material'>Total material</SelectItem>
-                <SelectItem value='Raw material'>Raw material</SelectItem>
-                <SelectItem value='Processed material'>Processed material</SelectItem>
+                {summaryOptions.map((option) => (
+                  <SelectItem value={option.label}>{option.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -290,10 +310,10 @@ const Inventory = () => {
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    {item.currency} {item.amount}
+                    {item.currency} {Number(item.amount)?.toLocaleString()}
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    {item.quantity} kg
+                    {Number(item.quantity)?.toLocaleString()} kg
                   </TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
