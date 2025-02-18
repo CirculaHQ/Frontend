@@ -205,10 +205,12 @@ const Inventory = () => {
               isActive={summary === summaryOptions[2].label}
             />
           </div>
-          <div className='mt-4'>
-            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
-            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
-          </div>
+          {!!lineDistributionSegments?.length && (
+            <div className='mt-4'>
+              <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+              <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+            </div>
+          )}
         </div>
       ) : (
         <div className='my-8'>

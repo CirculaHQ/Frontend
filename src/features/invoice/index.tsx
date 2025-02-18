@@ -24,7 +24,8 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
 import { useFetchInvoices } from '@/hooks/api/queries/invoices/useInvoicesQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { generateRandomBackgroundColor, getCurrencySymbol, getDaysAgo, getInitials } from '@/utils/textFormatter';
+import { getRelativeTime } from '@/utils/dateFormatter';
+import { generateRandomBackgroundColor, getCurrencySymbol, getInitials } from '@/utils/textFormatter';
 import { format } from 'date-fns';
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -182,7 +183,7 @@ const Invoices = () => {
                   <TableCell className="w-[200px]">
                     <div className="flex flex-col items-start">
                       <span className="font-medium text-sm text-primary">
-                        {getDaysAgo(invoice.created_at) ? `${getDaysAgo(invoice.created_at)} days ago` : 'Today'}
+                        {getRelativeTime(invoice.created_at) ? `${getRelativeTime(invoice.created_at)}` : 'Today'}
                       </span>
                       <h4 className="font-normal text-sm text-tertiary">
                         {format(invoice?.created_at, 'dd/MM/yyyy')}

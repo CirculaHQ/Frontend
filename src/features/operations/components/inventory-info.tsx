@@ -16,7 +16,7 @@ const InventoryInfo = ({ inventory, onChange, onDelete, collapse = false }: Inve
   return (
     <div className='w-full border border-[#D5D7DA] p-3 rounded-xl shadow-sm'>
       <div className='flex items-start justify-between'>
-        <p className='text-sm font-medium'>{inventory.id}</p>
+        <p className='text-sm font-medium'>{inventory.code}</p>
         <div className='flex items-center'>
           <button type='button' className='px-2' onClick={() => onDelete(inventory.id)}>
             <Icon name='trash' className='w-4 h-4 text-quaternary' />

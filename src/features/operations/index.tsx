@@ -227,7 +227,7 @@ const Operations = () => {
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    {item.operation_type}
+                    {item.operation_type || 'N/A'}
                   </TableCell>
                   <TableCell className='w-7'>
                     <Icon name='chevron-right' className='w-4 h-4 text-quaternary' />
