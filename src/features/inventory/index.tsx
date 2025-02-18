@@ -99,6 +99,11 @@ const Inventory = () => {
     });
   };
 
+  const navigateToInventory = (e: any, id: any) => {
+    e.stopPropagation();
+    navigate(`${appRoute.inventory}/${id}`)
+  };
+
   const exportMaterial = (e: any, material: any) => {
     e.stopPropagation();
   };
@@ -272,7 +277,7 @@ const Inventory = () => {
                 <TableRow
                   className='cursor-pointer'
                   key={item.id}
-                  onClick={() => navigate(`${appRoute.inventory}/${item.id}`)}
+                  onClick={(e) => navigateToInventory(e, item.id)}
                 >
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
@@ -368,7 +373,7 @@ const Inventory = () => {
             </TableHeader>
             <TableBody>
               {data?.results.map((item) => (
-                <TableRow className='cursor-pointer' key={item.id}>
+                <TableRow className='cursor-pointer' key={item.id} onClick={(e) => navigateToInventory(e, item.id)}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
                       <span className='font-medium text-sm text-primary'>{item.material}</span>

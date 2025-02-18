@@ -215,7 +215,7 @@ const VendorDetails = () => {
               <div className='space-y-8'>
                 {activities?.results?.map((activity) => (
                   <div key={activity.id} className='flex space-x-3'>
-                    <div className='w-8 h-8 rounded-full bg-[#F5F5F5] flex items-center justify-center border'>
+                    <div className='shrink-0 w-8 h-8 rounded-full bg-[#F5F5F5] flex items-center justify-center border'>
                       <Icon name='package-plus' className='w-5 h-5' />
                     </div>
                     {activity?.inventory && (

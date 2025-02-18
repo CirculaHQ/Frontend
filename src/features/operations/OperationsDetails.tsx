@@ -34,7 +34,7 @@ const OperationsDetails = () => {
   if (!data) return <p>No data found!!!</p>
 
   return (
-    <div className='p-4'>
+    <div>
       <BackButton route={appRoute.operations} label='Back to operations' />
       <div className='flex justify-between items-center mb-6'>
         <ModuleHeader title={data?.code}>
