@@ -1,4 +1,4 @@
-import { Customer, CustomersParams, CustomersResponse } from '@/types/customers';
+import { Customer, CustomerActivitiesResponse, CustomersParams, CustomersResponse } from '@/types/customers';
 import request from '@/utils/api';
 import { generateQueryParams } from '@/utils/objectFormatter';
 import { QUERYKEYS } from '@/utils/query-keys';
@@ -48,6 +48,21 @@ const useFetchVendor = (id?: string) => {
   });
 };
 
+const useFetchVendorActivity = (id?: string) => {
+  const fetchVendorActivity = async (): Promise<CustomerActivitiesResponse> => {
+    return await request<CustomerActivitiesResponse>('GET', `/vendor/${id}/activities`, null, false, true);
+  };
+
+  return useQuery<CustomerActivitiesResponse>({
+    queryKey: [QUERYKEYS.FETCH_VENDOR_ACTIVITIES, id],
+    enabled: !!id,
+    refetchOnWindowFocus: false,
+    queryFn: () => fetchVendorActivity(),
+    select: (res) => res,
+    retry: false,
+  });
+};
+
 const useExportVendors = () => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,4 +75,4 @@ const useExportVendors = () => {
   return { isLoading, exportVendors };
 };
 
-export { useFetchVendors, useFetchVendor, useExportVendors };
+export { useFetchVendors, useFetchVendor, useExportVendors, useFetchVendorActivity };

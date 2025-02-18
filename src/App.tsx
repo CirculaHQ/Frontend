@@ -4,6 +4,7 @@ import { AllRoutes } from "./config/routeMgt/AllRoutes";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./components/shared/theme-provider";
 // import refreshAccessToken from "./hooks/api/mutations/authentication/refreshAccessToken";
+import "./global.css"
 
 const queryClient = new QueryClient({
   defaultOptions: {

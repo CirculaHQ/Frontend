@@ -42,6 +42,7 @@ export interface Invoice {
     notes: string;
     status: 'success' | 'pending' | 'failed' | 'overdue' | null | undefined;
     user: string;
+    total: string;
     customer: Customer;
     account: {
         account_name: string;

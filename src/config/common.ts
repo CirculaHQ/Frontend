@@ -1,5 +1,6 @@
 export const RAW = 'raw'
 export const IN = 'in'
+export const INVENTORY = 'inventory'
 
 export const CURRENCIES = [
     { name: 'Naira', country: 'Nigeria', symbol: '₦', shortCode: 'NGN', icon: '' },

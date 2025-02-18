@@ -235,12 +235,7 @@ const Inventory = () => {
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className={`px-1 py-2 rounded-none
-                ${currentTab === tab.value
-                  ? 'border-b-2 border-green-500 !text-green-600 font-medium'
-                  : 'text-gray-500 hover:text-gray-700'
-                }
-                  `}
+              className={`px-1 py-2 rounded-none ${currentTab === tab.value ? 'active-tab' : 'inactive-tab'}`}
             >
               {tab.label}
             </TabsTrigger>
