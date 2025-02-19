@@ -58,5 +58,25 @@ export interface InvoicesResponse {
 }
 
 export interface InvoicesParams {
-    
+
+}
+
+export interface CurrencyInvoice {
+    fulfilled: {
+        count: number;
+        total: number;
+    };
+    pending: {
+        count: number;
+        total: number;
+    };
+    overdue: {
+        count: number;
+        total: number;
+    };
+    total: number;
+}
+
+export interface InvoicesSummary {
+    [currencyCode: string]: CurrencyInvoice;
 }
