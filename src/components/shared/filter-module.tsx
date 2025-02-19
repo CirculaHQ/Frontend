@@ -6,12 +6,16 @@ import { ChangeEvent, useEffect, useState } from 'react';
 interface FilterModuleProps {
   containerClass?: string;
   includeRegion?: boolean;
+  includeRoles?: boolean;
+  includeTypes?: boolean;
   onSearchChange?: (searchQuery: string) => void;
   debounceTime?: number;
 }
 const FilterModule = ({
   containerClass,
   includeRegion = true,
+  includeRoles = false,
+  includeTypes = true,
   onSearchChange,
   debounceTime = 500,
 }: FilterModuleProps) => {
@@ -56,13 +60,21 @@ const FilterModule = ({
       </div>
       <div className='hidden md:flex flex-row items-center justify-end '>
         <TextBadge text='M' />
-        <div className='gap-2 flex flex-row items-center justify-center px-3'>
-          <span className='text-placeholder font-normal text-sm'>All types</span>
-          <Icon name='chevron-down' className='w-5 h-5 text-quaternary' fill='none' />
-        </div>
+        {includeTypes && (
+          <div className='gap-2 flex flex-row items-center justify-center px-3'>
+            <span className='text-placeholder font-normal text-sm'>All types</span>
+            <Icon name='chevron-down' className='w-5 h-5 text-quaternary' fill='none' />
+          </div>
+        )}
         {includeRegion && (
           <div className='gap-2 flex flex-row items-center justify-center px-3'>
             <span className='text-placeholder font-normal text-sm'>All regions</span>
+            <Icon name='chevron-down' className='w-5 h-5 text-quaternary' fill='none' />
+          </div>
+        )}
+        {includeRoles && (
+          <div className='gap-2 flex flex-row items-center justify-center px-3'>
+            <span className='text-placeholder font-normal text-sm'>All roles</span>
             <Icon name='chevron-down' className='w-5 h-5 text-quaternary' fill='none' />
           </div>
         )}

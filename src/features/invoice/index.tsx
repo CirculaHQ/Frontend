@@ -136,16 +136,13 @@ const Invoices = () => {
                   </TableCell>
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
-                      <Avatar className='w-6 h-6 rounded-full'>
+                      <Avatar className='w-8 h-8 rounded-full'>
                         <AvatarImage src={invoice?.customer?.photo} />
                         <AvatarFallback
                           style={{ backgroundColor: generateRandomBackgroundColor() }}
-                          className='w-[24px] h-[24px] rounded-full text-white'
+                          className='w-8 h-8 rounded-full text-white'
                         >
-                          {getInitials(
-                            invoice?.customer?.business_name ? invoice?.customer?.business_name[0] :
-                              `${invoice?.customer?.first_name || ''} ${invoice?.customer?.last_name || ''}`
-                          )}
+                          <Icon name='avatar' className='w-8 h-8' />
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
@@ -230,12 +227,9 @@ const Invoices = () => {
                         <AvatarImage src={invoice?.customer?.photo} />
                         <AvatarFallback
                           style={{ backgroundColor: generateRandomBackgroundColor() }}
-                          className='w-[24px] h-[24px] rounded-full text-white'
+                          className='w-6 h-6 rounded-full text-white'
                         >
-                          {getInitials(
-                            invoice?.customer?.business_name ? invoice?.customer?.business_name[0] :
-                              `${invoice?.customer?.first_name} ${invoice?.customer?.last_name}`
-                          )}
+                          <Icon name='avatar' className='w-6 h-6' />
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>

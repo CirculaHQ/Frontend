@@ -21,7 +21,7 @@ import { useFetchBanks } from '@/hooks/api/queries/settings/useBanks';
 import { Customer } from '@/types/customers';
 import { LineItem } from '@/types/invoice';
 import { Bank } from '@/types/settings';
-import { generateRandomBackgroundColor, getCurrencySymbol, getInitials } from '@/utils/textFormatter';
+import { getCurrencySymbol } from '@/utils/textFormatter';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -138,17 +138,12 @@ export const CreateInvoiceForm: React.FC<{
                         {customers?.map((customer) => (
                             <SelectItem key={customer?.id} value={customer?.id}>
                                 <div className='flex flex-row items-center gap-2 justify-start'>
-                                    <Avatar className='w-6 h-6 rounded-full'>
+                                    <Avatar className='w-6 sm:w-8 h-6 sm:h-8 rounded-full'>
                                         <AvatarImage src={customer?.photo} />
                                         <AvatarFallback
-                                            style={{ backgroundColor: generateRandomBackgroundColor() }}
-                                            className='w-[24px] h-[24px] rounded-full text-white'
+                                            className='w-6 sm:w-8 h-6 sm:h-8 rounded-full text-white'
                                         >
-                                            {getInitials(
-                                                customer?.business_name ?
-                                                    customer?.business_name[0] :
-                                                    `${customer?.first_name} ${customer?.last_name}`
-                                            )}
+                                            <Icon name='avatar' className='w-6 sm:w-8 h-6 sm:h-8' />
                                         </AvatarFallback>
                                     </Avatar>
                                     <span className='font-medium text-sm text-primary capitalize'>

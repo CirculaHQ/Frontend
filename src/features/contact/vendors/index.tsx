@@ -24,7 +24,7 @@ import { useEditVendor } from '@/hooks/api/mutations/contacts';
 import { useExportVendors, useFetchVendors } from '@/hooks/api/queries/contacts';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Customer } from '@/types/customers';
-import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
+import { generateRandomBackgroundColor } from '@/utils/textFormatter';
 import { useNavigate } from 'react-router-dom';
 
 const initialParams = {
@@ -118,17 +118,13 @@ const Vendors = () => {
                 <TableRow className='cursor-pointer' key={vendor?.id} onClick={() => navigate(`${appRoute.vendorDetails(vendor.id).path}`)}>
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
-                      <Avatar className='w-6 h-6 rounded-full'>
+                      <Avatar className='w-8 h-8 rounded-full'>
                         <AvatarImage src={vendor?.photo} />
                         <AvatarFallback
                           style={{ backgroundColor: generateRandomBackgroundColor() }}
-                          className='w-[24px] h-[24px] rounded-full text-white'
+                          className='w-8 h-8 rounded-full text-white'
                         >
-                          {getInitials(
-                            vendor?.business_name ?
-                              vendor?.business_name[0] :
-                              `${vendor?.first_name} ${vendor?.last_name}`
-                          )}
+                          <Icon name='avatar' className='w-8 h-8' />
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
@@ -196,13 +192,9 @@ const Vendors = () => {
                         <AvatarImage src={vendor.photo} />
                         <AvatarFallback
                           style={{ backgroundColor: generateRandomBackgroundColor() }}
-                          className='w-[24px] h-[24px] rounded-full text-white'
+                          className='w-6 h-6 rounded-full text-white'
                         >
-                          {getInitials(
-                            vendor?.business_name ?
-                              vendor?.business_name[0] :
-                              `${vendor?.first_name} ${vendor?.last_name}`
-                          )}
+                          <Icon name='avatar' className='w-6 h-6' />
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
