@@ -32,7 +32,6 @@ import { useSignOut } from 'react-auth-kit';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useEffect, useState } from 'react';
 import { getUserProfile, UserProfile } from '@/hooks/api/mutations/settings/user-profile';
-import { getInitials } from '@/utils/textFormatter';
 
 const items = [
   {
@@ -235,9 +234,9 @@ export function AppSidebar() {
                         <AvatarImage src={userProfile.picture} />
                         <AvatarFallback
                           style={{ backgroundColor: '#2C6000' }}
-                          className='w-10 h-10 rounded-full text-white'
+                          className='w-10 h-10 text-white'
                         >
-                          {getInitials(`${userProfile?.first_name} ${userProfile?.last_name}`)}
+                          <Icon name='avatar' className='w-10 h-10' />
                         </AvatarFallback>
                       </Avatar>
                       <div className='w-[70%]'>

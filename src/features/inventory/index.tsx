@@ -293,17 +293,13 @@ const Inventory = () => {
                   </TableCell>
                   <TableCell className='w-[300px]'>
                     <div className='flex flex-row items-center gap-3 justify-start'>
-                      <Avatar className='w-6 h-6 rounded-full'>
+                      <Avatar className='w-8 h-8 rounded-full'>
                         <AvatarImage src={item?.vendor?.photo} />
                         <AvatarFallback
                           style={{ backgroundColor: generateRandomBackgroundColor() }}
-                          className='w-[24px] h-[24px] rounded-full text-white'
+                          className='w-8 h-8 rounded-full text-white'
                         >
-                          {getInitials(
-                            item?.vendor?.business_name ?
-                              item?.vendor?.business_name[0] :
-                              `${item?.vendor?.first_name} ${item?.vendor?.last_name}`
-                          )}
+                          <Icon name='avatar' className='w-8 h-8' />
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>

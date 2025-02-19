@@ -4,6 +4,7 @@ import ProfileSettings from './components/ProfileSettings';
 import PreferencesSettings from './components/PreferenceSettings';
 import AccountSettings from './components/AccountSettings';
 import { useSearchParams } from 'react-router-dom';
+import Team from './components/Team';
 
 const tabs = [
   { name: 'Profile', value: 'profile' },
@@ -21,8 +22,11 @@ const Settings = () => {
     <div className='mx-auto'>
       <ModuleHeader title='Settings' className='mb-10' />
 
-      <Tabs defaultValue={currentTab} onValueChange={(tab) => setSearchParams({ tab })}>
-        <TabsList className='flex space-x-4 justify-start mb-8'>
+      <Tabs
+        defaultValue={currentTab}
+        onValueChange={(tab) => setSearchParams({ tab })}
+      >
+        <TabsList className='flex space-x-4 justify-start mb-8 overflow-x-auto'>
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}
@@ -43,7 +47,7 @@ const Settings = () => {
         </TabsContent>
 
         <TabsContent value='team'>
-          <p>team</p>
+          <Team />
         </TabsContent>
 
         <TabsContent value='billing'>
