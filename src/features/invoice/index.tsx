@@ -64,7 +64,7 @@ const Invoices = () => {
 
   return (
     <div>
-      <ModuleHeader title="Invoices">
+      <ModuleHeader title="Sales">
         <div className="flex flex-row items-center gap-3">
           {!isMobile && (
             <div className='flex flex-row items-center w-full justify-start gap-5'>
