@@ -10,16 +10,19 @@ import {
 } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { useFetchOperation } from '@/hooks/api/queries/operations/useOperationsQuery';
+import { useFetchOperation, useFetchOperationInventories } from '@/hooks/api/queries/operations/useOperationsQuery';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { OperationSummary, Operations } from './components';
+import { useMemo } from 'react';
 
 const OperationsDetails = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { operationId } = useParams()
   const currentTab = searchParams.get('tab') ?? 'Operation summary'
+
   const { data, isLoading } = useFetchOperation(operationId ?? '');
+  const { data: inventories, isLoading: isLoadingInnventories } = useFetchOperationInventories(operationId ?? '')
 
   const tabs = [
     { name: 'Operation summary' },
@@ -30,11 +33,24 @@ const OperationsDetails = () => {
     setSearchParams({ tab });
   };
 
+  const enhanceDInventories = useMemo(() => {
+    // Adds input quantity from the operations data to the respective inventory
+    if (inventories?.length && data?.input_quantities?.length) {
+      const updated = inventories.map((item, i) => {
+        return { 
+          ...item,
+          input_quantity: data?.input_quantities[i]
+        }
+      })
+      return updated || []
+    }
+  },[inventories, data])
+
   if (isLoading) return <PageLoader />;
   if (!data) return <p>No data found!!!</p>
 
   return (
-    <div className='p-4'>
+    <div>
       <BackButton route={appRoute.operations} label='Back to operations' />
       <div className='flex justify-between items-center mb-6'>
         <ModuleHeader title={data?.code}>
@@ -95,7 +111,10 @@ const OperationsDetails = () => {
           ))}
         </TabsList>
         <TabsContent value={tabs[0].name}>
-          <OperationSummary operationId={operationId} />
+          <OperationSummary
+            inventories={enhanceDInventories}
+            operation={data}
+          />
         </TabsContent>
         <TabsContent value={tabs[1].name}>
           <Operations operationId={operationId} />

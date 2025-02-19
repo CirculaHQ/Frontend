@@ -57,8 +57,8 @@ const items = [
     icon: 'inventory',
   },
   {
-    title: 'Invoices',
-    url: '/invoices',
+    title: 'Sales',
+    url: '/sales',
     icon: 'invoices',
   },
   {

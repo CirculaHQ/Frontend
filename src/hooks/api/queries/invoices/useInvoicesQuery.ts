@@ -1,4 +1,4 @@
-import { Invoice, InvoicesParams, InvoicesResponse } from '@/types/invoice';
+import { Invoice, InvoicesParams, InvoicesResponse, InvoicesSummary } from '@/types/invoice';
 import request from '@/utils/api';
 import { generateQueryParams } from '@/utils/objectFormatter';
 import { QUERYKEYS } from '@/utils/query-keys';
@@ -48,6 +48,20 @@ const useFetchInvoice = (id: string) => {
   });
 };
 
+const useFetchInvoicesSummary = () => {
+  const fetchInvoice = async (): Promise<InvoicesSummary> => {
+    return await request<InvoicesSummary>('GET', `/invoices/summary`, null, false, true);
+  };
+
+  return useQuery<InvoicesSummary>({
+    queryKey: [QUERYKEYS.FETCH_INVOICES_SUMARY],
+    refetchOnWindowFocus: false,
+    queryFn: () => fetchInvoice(),
+    select: (res) => res,
+    retry: false,
+  });
+};
+
 const useExportInvoices = () => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,4 +74,4 @@ const useExportInvoices = () => {
   return { isLoading, exportInvoices };
 };
 
-export { useFetchInvoices, useFetchInvoice, useExportInvoices };
+export { useFetchInvoices, useFetchInvoice, useExportInvoices, useFetchInvoicesSummary };

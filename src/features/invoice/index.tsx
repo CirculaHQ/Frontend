@@ -22,70 +22,13 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
-import { useFetchInvoices } from '@/hooks/api/queries/invoices/useInvoicesQuery';
+import { useFetchInvoices, useFetchInvoicesSummary } from '@/hooks/api/queries/invoices/useInvoicesQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { generateRandomBackgroundColor, getCurrencySymbol, getDaysAgo, getInitials } from '@/utils/textFormatter';
+import { getRelativeTime } from '@/utils/dateFormatter';
+import { generateRandomBackgroundColor, getCurrencySymbol, getInitials } from '@/utils/textFormatter';
 import { format } from 'date-fns';
-import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-type MetricCardProps = {
-  title?: string;
-  count?: string;
-  amount?: string;
-  icon: string;
-  currency?: string;
-};
-
-const MetricCard = memo(({ icon, currency }: MetricCardProps) => {
-  const status = [
-    { name: 'Paid invoice (31)', amount: '1,500.00', count: '200.00' },
-    { name: 'Awaiting (200)', amount: '1,000.00', count: '2,000.00' },
-    { name: 'Overdue (200)', amount: '2,000.00', count: '4,000.00' }
-  ]
-
-  const [state, setState] = useState<any>(status[0])
-  const isMobile = useIsMobile();
-
-  return (
-    <>
-      {isMobile ? (
-        <div className='border rounded-xl py-2 px-4 w-full'>
-          <div className="flex flex-row items-center gap-1 mb-4">
-            <Icon name={icon} className="w-6 h-6" />
-            <span className="text-primary font-semibold text-lg">{currency}{state.amount}</span>
-          </div>
-          <div className='space-y-4'>
-            {status.map((item) => (
-              <div className="flex flex-col items-start">
-                <h1 className="text-tertiary font-normal text-xs">{item.name}</h1>
-                <h4 className="text-primary text-sm font-semibold">{currency}{item.count}</h4>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) :
-        (<div className="h-[106px] flex gap-4 w-full flex-col items-start justify-center">
-          <div className="flex flex-row items-center gap-1">
-            <Icon name={icon} className="w-6 h-6" />
-            <span className="text-primary font-semibold text-2xl">{currency}{state.amount}</span>
-          </div>
-          <div className="flex flex-col items-start">
-            <h1 className="text-tertiary font-normal text-xs">{state.name}</h1>
-            <h4 className="text-primary text-sm font-semibold">{currency}{state.count}</h4>
-          </div>
-          <div className='flex items-center space-x-1'>
-            {status.map((item) => (
-              <button key={item.name} onClick={() => setState(item)}>
-                <Icon name='dot' fill={state?.name === item.name ? '#181D27' : '#E9EAEB'} className='w-3 h-3' />
-              </button>
-            ))}
-          </div>
-        </div>)
-      }
-    </>
-  );
-});
+import { MetricCard } from './components';
 
 const initialParams = {
   state: '',
@@ -100,6 +43,9 @@ const Invoices = () => {
   const { params, handleSearchChange, currentPage, onPageChange } = useTableFilters({ ...initialParams })
 
   const { data, isLoading: isLoadingInvoices } = useFetchInvoices(params)
+  const { data: summary, isLoading: isLoadingSummary } = useFetchInvoicesSummary()
+
+  const currencies = summary ? Object.keys(summary) : []
 
   const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
   const invoices = data?.results || [];
@@ -118,7 +64,7 @@ const Invoices = () => {
 
   return (
     <div>
-      <ModuleHeader title="Invoices">
+      <ModuleHeader title="Sales">
         <div className="flex flex-row items-center gap-3">
           {!isMobile && (
             <div className='flex flex-row items-center w-full justify-start gap-5'>
@@ -139,22 +85,21 @@ const Invoices = () => {
         <span className="text-primary font-semibold text-lg">Your balance</span>
       </div>
       <div className="grid grid-cols-2 sm:flex flex-col md:flex-row items-center justify-between w-full mt-4 gap-6">
-        <MetricCard
-          icon="flag"
-          currency='₦'
-        />
-        <MetricCard
-          icon="us-flag"
-          currency='$'
-        />
-        <MetricCard
-          icon="uk-flag"
-          currency='￡'
-        />
-        <MetricCard
-          icon="france-flag"
-          currency='€'
-        />
+        {currencies?.map((item: string) => (
+          <MetricCard
+            key={item}
+            icon={"flag"}
+            loading={isLoadingSummary}
+            currency={getCurrencySymbol(item)?.symbol}
+            paidAmount={summary[item]?.fulfilled.total}
+            paidCount={summary[item]?.fulfilled.count}
+            awaitingAmount={summary[item]?.pending.total}
+            awaitingCount={summary[item]?.pending.count}
+            overdueAmount={summary[item]?.overdue.total}
+            overdueCount={summary[item]?.overdue.count}
+            totalAmount={summary[item]?.total}
+          />
+        ))}
       </div>
       <FilterModule onSearchChange={handleSearchChange} containerClass="mt-8" />
 
@@ -182,7 +127,7 @@ const Invoices = () => {
                   <TableCell className="w-[200px]">
                     <div className="flex flex-col items-start">
                       <span className="font-medium text-sm text-primary">
-                        {getDaysAgo(invoice.created_at) ? `${getDaysAgo(invoice.created_at)} days ago` : 'Today'}
+                        {getRelativeTime(invoice.created_at) ? `${getRelativeTime(invoice.created_at)}` : 'Today'}
                       </span>
                       <h4 className="font-normal text-sm text-tertiary">
                         {format(invoice?.created_at, 'dd/MM/yyyy')}

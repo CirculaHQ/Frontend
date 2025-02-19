@@ -2,46 +2,21 @@ import { StatCard } from "@/components/shared";
 import { Icon } from "@/components/ui";
 import InventoryInfo from "./inventory-info";
 import { useState } from "react";
+import { Inventory } from "@/hooks/api/queries/inventory";
+import { Operation } from "@/types/operations";
 
 interface Props {
-    operationId?: string;
+    inventories: Inventory[];
+    operation: Operation;
 }
 
-export default function OperationSummary({ operationId = '' }: Props) {
+export default function OperationSummary({ operation, inventories = [] }: Readonly<Props>) {
     const [collapse, setCollapse] = useState(false)
 
-    const inventories: [] = []
-
-    // const vendorData = {
-    //     'Inventory details': {
-    //         'Inventory ID': 'ID-47890875',
-    //         'Date received': '2 November, 1989',
-    //         Material: 'Plastics',
-    //         'Material type': 'Polyethylene Terephthalate (PET)',
-    //         supportingText: 'Supporting text goes here',
-    //     },
-    //     'Specifications and details': {
-    //         Quantity: '500kg',
-    //         'Quantity produced': '500kg',
-    //         'Quantity wasted': '90kg',
-    //         supportingText: 'Supporting text goes here',
-    //     },
-    // };
-
-    // const icons: { [key: string]: string } = {
-    //     'Inventory ID': 'hash',
-    //     'Date received': 'calendar',
-    //     Material: 'tag-03',
-    //     'Material type': 'tag-01',
-    //     Quantity: 'scales',
-    //     'Quantity produced': 'scales',
-    //     'Quantity wasted': 'scales',
-    // };
-
     const specs = [
-        { name: 'Input quantity', quantity: 590 },
-        { name: 'Quantity produced', quantity: 590 },
-        { name: 'Quantity wasted', quantity: 500 }
+        { name: 'Input quantity', quantity: operation?.input_quantity },
+        { name: 'Quantity produced', quantity: operation?.quantity_produced },
+        { name: 'Quantity wasted', quantity: operation?.waste_produced }
     ]
 
     return (
@@ -96,7 +71,7 @@ export default function OperationSummary({ operationId = '' }: Props) {
                 <p className='text-xs text-quaternary mb-4'>Supporting text goes here</p>
                 <div className='space-y-4 text-sm'>
                     {specs.map((item) => (
-                        <div className="flex justify-between">
+                        <div key={item.name} className="flex justify-between">
                             <div className="flex items-center w-full">
                                 <Icon name='arrow-circle-down' className='w-4 h-4 text-quaternary mr-1' />
                                 <p className="text-tertiary">{item.name}</p>

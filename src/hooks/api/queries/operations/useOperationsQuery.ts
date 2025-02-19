@@ -60,3 +60,17 @@ export const useFetchOperationsBreakdown = () => {
         retry: false,
     });
 };
+
+export const useFetchOperationInventories = (id: string) => {
+    const fetchOperationInventories = async (): Promise<any> => {
+        return await request<any>('GET', `/operations/${id}/inventories`, null, false, true);
+    };
+
+    return useQuery({
+        queryKey: [QUERYKEYS.FETCH_OPERATION_INVENTORIES],
+        refetchOnWindowFocus: false,
+        queryFn: () => fetchOperationInventories(),
+        select: (res) => res,
+        retry: false,
+    });
+};

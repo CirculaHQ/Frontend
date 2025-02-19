@@ -71,7 +71,7 @@ const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           <SelectContent>
             {data?.filter?.((inventory) => inventory?.type === 'in').map((item) => (
               <SelectItem key={item.id} value={item.id}>
-                {item.id}
+                {item.code}
               </SelectItem>
             ))}
           </SelectContent>

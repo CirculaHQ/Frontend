@@ -10,16 +10,25 @@ import {
 } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
-import { useFetchCustomer } from '@/hooks/api/queries/contacts';
+import { useFetchCustomer, useFetchCustomerActivity } from '@/hooks/api/queries/contacts';
 import { BUSINESS } from '@/types';
+import { getRelativeTime } from '@/utils/dateFormatter';
 import { capitalizeFirstLetterOfEachWord } from '@/utils/textFormatter';
 import { format } from 'date-fns';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+
+const tabs = [
+  { label: 'Profile details', value: 'profile' },
+  { label: 'Activity', value: 'activity' },
+];
 
 const CustomerDetails = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentTab = searchParams.get('tab') ?? tabs[0].value
   const { id } = useParams();
   const navigate = useNavigate();
   const { data, isLoading } = useFetchCustomer(id);
+  const { data: activities, isLoading: isLoadingActivity } = useFetchCustomerActivity(id)
   const isBusiness = data?.type === BUSINESS;
 
   if (isLoading) return <PageLoader />;
@@ -163,19 +172,19 @@ const CustomerDetails = () => {
         </ModuleHeader>
       </div>
 
-      <Tabs defaultValue='profile'>
+      <Tabs defaultValue={currentTab} onValueChange={(tab) => setSearchParams({ tab })}>
         <TabsList className='flex border-b mb-6 text-left justify-start'>
-          <TabsTrigger
-            value='profile'
-            className='px-4 py-2 border-b-2 border-green-500 text-green-600 font-medium'
-          >
-            Profile details
-          </TabsTrigger>
-          <TabsTrigger value='activity' className='px-4 py-2 text-gray-500 hover:text-gray-700'>
-            Activity
-          </TabsTrigger>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className={`px-4 py-2 border-b-2 ${currentTab === tab.value ? 'active-tab' : 'inactive-tab'} font-medium`}
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
-        <TabsContent value='profile'>
+        <TabsContent value={tabs[0].value}>
           {/* Profile details content goes here */}
           {Object.entries(customerData).map(([sectionTitle, sectionData]) => (
             <div key={sectionTitle} className='mb-6 mt-6'>
@@ -197,7 +206,31 @@ const CustomerDetails = () => {
             </div>
           ))}
         </TabsContent>
-        <TabsContent value='activity'>{/* Activity content goes here */}</TabsContent>
+        <TabsContent value={tabs[1].value}>
+          {/* Activity content goes here */}
+          {isLoadingActivity ?
+            <PageLoader /> : (
+              <div className='space-y-8'>
+                {activities?.results?.map((activity) => (
+                  <div key={activity.id} className='flex space-x-3'>
+                    <div className='shrink-0 w-8 h-8 rounded-full bg-[#F5F5F5] flex items-center justify-center border'>
+                      <Icon name='package-plus' className='w-5 h-5' />
+                    </div>
+                    {activity?.invoice && (
+                      <div>
+                        <p className='text-sm text-secondary font-medium'>
+                          New invoice created <span className='text-xs text-tertiary font-normal'>{getRelativeTime(activity?.invoice?.created_at)}</span>
+                        </p>
+                        <p className='text-sm text-tertiary'>
+                          {activity?.invoice?.currency}{activity?.invoice?.total} of (<span className='text-brand'>Ref {activity?.invoice?.code}</span>) created.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+        </TabsContent>
       </Tabs>
     </div>
   );

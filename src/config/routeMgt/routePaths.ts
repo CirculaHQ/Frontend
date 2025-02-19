@@ -31,12 +31,12 @@ export const appRoute = {
   customers: `/customers`,
   vendors: `/vendors`,
 
-  invoices: `/invoices`,
-  create_invoice: `/invoices/manage-invoice`,
-  editInvoice: (id?: number | string) => `/invoices/manage-invoice?invoiceId=${id}`,
+  invoices: `/sales`,
+  create_invoice: `/sales/manage-invoice`,
+  editInvoice: (id?: number | string) => `/sales/manage-invoice?invoiceId=${id}`,
   invoiceDetails: (id?: number | string) => ({
-    format: `/invoices/:invoiceId`,
-    path: `/invoices/${id}`,
+    format: `/sales/:invoiceId`,
+    path: `/sales/${id}`,
   }),
 
   add_vendor: `/vendors/add-vendor`,

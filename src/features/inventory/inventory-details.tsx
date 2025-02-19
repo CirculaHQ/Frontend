@@ -22,7 +22,7 @@ const InventoryDetails = () => {
 
   const vendorData = {
     'Basic information': {
-      'Inventory ID': inventory.id,
+      'Inventory ID': inventory.code,
       Type: inventory.type,
       'Date received': inventory.date_received,
       Vendor: inventory?.vendor?.first_name ? `${inventory?.vendor?.first_name} ${inventory?.vendor?.last_name}` : 'N/A',
@@ -65,7 +65,7 @@ const InventoryDetails = () => {
         <Icon name='arrow-left' className='w-5 h-5' /> Back to Inventory
       </button>
       <div className='flex justify-between items-center mb-6'>
-        <ModuleHeader title={inventory.id}>
+        <ModuleHeader title={inventory.code}>
           <div className='flex flex-row items-center gap-3'>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

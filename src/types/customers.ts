@@ -1,4 +1,6 @@
+import { Inventory } from "@/hooks/api/queries/inventory";
 import { AccountType } from ".";
+import { Invoice } from "./invoice";
 
 export interface Customer {
     id: string;
@@ -64,4 +66,23 @@ export interface AddCustomerResponse extends Customer {
     created_at: string;
     updated_at: string;
     archived: boolean;
+}
+
+export interface CustomerActivities {
+    id: string;
+    user: Customer;
+    created_at: string;
+    updated_at: string;
+    type: string;
+    inventory: Inventory;
+    invoice: Invoice;
+    operation: any | null;
+    vendor: Customer;
+}
+
+export interface CustomerActivitiesResponse {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: CustomerActivities[]
 }

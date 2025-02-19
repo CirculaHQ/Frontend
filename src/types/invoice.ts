@@ -42,6 +42,7 @@ export interface Invoice {
     notes: string;
     status: 'success' | 'pending' | 'failed' | 'overdue' | null | undefined;
     user: string;
+    total: string;
     customer: Customer;
     account: {
         account_name: string;
@@ -57,5 +58,25 @@ export interface InvoicesResponse {
 }
 
 export interface InvoicesParams {
-    
+
+}
+
+export interface CurrencyInvoice {
+    fulfilled: {
+        count: number;
+        total: number;
+    };
+    pending: {
+        count: number;
+        total: number;
+    };
+    overdue: {
+        count: number;
+        total: number;
+    };
+    total: number;
+}
+
+export interface InvoicesSummary {
+    [currencyCode: string]: CurrencyInvoice;
 }

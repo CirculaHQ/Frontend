@@ -176,7 +176,7 @@ const Operations = () => {
             <TableBody>
               {data?.results.map((item) => (
                 <TableRow className='cursor-pointer' key={item.id} onClick={(e) => navigateToView(e, item.id)}>
-                  <TableCell className='w-[100px]'>{item.id}</TableCell>
+                  <TableCell className='whitespace-nowrap'>{item.code}</TableCell>
                   <TableCell className='w-[200px]'>
                     <div className='flex flex-col items-start'>
                       <span className='font-medium text-sm text-primary'>{item.start_time}</span>
@@ -189,10 +189,10 @@ const Operations = () => {
                       <h4 className='font-normal text-sm text-tertiary'>Glass</h4>
                     </div>
                   </TableCell>
-                  <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
+                  <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     {item.operation_type}
                   </TableCell>
-                  <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
+                  <TableCell className='w-[100px] text-tertiary font-normal text-sm'>
                     <Badge variant={item.status}>{item.status}</Badge>
                   </TableCell>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
@@ -201,7 +201,7 @@ const Operations = () => {
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     {item.waste_produced}kg
                   </TableCell>
-                  <TableCell className='w-7'>
+                  <TableCell className='w-4'>
                     <Icon name='chevron-right' className='w-4 h-4 text-quaternary' />
                   </TableCell>
                 </TableRow>
@@ -227,7 +227,7 @@ const Operations = () => {
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
-                    {item.operation_type}
+                    {item.operation_type || 'N/A'}
                   </TableCell>
                   <TableCell className='w-7'>
                     <Icon name='chevron-right' className='w-4 h-4 text-quaternary' />
