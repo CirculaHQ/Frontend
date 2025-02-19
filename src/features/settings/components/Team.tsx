@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { teams } from "@/mocks/teams";
 import { getRelativeTime } from "@/utils/dateFormatter";
 import { format } from "date-fns";
+import InviteUsers from "./InviteUsers";
 
 const VERIFIED = 'verified';
 const PENDING = 'pending';
@@ -20,8 +21,6 @@ export default function Team() {
     const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
 
     const handleExport = () => { }
-
-    const handleInviteUsers = () => { }
 
     //if (isLoading || loadingInventoryBreakdown) return <PageLoader />;
 
@@ -69,9 +68,7 @@ export default function Team() {
                     <Button variant='outline' onClick={handleExport}>
                         Export
                     </Button>
-                    <Button variant='secondary' onClick={handleInviteUsers}>
-                        Invite users
-                    </Button>
+                    <InviteUsers />
                 </div>
             </div>
             <div>
