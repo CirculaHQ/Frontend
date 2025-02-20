@@ -18,7 +18,7 @@ import { useAddVendor, useEditVendor } from '@/hooks/api/mutations/contacts';
 import { useFetchVendor } from '@/hooks/api/queries/contacts';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import { countries, states } from '@/mocks';
-import { AccountType, BUSINESS, INDIVIDUAL } from '@/types';
+import { BUSINESS, INDIVIDUAL } from '@/types';
 import { Customer } from '@/types/customers';
 import { uploadToCloudinary } from '@/utils/cloudinary-helper';
 import { format } from 'date-fns';
@@ -72,8 +72,7 @@ const AddVendor = () => {
       date_of_birth: ''
     },
     onSubmit: async (values) => {
-      let payload = { ...values, type: customerType as AccountType, user: userID } as Customer;
-      let res
+      let payload = { ...values, type: customerType, user: userID } as Customer;
 
       if (state.selectedFile) {
         setState({ ...state, isUploading: true });
@@ -85,9 +84,9 @@ const AddVendor = () => {
       }
 
       if (!vendorId) {
-        res = await addVendor(payload);
+        await addVendor(payload);
       } else {
-        res = await editVendor({ vendorId, payload });
+        await editVendor({ vendorId, payload });
       }
       navigate(appRoute.vendorDetails(vendorId).path)
     },
@@ -121,7 +120,7 @@ const AddVendor = () => {
     }
   }, [vendorId, data]);
 
-  const ButtonComp = () => (
+  const renderButton = () => (
     <>
       <Button
         disabled={button.loading || state.isUploading}
@@ -149,7 +148,7 @@ const AddVendor = () => {
       <BackButton route={appRoute.vendors} label='Back to vendors' />
       <ModuleHeader title={`Add ${isBusiness ? 'Business' : 'Individual'} Vendor`} className='mb-10'>
         <div className='flex flex-row items-center gap-3'>
-          <ButtonComp />
+          {renderButton()}
         </div>
       </ModuleHeader>
       <form onSubmit={formik.handleSubmit}>
@@ -423,7 +422,7 @@ const AddVendor = () => {
           />
         </FormSection>
         <div className='flex justify-end gap-4 mt-8'>
-          <ButtonComp />
+          {renderButton()}
         </div>
       </form>
     </div>

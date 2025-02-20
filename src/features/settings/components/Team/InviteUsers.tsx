@@ -149,6 +149,7 @@ const InviteUserForm = ({ cancelDialog }: { cancelDialog: () => void }) => {
                             variant="secondary"
                             className="w-full"
                             disabled={isAddingMember}
+                            isLoading={isAddingMember}
                         >
                             Add member
                         </Button>
