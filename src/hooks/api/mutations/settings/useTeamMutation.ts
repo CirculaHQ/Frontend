@@ -19,7 +19,7 @@ export const useAddTeamMember = (callback?: () => void) => {
             showToast('Member added successfully!', 'success');
             callback?.();
         },
-        onError: (err: any) => {
+        onError: () => {
             showToast('Failed to add member. Please try again.', 'error');
         },
     });

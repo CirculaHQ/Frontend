@@ -34,8 +34,8 @@ export interface MembersResponse {
 }
 
 export interface AddMemberPayload {
-    first_namme: string;
-    last_namme: string;
+    first_name: string;
+    last_name: string;
     role: string;
     email: string;
 }
