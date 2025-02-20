@@ -1,40 +1,38 @@
 import request from "@/utils/api";
 
 export interface UserProfile {
-    first_name: string;
-    last_name: string;
-    email: string;
-    commodities: string[];
-    organization: string;
-    picture: string;
-    company_logo: string;
-    currency: string;
-    phone: string;
-  }
-  
-  
-  export const getUserProfile = async (
-  ): Promise<UserProfile> => {
-  
-    return await request<UserProfile>(
-      'GET',
-      `/users/profile`,
-      undefined,
-      false,
-      false
-    );
-  };
+  first_name: string;
+  last_name: string;
+  email: string;
+  commodities: string[];
+  organization: string;
+  picture: string;
+  company_logo: string;
+  currency: string;
+  phone: string;
+}
 
-  export const updateUserProfile = async (data: Partial<UserProfile>): Promise<UserProfile> => {
-    return await request<UserProfile>(
-      'PATCH',
-      `/users/profile/update`,
-      data, 
-      false,
-      false
-    );
-  };
+export const getUserProfile = async (
+): Promise<UserProfile> => {
 
+  return await request<UserProfile>(
+    'GET',
+    `/users/profile`,
+    undefined,
+    false,
+    false
+  );
+};
+
+export const updateUserProfile = async (data: Partial<UserProfile>): Promise<UserProfile> => {
+  return await request<UserProfile>(
+    'PATCH',
+    `/users/profile/update`,
+    data,
+    false,
+    false
+  );
+};
 
 interface updateEmail {
   email: string;
@@ -74,10 +72,6 @@ export const sendOTPEmail = async (payload: sendOTPEmail): Promise<Response> => 
     'OTP sent successfully!'
   );
 };
-
-
-
-
 
 interface updatePassword {
   old_password: string;

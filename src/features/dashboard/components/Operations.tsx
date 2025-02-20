@@ -42,6 +42,7 @@ export default function Operations() {
                         >
                             {chartDurationFilter.map((item) => (
                                 <DropdownMenuItem
+                                    key={item.name}
                                     className='py-2 rounded-[8px]'
                                     onClick={() => setState({ ...state, duration: item.name })}
                                 >
@@ -65,6 +66,7 @@ export default function Operations() {
                                 (<>
                                     {options.map((item) => (
                                         <DropdownMenuItem
+                                            key={item.name}
                                             className='py-2 rounded-[8px]'
                                             onClick={() => setState({ ...state, type: item.name })}
                                         >

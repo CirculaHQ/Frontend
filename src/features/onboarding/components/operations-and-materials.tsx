@@ -1,6 +1,11 @@
+import { User } from "@/types/user";
 import { Layout, Item } from "./layout";
 
-export default function OperationsAndMaterials() {
+interface Props {
+    user: User;
+}
+
+export default function OperationsAndMaterials({ user }: Props) {
     return (
         <Layout
             title="Operations and materials"
@@ -20,7 +25,7 @@ export default function OperationsAndMaterials() {
                     icon="dotpoints"
                     label="Add a custom material"
                     buttonName="Add Material"
-                    isComplete={false}
+                    isComplete={!!user?.commodities?.length}
                     onClick={() => { }}
                 />
             </>

@@ -11,8 +11,28 @@ import {
 } from "@/components/ui/dialog"
 import { useFormik } from "formik";
 import RolesInCircula from "./RolesInCircula";
+import { useFetchTeamRoles } from "@/hooks/api/queries/settings/useTeam";
+import * as Yup from 'yup';
+import { useAddTeamMember } from "@/hooks/api/mutations/settings/useTeamMutation";
+import { useState } from "react";
 
-export default function InviteUsers() {
+const InviteTeamMemberSchema = Yup.object().shape({
+    first_name: Yup.string()
+        .matches(/^[A-Za-z]+$/, 'First name must contain letters only')
+        .min(2, 'First name must be at least 2 characters')
+        .required('First name is required'),
+    last_name: Yup.string()
+        .matches(/^[A-Za-z]+$/, 'Last name must contain letters only')
+        .min(2, 'Last name must be at least 2 characters')
+        .required('Last name is required'),
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    role: Yup.string().required('Role is required'),
+});
+
+const InviteUserForm = ({ cancelDialog }: { cancelDialog: () => void }) => {
+    const { data: roles, isLoading: isLoadingRoles } = useFetchTeamRoles()
+    const { mutate: addMember, isLoading: isAddingMember } = useAddTeamMember(cancelDialog);
+
     const formik = useFormik({
         initialValues: {
             first_name: '',
@@ -20,25 +40,18 @@ export default function InviteUsers() {
             email: '',
             role: ''
         },
-        //validationSchema: isBusiness ? AddCustomerSchema.Business : AddCustomerSchema.Individual,
+        validationSchema: InviteTeamMemberSchema,
         onSubmit: async (values) => {
-            console.log(values)
+            addMember(values)
         },
     });
 
-    const roles = [
-        { name: 'Super admin' },
-        { name: 'Admin' },
-        { name: 'Finance' },
-        { name: 'Inventory & operations' }
-    ]
-
     return (
-        <Dialog>
+        <Dialog open={true} onOpenChange={cancelDialog}>
             <DialogTrigger asChild>
-                <Button variant='secondary'>
-                    Invite users
-                </Button>
+                {/* <Button variant='secondary'>
+                        Invite users
+                    </Button> */}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[480px]">
                 <DialogHeader>
@@ -94,7 +107,7 @@ export default function InviteUsers() {
                         <div>
                             <div className="space-x-1">
                                 <Label>Role</Label>
-                                <RolesInCircula />
+                                <RolesInCircula roles={roles || []} />
                             </div>
                             <Select
                                 value={formik.values.role}
@@ -107,13 +120,16 @@ export default function InviteUsers() {
                                     />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {roles.map((role) => (
-                                        <SelectItem key={role.name} value={role.name}>
-                                            {role.name}
+                                    {roles?.map((role) => (
+                                        <SelectItem key={role.name} value={role.name} className="capitalize">
+                                            {role.name.replace(/_/g, ' ')}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {formik.errors.role && formik.touched.role && (
+                                <p className="text-red-500 text-sm mt-1">{formik.errors.role}</p>
+                            )}
                         </div>
                     </div>
                     <DialogFooter className="flex items-center mt-8">
@@ -122,6 +138,8 @@ export default function InviteUsers() {
                                 type="button"
                                 variant="outline"
                                 className="w-full mt-4 sm:mt-0"
+                                onClick={cancelDialog}
+                                disabled={isAddingMember}
                             >
                                 Cancel
                             </Button>
@@ -130,6 +148,7 @@ export default function InviteUsers() {
                             type="submit"
                             variant="secondary"
                             className="w-full"
+                            disabled={isAddingMember}
                         >
                             Add member
                         </Button>
@@ -137,5 +156,26 @@ export default function InviteUsers() {
                 </form>
             </DialogContent>
         </Dialog>
+    )
+}
+
+export default function InviteUsers() {
+    const [isOpen, setIsOpen] = useState(false)
+
+    const cancelDialog = () => {
+        setIsOpen(false)
+    }
+
+    const openDialog = () => {
+        setIsOpen(true)
+    }
+
+    return (
+        <div>
+            <Button variant='secondary' onClick={openDialog}>
+                Invite users
+            </Button>
+            {isOpen && <InviteUserForm cancelDialog={cancelDialog} />}
+        </div>
     )
 }

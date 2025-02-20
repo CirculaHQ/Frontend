@@ -1,6 +1,11 @@
+import { User } from "@/types/user";
 import { Layout, Item } from "./layout";
 
-export default function Organization() {
+interface Props {
+    user: User;
+}
+
+export default function Organization({ user }: Readonly<Props>) {
     return (
         <Layout
             title="Organization"
@@ -13,14 +18,14 @@ export default function Organization() {
                     icon="text-input"
                     label="Add your Organization name"
                     buttonName="Add Name"
-                    isComplete={false}
+                    isComplete={!!user.organization}
                     onClick={() => { }}
                 />
                 <Item
                     icon="image-plus"
                     label="Upload an image for your Organization"
                     buttonName="Upload Image"
-                    isComplete={false}
+                    isComplete={!!user.company_logo}
                     onClick={() => { }}
                 />
                 <Item
