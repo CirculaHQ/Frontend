@@ -1,11 +1,13 @@
 import { EmptyState, FilterModule } from "@/components/shared";
-import { Avatar, AvatarFallback, AvatarImage, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Icon, Table, TableBody, TableCell, TableHead, TableHeader, TablePagination, TableRow } from "@/components/ui";
+import { Avatar, AvatarFallback, AvatarImage, Button, Icon, Table, TableBody, TableCell, TableHead, TableHeader, TablePagination, TableRow } from "@/components/ui";
 import { useTableFilters } from "@/hooks";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { teams } from "@/mocks/teams";
 import { getRelativeTime } from "@/utils/dateFormatter";
 import { format } from "date-fns";
+import { useFetchTeamMembers } from "@/hooks/api/queries/settings/useTeam";
+import { PageLoader } from "@/components/loaders";
 import InviteUsers from "./InviteUsers";
+import ManageTeamMember from "./ManageTeamMember";
 
 const VERIFIED = 'verified';
 const PENDING = 'pending';
@@ -17,43 +19,19 @@ export default function Team() {
     const { params, handleSearchChange, currentPage, onPageChange } = useTableFilters({ ...initialParams })
     const isMobile = useIsMobile();
 
-    const data = teams
+    const { data, isLoading: isLoadingMembers } = useFetchTeamMembers(params)
+
+    const members = data?.results || [];
     const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
 
     const handleExport = () => { }
 
-    //if (isLoading || loadingInventoryBreakdown) return <PageLoader />;
-
-    const renderStatusIcon = (status: string) => {
-        if (status.toLowerCase() === VERIFIED) return <Icon name='check-circle' className='w-2 h-2 absolute bottom-0 right-0' />
-        if (status.toLowerCase() === PENDING) return <Icon name='info-circle' className='w-2 h-2 absolute bottom-0 right-0' />
-        return ''
+    const renderStatusIcon = (status: boolean) => {
+        if (status) return <Icon name='check-circle' className='w-2 h-2 absolute bottom-0 right-0' />
+        if (!status) return <Icon name='info-circle' className='w-2 h-2 absolute bottom-0 right-0' />
     }
 
-    const renderDropdown = () => (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <div className='w-4 h-4'>
-                    <Icon
-                        name='horizontal-dots'
-                        className='w-4 h-4 text-quaternary'
-                        fill='none'
-                    />
-                </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align='end'
-                className='text-sm font-medium text-secondary rounded-[8px] px-1'
-            >
-                <DropdownMenuItem
-                    className='py-2 rounded-[8px]'
-                //onClick={(e) => navigateToEditCustomer(e, customer)}
-                >
-                    Edit details
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    )
+    if (isLoadingMembers) return <PageLoader />;
 
     return (
         <div>
@@ -80,13 +58,7 @@ export default function Team() {
                     onSearchChange={handleSearchChange}
                 />
                 <div className='mt-2'>
-                    {data?.results.length === 0 ? (
-                        <EmptyState
-                            icon='users-plus'
-                            title='No team members added'
-                            description='Add your team members on Circula to manage them here.'
-                        />
-                    ) : !isMobile ? (
+                    {!isMobile ? (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -98,12 +70,12 @@ export default function Team() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {data?.results.map((item) => (
+                                {members?.map((item) => (
                                     <TableRow className='cursor-pointer' key={item.id}>
                                         <TableCell>
                                             <div className='flex flex-row items-center gap-3 justify-start'>
                                                 <Avatar className='w-8 h-8 rounded-full shrink-0'>
-                                                    <AvatarImage src={item?.photo} />
+                                                    <AvatarImage src={item?.picture ?? ''} />
                                                     <AvatarFallback
                                                         style={{ backgroundColor: '#2C6000' }}
                                                         className='rounded-full text-white'
@@ -113,7 +85,9 @@ export default function Team() {
                                                 </Avatar>
                                                 <div className='text-sm text-primary capitalize block'>
                                                     <span className="block">{item?.first_name} {item?.last_name}</span>
-                                                    <span className="block">{item.status}</span>
+                                                    <span className={`block text-xs ${item.is_active ? VERIFIED : PENDING}`}>
+                                                        {item.is_active ? VERIFIED : PENDING}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -134,7 +108,7 @@ export default function Team() {
                                             </div>
                                         </TableCell>
                                         <TableCell className='w-4'>
-                                            {renderDropdown()}
+                                            <ManageTeamMember data={item} />
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -150,13 +124,13 @@ export default function Team() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {data?.results.map((item) => (
+                                {members.map((item) => (
                                     <TableRow className='cursor-pointer' key={item.id}>
                                         <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                                             <div className='flex flex-row items-center gap-3 justify-start'>
                                                 <div className="relative">
                                                     <Avatar className='w-8 h-8 rounded-full shrink-0'>
-                                                        <AvatarImage src={item?.photo} />
+                                                        <AvatarImage src={item?.picture ?? ''} />
                                                         <AvatarFallback
                                                             style={{ backgroundColor: '#2C6000' }}
                                                             className='rounded-full text-white'
@@ -164,7 +138,7 @@ export default function Team() {
                                                             <Icon name='avatar' className='w-8 h-8' />
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                    {renderStatusIcon(item.status)}
+                                                    {renderStatusIcon(item.is_active)}
                                                 </div>
                                                 <div className='text-sm text-primary capitalize block'>
                                                     <span className="block">{item?.first_name} {item?.last_name}</span>
@@ -176,14 +150,21 @@ export default function Team() {
                                             {item.role}
                                         </TableCell>
                                         <TableCell className='w-7'>
-                                            {renderDropdown()}
+                                            <ManageTeamMember data={item} />
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     )}
-                    {data?.results.length !== 0 && (
+                    {!isLoadingMembers && !members.length ? (
+                        <EmptyState
+                            icon='users-plus'
+                            title='No team members added'
+                            description='Add your team members on Circula to manage them here.'
+                        />
+                    ) : ''}
+                    {members?.length !== 0 && (
                         <TablePagination
                             currentPage={currentPage}
                             totalPages={totalPages}

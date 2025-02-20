@@ -55,17 +55,19 @@ const SignupConfirmation = () => {
         { email, otp: verificationCode },
         {
           onSuccess: (res: any) => {
-            const result = res;
-            if (
-              signIn({
-                token: result.access,
-                tokenType: 'Bearer',
-                authState: result.user,
-                expiresIn: 180,
-              })
-            ) {
-              showToast('Account verified successfully!', 'success');
-            }
+            showToast('Account verified successfully!', 'success');
+            navigate(appRoute.home)
+            // const result = res;
+            // if (
+            //   signIn({
+            //     token: result.access,
+            //     tokenType: 'Bearer',
+            //     authState: result.user,
+            //     expiresIn: 180,
+            //   })
+            // ) {
+            //   showToast('Account verified successfully!', 'success');
+            // }
           },
         }
       );

@@ -10,35 +10,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { Role } from "@/types/team"
 
-export default function RolesInCircula() {
-    const roles = [
-        {
-            name: 'Admin',
-            description: 'The Admin owns and oversees the entire platform, manages user roles, and ensures system configuration aligns with business processes. This role has unrestricted access to all modules and features.'
-        },
-        {
-            name: 'Manager',
-            description: 'The Manager has comprehensive access to the platform, including the ability to manage user roles (except for Admin accounts). Like the Admin, this role has no restrictions across modules.'
-        },
-        {
-            name: 'Operations & Inventory Mannager',
-            description: 'This role focuses on overseeing daily operational activities, including waste collection, processing, and inventory management. Users in this role have access exclusively to the Operations and Inventory modules.'
-        },
-        {
-            name: 'Finance Manager',
-            description: 'The Finance Manager handles financial transactions, invoicing, and compliance with regulatory payments. Access is restricted to the Sales and Invoicing modules.'
-        },
-        {
-            name: 'Viewer',
-            description: 'A read-only role for stakeholders requiring visibility across the platform without the ability to make changes. This role ensures operational transparency while maintaining data integrity and security.'
-        }
-    ]
-
+export default function RolesInCircula({ roles }: Readonly<{ roles: Role[] }>) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Icon name='help-circle' className='h-3 w-3 inline' />
+                <span>
+                    <Icon name='help-circle' className='h-3 w-3 inline' />
+                </span>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[480px]">
                 <DialogHeader className="mb-5">
@@ -54,7 +34,7 @@ export default function RolesInCircula() {
                     {roles.map((role) => (
                         <AccordionItem key={role.name} value={role.name}>
                             <AccordionTrigger className='no-underline hover:no-underline focus:no-underline !pt-0 flex items-center justify-between'>
-                                <h1 className="text-base font-semibold text-primary">{role.name}</h1>
+                                <h1 className="text-base font-semibold text-primary capitalize">{role.name.replace(/_/g, ' ')}</h1>
                             </AccordionTrigger>
                             <AccordionContent>
                                 <p className="text-s text-tertiary">

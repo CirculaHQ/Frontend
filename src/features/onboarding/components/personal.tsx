@@ -1,6 +1,11 @@
+import { User } from "@/types/user";
 import { Layout, Item } from "./layout";
 
-export default function Personal() {
+interface Props {
+    user: User;
+}
+
+export default function Personal({ user }: Readonly<Props>) {
     return (
         <Layout
             title="Personal"
@@ -13,21 +18,21 @@ export default function Personal() {
                     icon="image-plus"
                     label="Upload a profile picture"
                     buttonName="Upload Image"
-                    isComplete={false}
+                    isComplete={!!user.picture}
                     onClick={() => { }}
                 />
                 <Item
                     icon="phone-01"
                     label="Add your phone number"
                     buttonName="Add Phone"
-                    isComplete={false}
+                    isComplete={!!user.phone}
                     onClick={() => { }}
                 />
                 <Item
                     icon="building-08"
                     label="Add your bank account"
                     buttonName="Add Account"
-                    isComplete={false}
+                    isComplete={!!user?.accounts?.length}
                     onClick={() => { }}
                 />
             </>
