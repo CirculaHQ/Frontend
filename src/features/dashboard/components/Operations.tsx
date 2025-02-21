@@ -1,4 +1,4 @@
-import { Button, DateRangePicker, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Icon, LineChart } from "@/components/ui";
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Icon, LineChart } from "@/components/ui";
 import { chartDurationFilter } from "@/config/common";
 import { useFetchDashboardOperations } from "@/hooks/api/queries/dashboard/useDashboard";
 import { useFetchOperationTypes } from "@/hooks/api/queries/operations/useOperationsQuery";
@@ -14,9 +14,9 @@ type FormattedMonth = {
 export default function Operations() {
     const [state, setState] = useState({ duration: '1D', type: 'Sorting' })
 
-    //const { data, isLoading } = useFetchDashboardOperations(state)
+    const { data, isLoading } = useFetchDashboardOperations(state)
     const { data: operationTypes, isLoading: isLoadingOperationTypes } = useFetchOperationTypes()
-
+console.log(data)
     const convertMonthData = (data: ChartResponse): FormattedMonth[] => {
         return Object.entries(data).map(([month, amount]) => ({ label: month, amount }))
     };

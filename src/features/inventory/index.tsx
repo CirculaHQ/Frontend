@@ -38,7 +38,7 @@ import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
 import { useFetchInventory, useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMaterialColor } from '@/utils/materials';
-import { capitalizeFirstLetter, generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
+import { capitalizeFirstLetter, generateRandomBackgroundColor } from '@/utils/textFormatter';
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -255,14 +255,7 @@ const Inventory = () => {
       </Tabs>
       <FilterModule includeRegion={false} onSearchChange={handleSearchChange} />
       <div>
-        {data?.results.length === 0 ? (
-          <EmptyState
-            icon='inventory-empty'
-            title='No items in your inventory'
-            description='Add or remove items from your inventory and they will show up here.'
-            className='mt-8'
-          />
-        ) : !isMobile ? (
+        {!isMobile ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -425,6 +418,14 @@ const Inventory = () => {
               ))}
             </TableBody>
           </Table>
+        )}
+        {!isLoading && !data?.results.length && (
+          <EmptyState
+            icon='inventory-empty'
+            title='No items in your inventory'
+            description='Add or remove items from your inventory and they will show up here.'
+            className='mt-8'
+          />
         )}
         {data?.results.length !== 0 && (
           <TablePagination

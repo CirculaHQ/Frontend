@@ -116,10 +116,12 @@ const Operations = () => {
               value='0'
             />
           </div>
-          <div className='mt-4'>
-            <span className='text-sm font-normal text-tertiary'>Material distribution</span>
-            <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
-          </div>
+          {!!lineDistributionSegments?.length && (
+            <div className='mt-4'>
+              <span className='text-sm font-normal text-tertiary'>Material distribution</span>
+              <LineDistribution segments={lineDistributionSegments} height={8} className='mt-4' />
+            </div>
+          )}
         </div>
       ) : (
         <div className='my-8'>
@@ -150,16 +152,8 @@ const Operations = () => {
         includeRegion={false}
         onSearchChange={handleSearchChange}
       />
-
       <div className='mt-2'>
-        {data?.results.length === 0 ? (
-          <EmptyState
-            icon='inventory-empty'
-            title='No operations started'
-            description='Begin your operations on Circula and they would show up here.'
-            className='mt-8'
-          />
-        ) : !isMobile ? (
+        {!isMobile ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -236,6 +230,14 @@ const Operations = () => {
               ))}
             </TableBody>
           </Table>
+        )}
+        {!isLoading && !data?.results.length && (
+          <EmptyState
+            icon='inventory-empty'
+            title='No operations started'
+            description='Begin your operations on Circula and they would show up here.'
+            className='mt-8'
+          />
         )}
         {data?.results.length !== 0 && (
           <TablePagination
