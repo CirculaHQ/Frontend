@@ -3,6 +3,7 @@ import OrganizationalInformation from './OrganizationInformation';
 import BankInformation from './BankInformation';
 import { useFetchUserProfile } from '@/hooks/api/queries/settings/useUser';
 import { PageLoader } from '@/components/loaders';
+import { SUPER_ADMIN } from '@/config/common';
 
 const ProfileSettings = () => {
     const { data: user, isLoading } = useFetchUserProfile()
@@ -18,7 +19,7 @@ const ProfileSettings = () => {
                 </p>
             </div>
             <PersonalInformation userDetails={user} />
-            <OrganizationalInformation userDetails={user} />
+            {user?.role === SUPER_ADMIN ? <OrganizationalInformation userDetails={user} /> : ''}
             <BankInformation userID={user?.id ?? ''} />
         </>
     );

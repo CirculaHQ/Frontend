@@ -88,7 +88,7 @@ export default function Team() {
                                         <TableCell>
                                             <div className='flex flex-row items-center gap-3 justify-start'>
                                                 <Avatar className='w-8 h-8 rounded-full shrink-0'>
-                                                    <AvatarImage src={item?.picture ?? ''} />
+                                                    <AvatarImage src={item?.picture ?? ''} className='object-cover' />
                                                     <AvatarFallback
                                                         style={{ backgroundColor: '#2C6000' }}
                                                         className='rounded-full text-white'

@@ -29,4 +29,5 @@ export interface User {
     groups: string[];
     user_permissions: string[];
     accounts: Account[];
+    role: 'super_admin' | 'admin' | 'manager' | 'operations_manager' | 'finance_manager' | 'viewer'
 }

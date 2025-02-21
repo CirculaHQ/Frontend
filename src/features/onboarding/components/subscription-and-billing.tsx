@@ -12,15 +12,13 @@ export default function SubscriptionAndBilling() {
             description="Upgrade to a paid Circula plan."
             isComplete={true}
         >
-            <>
-                <Item
-                    icon="credit-card-01"
-                    label="Upgrade to a paid plan"
-                    buttonName="Upgrade"
-                    isComplete={false}
-                    onClick={() => navigate(appRoute.onboarding_plans)}
-                />
-            </>
+            <Item
+                icon="credit-card-01"
+                label="Upgrade to a paid plan"
+                buttonName="Upgrade"
+                isComplete={false}
+                onClick={() => navigate(appRoute.onboarding_plans)}
+            />
         </Layout>
     )
 }
