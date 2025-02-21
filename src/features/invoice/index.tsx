@@ -1,5 +1,5 @@
 import { PageLoader } from '@/components/loaders';
-import { FilterModule, ModuleHeader } from '@/components/shared';
+import { EmptyState, FilterModule, ModuleHeader } from '@/components/shared';
 import {
   Avatar,
   AvatarFallback,
@@ -25,7 +25,7 @@ import { useTableFilters } from '@/hooks';
 import { useFetchInvoices, useFetchInvoicesSummary } from '@/hooks/api/queries/invoices/useInvoicesQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getRelativeTime } from '@/utils/dateFormatter';
-import { generateRandomBackgroundColor, getCurrencySymbol, getInitials } from '@/utils/textFormatter';
+import { generateRandomBackgroundColor, getCurrencySymbol } from '@/utils/textFormatter';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { MetricCard } from './components';
@@ -102,7 +102,6 @@ const Invoices = () => {
         ))}
       </div>
       <FilterModule onSearchChange={handleSearchChange} containerClass="mt-8" />
-
       <div className="mt-2">
         {!isMobile ? (
           <Table>
@@ -280,13 +279,23 @@ const Invoices = () => {
             </TableBody>
           </Table>
         )}
-        <TablePagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-          totalReports={data?.count ?? 0}
-          reportsPerPage={params.limit}
-        />
+        {!invoices.length && (
+          <EmptyState
+            icon='inventory-empty'
+            title='No sales yet.'
+            description='Create invoice and they will show up here.'
+            className='mt-8'
+          />
+        )}
+        {invoices.length !== 0 && (
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalReports={data?.count ?? 0}
+            reportsPerPage={params.limit}
+          />
+        )}
       </div>
     </div>
   );
