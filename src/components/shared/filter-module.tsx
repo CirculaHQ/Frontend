@@ -1,23 +1,23 @@
 import { cn } from '@/lib/utils';
 import { Icon } from '../ui';
 import { TextBadge } from './text-badge';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, ReactNode, useEffect, useState } from 'react';
 
 interface FilterModuleProps {
   containerClass?: string;
   includeRegion?: boolean;
-  includeRoles?: boolean;
   includeTypes?: boolean;
   onSearchChange?: (searchQuery: string) => void;
   debounceTime?: number;
+  children?: ReactNode;
 }
 const FilterModule = ({
   containerClass,
   includeRegion = true,
-  includeRoles = false,
   includeTypes = true,
   onSearchChange,
   debounceTime = 500,
+  children
 }: FilterModuleProps) => {
   const [searchValue, setSearchValue] = useState('');
   const [hasMounted, setHasMounted] = useState(false);
@@ -72,12 +72,7 @@ const FilterModule = ({
             <Icon name='chevron-down' className='w-5 h-5 text-quaternary' fill='none' />
           </div>
         )}
-        {includeRoles && (
-          <div className='gap-2 flex flex-row items-center justify-center px-3'>
-            <span className='text-placeholder font-normal text-sm'>All roles</span>
-            <Icon name='chevron-down' className='w-5 h-5 text-quaternary' fill='none' />
-          </div>
-        )}
+        {children}
       </div>
     </div>
   );

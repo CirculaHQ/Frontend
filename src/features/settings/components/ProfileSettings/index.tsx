@@ -1,4 +1,3 @@
-import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import PersonalInformation from './PersonalInformation';
 import OrganizationalInformation from './OrganizationInformation';
 import BankInformation from './BankInformation';
@@ -6,7 +5,6 @@ import { useFetchUserProfile } from '@/hooks/api/queries/settings/useUser';
 import { PageLoader } from '@/components/loaders';
 
 const ProfileSettings = () => {
-    const { userID } = useGetUserInfo();
     const { data: user, isLoading } = useFetchUserProfile()
 
     if (isLoading) return <PageLoader />;
@@ -21,7 +19,7 @@ const ProfileSettings = () => {
             </div>
             <PersonalInformation userDetails={user} />
             <OrganizationalInformation userDetails={user} />
-            <BankInformation userID={userID} />
+            <BankInformation userID={user?.id ?? ''} />
         </>
     );
 };

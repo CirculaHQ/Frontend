@@ -11,10 +11,10 @@ import {
 } from "@/components/ui/dialog"
 import { useFormik } from "formik";
 import RolesInCircula from "./RolesInCircula";
-import { useFetchTeamRoles } from "@/hooks/api/queries/settings/useTeam";
 import * as Yup from 'yup';
 import { useAddTeamMember } from "@/hooks/api/mutations/settings/useTeamMutation";
 import { useState } from "react";
+import { Role } from "@/types/team";
 
 const InviteTeamMemberSchema = Yup.object().shape({
     first_name: Yup.string()
@@ -29,8 +29,7 @@ const InviteTeamMemberSchema = Yup.object().shape({
     role: Yup.string().required('Role is required'),
 });
 
-const InviteUserForm = ({ cancelDialog }: { cancelDialog: () => void }) => {
-    const { data: roles, isLoading: isLoadingRoles } = useFetchTeamRoles()
+const InviteUserForm = ({ cancelDialog, roles }: { roles: Role[], cancelDialog: () => void }) => {
     const { mutate: addMember, isLoading: isAddingMember } = useAddTeamMember(cancelDialog);
 
     const formik = useFormik({
@@ -160,7 +159,7 @@ const InviteUserForm = ({ cancelDialog }: { cancelDialog: () => void }) => {
     )
 }
 
-export default function InviteUsers() {
+export default function InviteUsers({ roles }: Readonly<{ roles: Role[] }>) {
     const [isOpen, setIsOpen] = useState(false)
 
     const cancelDialog = () => {
@@ -176,7 +175,7 @@ export default function InviteUsers() {
             <Button variant='secondary' onClick={openDialog}>
                 Invite users
             </Button>
-            {isOpen && <InviteUserForm cancelDialog={cancelDialog} />}
+            {isOpen && <InviteUserForm roles={roles} cancelDialog={cancelDialog} />}
         </div>
     )
 }

@@ -11,3 +11,4 @@ export * from './invoice-preview';
 export * from './back-button';
 export * from './select-file';
 export * from './stat-card'
+export * from './filter-trigger'

@@ -231,7 +231,7 @@ export function AppSidebar() {
                   {userProfile ? (
                     <>
                       <Avatar className='w-10 h-10 rounded-full'>
-                        <AvatarImage src={userProfile.picture} />
+                        <AvatarImage src={userProfile.picture} className='object-cover' />
                         <AvatarFallback
                           style={{ backgroundColor: '#2C6000' }}
                           className='w-10 h-10 text-white'

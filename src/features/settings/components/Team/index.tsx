@@ -1,13 +1,14 @@
-import { EmptyState, FilterModule } from "@/components/shared";
+import { EmptyState, FilterModule, FilterTrigger } from "@/components/shared";
 import { Avatar, AvatarFallback, AvatarImage, Button, Icon, Table, TableBody, TableCell, TableHead, TableHeader, TablePagination, TableRow } from "@/components/ui";
 import { useTableFilters } from "@/hooks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getRelativeTime } from "@/utils/dateFormatter";
 import { format } from "date-fns";
-import { useFetchTeamMembers } from "@/hooks/api/queries/settings/useTeam";
+import { useFetchTeamMembers, useFetchTeamRoles } from "@/hooks/api/queries/settings/useTeam";
 import { PageLoader } from "@/components/loaders";
 import InviteUsers from "./InviteUsers";
 import ManageTeamMember from "./ManageTeamMember";
+import { useMemo } from "react";
 
 const VERIFIED = 'verified';
 const PENDING = 'pending';
@@ -16,9 +17,10 @@ const initialParams = {
 };
 
 export default function Team() {
-    const { params, handleSearchChange, currentPage, onPageChange } = useTableFilters({ ...initialParams })
+    const { params, handleSearchChange, currentPage, onPageChange, setParams } = useTableFilters({ ...initialParams })
     const isMobile = useIsMobile();
 
+    const { data: roles, isLoading: isLoadingRoles } = useFetchTeamRoles()
     const { data, isLoading: isLoadingMembers } = useFetchTeamMembers(params)
 
     const members = data?.results || [];
@@ -26,10 +28,20 @@ export default function Team() {
 
     const handleExport = () => { }
 
+    const handleSelectRole = (role: string) => {
+        setParams({ ...params, role })
+    }
+
     const renderStatusIcon = (status: boolean) => {
         if (status) return <Icon name='check-circle' className='w-2 h-2 absolute bottom-0 right-0' />
         if (!status) return <Icon name='info-circle' className='w-2 h-2 absolute bottom-0 right-0' />
     }
+
+    const roleFilterOptions = useMemo(() => {
+        const defaultRoles = { label: 'All roles', value: '' }
+        const enhancedRoles = roles?.length ? roles.map((role) => ({ label: role.name, value: role.name })) : []
+        return [defaultRoles, ...enhancedRoles]
+    }, [roles])
 
     if (isLoadingMembers) return <PageLoader />;
 
@@ -46,7 +58,7 @@ export default function Team() {
                     <Button variant='outline' onClick={handleExport}>
                         Export
                     </Button>
-                    <InviteUsers />
+                    <InviteUsers roles={roles || []} />
                 </div>
             </div>
             <div>
@@ -54,9 +66,10 @@ export default function Team() {
                     containerClass=''
                     includeRegion={false}
                     includeTypes={false}
-                    includeRoles={true}
                     onSearchChange={handleSearchChange}
-                />
+                >
+                    <FilterTrigger options={roleFilterOptions} onSelect={handleSelectRole} />
+                </FilterModule>
                 <div className='mt-2'>
                     {!isMobile ? (
                         <Table>
@@ -161,6 +174,7 @@ export default function Team() {
                         <EmptyState
                             icon='users-plus'
                             title='No team members added'
+                            className='mt-8'
                             description='Add your team members on Circula to manage them here.'
                         />
                     ) : ''}
