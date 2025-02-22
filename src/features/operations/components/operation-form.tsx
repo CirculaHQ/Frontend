@@ -34,7 +34,7 @@ interface OperationFormProps {
   operation: any;
 }
 
-const formatDate = (date: string | number | Date) => format(new Date(date), 'dd/MM/yyyy');
+const formatDate = (date: string | number | Date) => format(new Date(date), 'yyyy-MM-dd');
 //const formatTime = (time: any) => format(new Date(`1970-01-01T${time}:00`), 'hh:mm ss');
 
 const OperationForm: React.FC<OperationFormProps> = ({

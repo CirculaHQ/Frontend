@@ -26,6 +26,7 @@ import { Customer } from '@/types/customers';
 import { ROLE_IN_VALUE_CHAIN } from '@/config/common';
 import { AddCustomerSchema } from '@/validation-schema/contact';
 import { format } from 'date-fns';
+import { PageLoader } from '@/components/loaders';
 
 const formatDate = (date: string | number | Date) => format(new Date(date), 'yyyy-MM-dd');
 
@@ -51,7 +52,7 @@ export default function AddCustomer() {
 
   const button = {
     loading: customerId ? isEditingCustomer : isAddingCustomer,
-    name: customerId ? 'Edit' : 'Add',
+    name: customerId ? 'Save' : 'Add',
   };
 
   const formik = useFormik({
@@ -68,7 +69,7 @@ export default function AddCustomer() {
       state: '',
       bank_name: '',
       country: '',
-      role: '',
+      role_in_value_chain: '',
       notes: '',
       address: '',
       date_of_birth: ''
@@ -121,7 +122,7 @@ export default function AddCustomer() {
         state: data.state ?? '',
         bank_name: data.bank_name ?? '',
         country: data.country ?? '',
-        role: data.role ?? '',
+        role_in_value_chain: data.role_in_value_chain ?? '',
         notes: data.notes ?? '',
         address: data.address ?? '',
         date_of_birth: data.date_of_birth ?? '',
@@ -150,7 +151,7 @@ export default function AddCustomer() {
     </>
   )
 
-  if (isLoadingCustomer) return <p>Fetching customer details...</p>;
+  if (isLoadingCustomer) return <PageLoader />;
 
   return (
     <div className='mx-auto'>
@@ -307,15 +308,15 @@ export default function AddCustomer() {
           <div className='w-full flex flex-col gap-1.5'>
             <Label>Role in value chain</Label>
             <Select
-              value={formik.values.role}
-              onValueChange={(value) => formik.setFieldValue('role', value)}
+              value={formik.values.role_in_value_chain}
+              onValueChange={(value) => formik.setFieldValue('role_in_value_chain', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder='Select role' className='text-placeholder font-normal' />
               </SelectTrigger>
               <SelectContent>
                 {ROLE_IN_VALUE_CHAIN.map((item) => (
-                  <SelectItem key={item.name} value={item.name}>{item.name}</SelectItem>
+                  <SelectItem key={item.name} value={item.value} className='capitalize'>{item.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

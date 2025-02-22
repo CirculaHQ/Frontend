@@ -16,7 +16,7 @@ export default function Operations() {
 
     const { data, isLoading } = useFetchDashboardOperations(state)
     const { data: operationTypes, isLoading: isLoadingOperationTypes } = useFetchOperationTypes()
-console.log(data)
+
     const convertMonthData = (data: ChartResponse): FormattedMonth[] => {
         return Object.entries(data).map(([month, amount]) => ({ label: month, amount }))
     };

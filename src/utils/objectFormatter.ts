@@ -1,3 +1,4 @@
+import { ROLE_IN_VALUE_CHAIN } from "@/config/common";
 import { Inventory } from "@/hooks/api/queries/inventory";
 
 export const generateQueryParams = (params: Record<string, any>): string => {
@@ -25,4 +26,10 @@ export function areMaterialTypesSame(data: Inventory[]): boolean {
   const stateTest = data.every(item => item.material_state === firstMaterialState)
 
   return typeTest && stateTest;
+}
+
+export const getRoleInValueChain = (role: string) => {
+  if (!role) return 'N/A'
+  const r = ROLE_IN_VALUE_CHAIN.find((item) => item.value === role)
+  return r?.name ?? ''
 }

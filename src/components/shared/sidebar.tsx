@@ -46,14 +46,14 @@ const items = [
     icon: 'dashboard',
   },
   {
-    title: 'Operations',
-    url: '/operations',
-    icon: 'operations',
-  },
-  {
     title: 'Inventory',
     url: '/inventory',
     icon: 'inventory',
+  },
+  {
+    title: 'Operations',
+    url: '/operations',
+    icon: 'operations',
   },
   {
     title: 'Sales',

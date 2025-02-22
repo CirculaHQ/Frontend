@@ -2,6 +2,7 @@ import { PageLoader } from '@/components/loaders';
 import {
   EmptyState,
   FilterModule,
+  FilterTrigger,
   LineDistribution,
   ModuleHeader,
   StatCard,
@@ -35,7 +36,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
 import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
-import { useExportInventory, useFetchInventory, useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
+import { useExportInventory, useFetchInventory, useFetchInventoryBreakdown, useFetchMaterials } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMaterialColor } from '@/utils/materials';
 import { capitalizeFirstLetter, generateRandomBackgroundColor } from '@/utils/textFormatter';
@@ -55,7 +56,7 @@ const summaryOptions = [
 ]
 
 const Inventory = () => {
-  const { params, handleSearchChange, currentPage, setCurrentPage, onPageChange } = useTableFilters({})
+  const { params, handleSearchChange, currentPage, setCurrentPage, onPageChange, setParams } = useTableFilters({})
   const [searchParams, setSearchParams] = useSearchParams();
   const [summary, setSummary] = useState(summaryOptions[0].label);
   const currentTab = searchParams.get('tab') ?? 'raw';
@@ -64,10 +65,11 @@ const Inventory = () => {
   const isMobile = useIsMobile();
 
   const { exportInventory, isLoading: isExporting } = useExportInventory();
-  const { data, isLoading } = useFetchInventory({ stage: currentTab });
+  const { data, isLoading } = useFetchInventory({ stage: currentTab, ...params });
   const { data: totalInventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchInventoryBreakdown({});
   const { data: rawInventoryBreakdown, isLoading: loadingRawInventoryBreakdown } = useFetchInventoryBreakdown({ stage: 'raw' });
   const { data: readyInventoryBreakdown, isLoading: loadingReadyInventoryBreakdown } = useFetchInventoryBreakdown({ stage: 'ready' });
+  const { data: materials, isLoading: isLoadingMaterials } = useFetchMaterials()
 
   const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
 
@@ -128,6 +130,16 @@ const Inventory = () => {
     }))
     : [];
 
+  const handleSelectMaterial = (material: string) => {
+    setParams({ ...params, material })
+  }
+
+  const materialFilterOptions = useMemo(() => {
+    const defaultRoles = { label: 'All materials', value: '' }
+    const enhancedMaterials = materials?.length ? materials.map((role) => ({ label: role.name, value: role.name })) : []
+    return [defaultRoles, ...enhancedMaterials]
+  }, [materials])
+
   if (isLoading || loadingInventoryBreakdown || loadingRawInventoryBreakdown || loadingReadyInventoryBreakdown) return <PageLoader />;
 
   return (
@@ -137,10 +149,7 @@ const Inventory = () => {
           {!isMobile && (
             <div className='flex flex-row items-center w-full justify-start gap-5'>
               <DateRangePicker showRange={true} />
-              <div className='flex flex-row items-center gap-1'>
-                <span className='text-tertiary font-semibold text-sm'>All material</span>
-                <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
-              </div>
+              <FilterTrigger options={materialFilterOptions} onSelect={handleSelectMaterial} />
             </div>
           )}
           <Button onClick={exportInventory} disabled={isExporting} isLoading={isExporting}>Export report</Button>
@@ -226,7 +235,9 @@ const Inventory = () => {
               </SelectTrigger>
               <SelectContent>
                 {summaryOptions.map((option) => (
-                  <SelectItem value={option.label}>{option.label}</SelectItem>
+                  <SelectItem key={option.label} value={option.label}>
+                    {option.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -254,7 +265,11 @@ const Inventory = () => {
         <TabsContent value='activity'>
         </TabsContent> */}
       </Tabs>
-      <FilterModule includeRegion={false} onSearchChange={handleSearchChange} />
+      <FilterModule
+        includeRegion={false}
+        includeTypes={false}
+        onSearchChange={handleSearchChange}
+      />
       <div>
         {!isMobile ? (
           <Table>
@@ -297,7 +312,11 @@ const Inventory = () => {
                         </AvatarFallback>
                       </Avatar>
                       <span className='font-medium text-sm text-primary capitalize'>
-                        {item?.vendor?.business_name || (item?.vendor?.first_name ? `${item?.vendor?.first_name} ${item?.vendor?.last_name}` : 'N/A')}
+                        {item?.vendor ?
+                          <>{item?.vendor?.business_name || (item?.vendor?.first_name ? `${item?.vendor?.first_name} ${item?.vendor?.last_name}` : 'N/A')}</> :
+                          <>{item?.customer?.business_name || (item?.customer?.first_name ? `${item?.customer?.first_name} ${item?.customer?.last_name}` : 'N/A')}</>
+                        }
+
                       </span>
                     </div>
                   </TableCell>
