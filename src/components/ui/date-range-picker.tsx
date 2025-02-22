@@ -13,9 +13,13 @@ import { Icon } from './icon';
 interface Props {
   showRange?: boolean;
   className?: React.HTMLAttributes<HTMLDivElement>;
+  onChange: (e: any) => void;
 }
 
-export function DateRangePicker({ className, showRange = false }: Props) {
+const formatDate = (date: string | number | Date) => format(new Date(date), 'yyyy-MM-dd');
+
+export function DateRangePicker({ className, showRange = false, onChange }: Readonly<Props>) {
+  const [open, setOpen] = React.useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -25,16 +29,40 @@ export function DateRangePicker({ className, showRange = false }: Props) {
   const startDate = date?.from ?? currentDate;
   const endDate = date?.to ?? currentDate;
 
+  React.useEffect(() => {
+    if (date?.from && date?.to) {
+      onChange({
+        start_date: formatDate(date?.from),
+        end_date: formatDate(date?.to)
+      })
+    }
+  }, [date])
+
+  const handleSelect = (date: any) => {
+    setDate(date)
+    //if (date?.from && date?.to) setOpen(false);
+  };
+
   return (
     <div className={cn('grid gap-2', className)}>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           {showRange ? (
-            <div className='flex flex-row items-center gap-1 cursor-pointer'>
-              <span className='text-tertiary font-semibold text-sm'>
-                {format(startDate, 'dd MMM, yyyy')} - {format(endDate, 'dd MMM, yyyy')}
-              </span>
-              <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+            <div>
+              {date?.from && date?.to ?
+                <div className='flex flex-row items-center gap-1 cursor-pointer'>
+                  <span className='text-tertiary font-semibold text-sm'>
+                    {format(startDate, 'dd MMM, yyyy')} - {format(endDate, 'dd MMM, yyyy')}
+                  </span>
+                  <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
+                </div> :
+                <div className='gap-2 flex flex-row items-center justify-center cursor-pointer'>
+                  <span className='text-placeholder font-normal text-sm capitalize'>
+                    Date range
+                  </span>
+                  <Icon name='chevron-down' className='w-5 h-5 text-quaternary' fill='none' />
+                </div>
+              }
             </div>
           ) : (
             <Button id='date'>
@@ -61,7 +89,7 @@ export function DateRangePicker({ className, showRange = false }: Props) {
             mode='range'
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleSelect}
             numberOfMonths={2}
           />
         </PopoverContent>
