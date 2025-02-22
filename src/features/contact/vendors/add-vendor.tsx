@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import { BackButton, FormSection, ModuleHeader, SelectFile } from '@/components/shared';
 import {
   Button,
@@ -21,6 +22,7 @@ import { countries, states } from '@/mocks';
 import { BUSINESS, INDIVIDUAL } from '@/types';
 import { Customer } from '@/types/customers';
 import { uploadToCloudinary } from '@/utils/cloudinary-helper';
+import { AddCustomerSchema } from '@/validation-schema/contact';
 import { format } from 'date-fns';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
@@ -33,13 +35,13 @@ const AddVendor = () => {
   const navigate = useNavigate();
   const { userID } = useGetUserInfo();
   const vendorId = searchParams.get('id') as string;
+  const accountType = searchParams.get('type') as string || INDIVIDUAL;
 
   const { mutateAsync: addVendor, isLoading: isAddingVendor } = useAddVendor();
   const { mutateAsync: editVendor, isLoading: isEditingVendor } = useEditVendor();
   const { data, isLoading: isLoadingVendor } = useFetchVendor(vendorId);
 
-  const isBusiness = data?.type === BUSINESS;
-  const customerType = data?.type ?? INDIVIDUAL;
+  const isBusiness = vendorId ? (data?.type === BUSINESS) : (accountType === BUSINESS);
 
   const button = {
     loading: vendorId ? isEditingVendor : isAddingVendor,
@@ -71,8 +73,14 @@ const AddVendor = () => {
       address: '',
       date_of_birth: ''
     },
+    validationSchema: isBusiness ? AddCustomerSchema.Business : AddCustomerSchema.Individual,
     onSubmit: async (values) => {
-      let payload = { ...values, type: customerType, user: userID } as Customer;
+      let payload = {
+        ...values,
+        type: accountType,
+        user: userID,
+        date_of_birth: values.date_of_birth || null
+      } as Customer;
 
       if (state.selectedFile) {
         setState({ ...state, isUploading: true });
@@ -84,11 +92,12 @@ const AddVendor = () => {
       }
 
       if (!vendorId) {
-        await addVendor(payload);
+        const res = await addVendor(payload);
+        navigate(appRoute.vendorDetails(res?.id).path)
       } else {
         await editVendor({ vendorId, payload });
+        navigate(appRoute.vendorDetails(vendorId).path)
       }
-      navigate(appRoute.vendorDetails(vendorId).path)
     },
   });
 
@@ -141,12 +150,12 @@ const AddVendor = () => {
     </>
   )
 
-  if (isLoadingVendor) return <p>Fetching vendor details...</p>;
+  if (isLoadingVendor) return <PageLoader />;
 
   return (
     <div className='mx-auto'>
       <BackButton route={appRoute.vendors} label='Back to vendors' />
-      <ModuleHeader title={`Add ${isBusiness ? 'Business' : 'Individual'} Vendor`} className='mb-10'>
+      <ModuleHeader title={`${vendorId ? 'Edit' : 'Add'} ${isBusiness ? 'business' : 'individual'} vendor`} className='mb-10'>
         <div className='flex flex-row items-center gap-3'>
           {renderButton()}
         </div>
@@ -301,7 +310,7 @@ const AddVendor = () => {
               </SelectTrigger>
               <SelectContent>
                 {ROLE_IN_VALUE_CHAIN.map((item) => (
-                  <SelectItem key={item.name} value={item.name}>{item.name}</SelectItem>
+                  <SelectItem key={item.name} value={item.name} className='capitalize'>{item.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

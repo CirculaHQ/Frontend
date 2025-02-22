@@ -1,6 +1,7 @@
 import { Operation, OperationsBreakdownResponse, OperationsResponse, OperationType } from "@/types/operations";
 import request from "@/utils/api";
 import { QUERYKEYS } from "@/utils/query-keys";
+import { useState } from "react";
 import { useQuery } from "react-query";
 
 export const useFetchOperationTypes = () => {
@@ -73,4 +74,19 @@ export const useFetchOperationInventories = (id: string) => {
         select: (res) => res,
         retry: false,
     });
+};
+
+export const useExportOperations = () => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const exportOperations = async () => {
+        try {
+            setIsLoading(true);
+            await request<any>('GET', `/operations/export-pdf`, null, true, true, '', false, true, `Operations-`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return { isLoading, exportOperations };
 };

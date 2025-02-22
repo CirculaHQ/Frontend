@@ -66,9 +66,12 @@ const useExportInvoices = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const exportInvoices = async () => {
-    setIsLoading(true);
-    await request<Invoice>('GET', `/invoices/export`, null, true, true, '', false, true);
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      await request<Invoice>('GET', `/invoices/export-pdf`, null, true, true, '', false, true, `Sales-`);
+    } finally{
+      setIsLoading(false);
+    }
   };
 
   return { isLoading, exportInvoices };

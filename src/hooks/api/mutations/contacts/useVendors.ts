@@ -1,4 +1,3 @@
-import { appRoute } from '@/config/routeMgt/routePaths';
 import { AddCustomerPayload, AddCustomerResponse } from '@/types/customers';
 import request from '@/utils/api';
 import { QUERYKEYS } from '@/utils/query-keys';
@@ -19,7 +18,7 @@ const useAddVendor = () => {
             await queryClient.invalidateQueries({ queryKey: [QUERYKEYS.FETCH_VENDORS] });
             showToast('Vendor created successfully!', 'success');
         },
-        onError: (err: any) => {
+        onError: () => {
             showToast('Failed to create vendor. Please try again.', 'error');
         },
     });

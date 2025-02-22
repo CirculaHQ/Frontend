@@ -22,6 +22,7 @@ import { useFetchVendors } from '@/hooks/api/queries/contacts';
 import { useFetchMaterials, useFetchMaterialState, useFetchMaterialTypes } from '@/hooks/api/queries/inventory';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
 import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
+import { format } from 'date-fns';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -30,6 +31,8 @@ const initialParams = {
   search: '',
   archived: false
 };
+
+const formatDate = (date: string | number | Date) => format(new Date(date), 'yyyy-MM-dd');
 
 const AddInventory = () => {
   const updateInventory = useUpdateInventory();
@@ -143,13 +146,22 @@ const AddInventory = () => {
         <FormSection title={`Basic information`} description='Supporting text goes here'>
           <div className='w-full'>
             <Label className='mb-1.5'>Date received</Label>
-            <DatePicker
+            {/* <DatePicker
               date={formik.values.date_received ? new Date(formik.values.date_received) : undefined} // Initialize with Formik value if available
               onDateChange={(newDate) => {
                 const formattedDate = newDate ? newDate.toISOString().split('T')[0] : ''; // Format to yyyy-MM-dd
                 formik.setFieldValue('date_received', formattedDate);
               }}
               placeholder='Select a date'
+            /> */}
+
+            <DatePicker
+              placeholder='Select a date'
+              date={formik.values.date_received ? new Date(formik.values.date_received) : undefined}
+              onDateChange={(date) => {
+                const formattedDate = date ? formatDate(date) : '';
+                formik.setFieldValue('date_received', formattedDate);
+              }}
             />
           </div>
 
@@ -177,10 +189,10 @@ const AddInventory = () => {
                             className='w-[24px] h-[24px] rounded-full text-white'
                           >
                             {getInitials(
-                            vendor?.business_name ?
-                              vendor?.business_name[0] :
-                              `${vendor?.first_name} ${vendor?.last_name}`
-                          )}
+                              vendor?.business_name ?
+                                vendor?.business_name[0] :
+                                `${vendor?.first_name} ${vendor?.last_name}`
+                            )}
                           </AvatarFallback>
                         </Avatar>
                         <span className='font-medium text-sm text-primary capitalize'>

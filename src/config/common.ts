@@ -16,8 +16,8 @@ export const CURRENCIES = [
 ]
 
 export const ROLE_IN_VALUE_CHAIN = [
-    { name: 'Supplier' },
-    { name: 'Retailer' }
+    { name: 'supplier' },
+    { name: 'retailer' }
 ]
 
 export const chartDurationFilter = [
@@ -25,6 +25,5 @@ export const chartDurationFilter = [
     { name: '5D' },
     { name: '1M' },
     { name: '6M' },
-    { name: '1Y' },
-    { name: 'Max' }
+    { name: '1Y' }
 ]

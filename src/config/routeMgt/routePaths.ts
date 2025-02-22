@@ -40,13 +40,16 @@ export const appRoute = {
   }),
 
   add_vendor: `/vendors/add-vendor`,
-  editVendor: (id?: string) => `/vendors/add-vendor?id=${id}`,
+  editVendor: (id: string, type: string) => `/vendors/add-vendor?id=${id}&type=${type}`,
   vendorDetails: (id?: number | string) => ({
     format: `/vendors/:id`,
     path: `/vendors/${id}`,
   }),
-  customer_details: `/customers/customer-details`,
 
   add_customer: `/customers/add-customer`,
-  editCustomer: (id?: string) => `/customers/add-customer?id=${id}`,
+  editCustomer: (id: string, type: string) => `/customers/add-customer?id=${id}&type=${type}`,
+  customerDetails: (id?: number | string) => ({
+    format: `/customers/:id`,
+    path: `/customers/${id}`,
+  }),
 };

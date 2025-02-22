@@ -22,7 +22,7 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
-import { useFetchInvoices, useFetchInvoicesSummary } from '@/hooks/api/queries/invoices/useInvoicesQuery';
+import { useExportInvoices, useFetchInvoices, useFetchInvoicesSummary } from '@/hooks/api/queries/invoices/useInvoicesQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getRelativeTime } from '@/utils/dateFormatter';
 import { generateRandomBackgroundColor, getCurrencySymbol } from '@/utils/textFormatter';
@@ -42,6 +42,7 @@ const Invoices = () => {
   const navigate = useNavigate();
   const { params, handleSearchChange, currentPage, onPageChange } = useTableFilters({ ...initialParams })
 
+  const { exportInvoices, isLoading: isExporting } = useExportInvoices();
   const { data, isLoading: isLoadingInvoices } = useFetchInvoices(params)
   const { data: summary, isLoading: isLoadingSummary } = useFetchInvoicesSummary()
 
@@ -71,7 +72,7 @@ const Invoices = () => {
               <DateRangePicker showRange={true} />
             </div>
           )}
-          <Button>
+          <Button onClick={exportInvoices} disabled={isExporting} isLoading={isExporting}>
             <Icon name="arrow-up-right" className="w-5 h-5 text-secondary" />
             Export report
           </Button>

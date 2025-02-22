@@ -141,7 +141,7 @@ const CustomerDetails = () => {
             </DropdownMenu>
             <Button
               type='button'
-              onClick={() => navigate(`${appRoute.editCustomer(data.id)}`)}
+              onClick={() => navigate(`${appRoute.editCustomer(data.id, data?.type)}`)}
             >
               Edit details
             </Button>

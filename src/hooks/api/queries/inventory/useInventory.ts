@@ -3,6 +3,7 @@ import request from '@/utils/api';
 import { QUERYKEYS } from '@/utils/query-keys';
 import { InventoryBreakdownResponse } from '@/types/inventory';
 import { generateQueryParams } from '@/utils/objectFormatter';
+import { useState } from 'react';
 
 interface Material {
     id: string;
@@ -67,4 +68,19 @@ export const useFetchInventoryBreakdown = (params: any) => {
         select: (res) => res,
         retry: false,
     });
+};
+
+export const useExportInventory = () => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const exportInventory = async () => {
+        try {
+            setIsLoading(true);
+            await request<any>('GET', `/inventory/export-pdf`, null, true, true, '', false, true, `Inventory-`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return { isLoading, exportInventory };
 };

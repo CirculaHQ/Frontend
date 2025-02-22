@@ -145,7 +145,7 @@ const VendorDetails = () => {
             <Button>Secondary</Button>
             <Button
               type='button'
-              onClick={() => navigate(`${appRoute.editVendor(data?.id)}`)}
+              onClick={() => navigate(`${appRoute.editVendor(data?.id, data?.type)}`)}
             >
               Edit details
             </Button>

@@ -60,9 +60,12 @@ const useExportCustomers = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const exportCustomers = async () => {
-    setIsLoading(true);
-    await request<Customer>('GET', `/customer/export`, null, true, true, '', false, true);
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      await request<Customer>('GET', `/customer/export`, null, true, true, '', false, true, `Customers-`);
+    } finally{
+      setIsLoading(false);
+    }
   };
 
   return { isLoading, exportCustomers };

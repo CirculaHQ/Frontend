@@ -1,5 +1,5 @@
 import { PageLoader } from '@/components/loaders';
-import { EmptyState, FilterModule, ModuleHeader, TextBadge } from '@/components/shared';
+import { EmptyState, FilterModule, FilterTrigger, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Avatar,
   AvatarFallback,
@@ -40,7 +40,7 @@ const Customers = () => {
   const { params, handleSearchChange, currentPage, onPageChange, setParams } = useTableFilters({ ...initialParams })
   const { data, isLoading } = useFetchCustomers(params);
   const { exportCustomers, isLoading: isExporting } = useExportCustomers();
-  const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer(() => {});
+  const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer(() => { });
 
   const customers = data?.results || [];
   const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
@@ -52,7 +52,7 @@ const Customers = () => {
 
   const navigateToEditCustomer = (e: any, customer: Customer) => {
     e.stopPropagation();
-    navigate(`${appRoute.editCustomer(customer.id)}`);
+    navigate(`${appRoute.editCustomer(customer.id, customer.type)}`);
   };
 
   const toggleArchive = () => {
@@ -64,6 +64,16 @@ const Customers = () => {
     const { id } = customer;
     editCustomer({ customerId: id, payload: { archived: !customer.archived } });
   };
+
+  const handleSelectType = (type: string) => {
+    setParams({ ...params, type })
+  }
+
+  const typeFilterOptions = [
+    { label: 'All types', value: '' },
+    { label: 'Business', value: 'business' },
+    { label: 'Individual', value: 'individual' }
+  ]
 
   if (isLoading) return <PageLoader />;
 
@@ -98,7 +108,13 @@ const Customers = () => {
           </DropdownMenu>
         </div>
       </ModuleHeader>
-      <FilterModule onSearchChange={handleSearchChange} containerClass='mt-8' />
+      <FilterModule
+        onSearchChange={handleSearchChange}
+        includeTypes={false}
+        containerClass='mt-8'
+      >
+        <FilterTrigger options={typeFilterOptions} onSelect={handleSelectType} />
+      </FilterModule>
       <div className='mt-2'>
         {!isMobile ? (
           <Table>
@@ -175,7 +191,7 @@ const Customers = () => {
                           className='py-2 rounded-[8px]'
                           onClick={(e) => archiveCustomer(e, customer)}
                         >
-                          Archive
+                          {customer.archived ? 'Unarchive' : 'Archive'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -242,7 +258,7 @@ const Customers = () => {
                           className='py-2 rounded-[8px]'
                           onClick={(e) => archiveCustomer(e, customer)}
                         >
-                          Archive
+                          {customer.archived ? 'Unarchive' : 'Archive'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
