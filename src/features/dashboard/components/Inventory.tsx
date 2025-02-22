@@ -21,7 +21,7 @@ export default function Inventory() {
               index='date'
               categories={['Raw materials', 'Ready for sale', 'Waste']}
               valueFormatter={(number: number) =>
-                `$${Intl.NumberFormat('us').format(number).toString()}`
+                `${Intl.NumberFormat('us').format(number).toString()}kg`
               }
               onValueChange={(v) => console.log(v)}
               colors={['green', 'lightGreen', 'green100']}

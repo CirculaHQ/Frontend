@@ -21,7 +21,7 @@ export default function Sales() {
             categories={['Overdue', 'Pending', 'Fulfilled']}
             colors={['green100', 'lightGreen', 'green']}
             valueFormatter={(number: number) =>
-              `${Intl.NumberFormat('us').format(number).toString()}kg`
+              `₦${Intl.NumberFormat('us').format(number).toString()}`
             }
             showLegend={true}
             showXAxis={true}
