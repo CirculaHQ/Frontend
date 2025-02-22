@@ -40,7 +40,7 @@ const initialParams = {
 const Invoices = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { params, handleSearchChange, currentPage, onPageChange } = useTableFilters({ ...initialParams })
+  const { params, handleSearchChange, currentPage, onPageChange, setParams } = useTableFilters({ ...initialParams })
 
   const { exportInvoices, isLoading: isExporting } = useExportInvoices();
   const { data, isLoading: isLoadingInvoices } = useFetchInvoices(params)
@@ -69,7 +69,7 @@ const Invoices = () => {
         <div className="flex flex-row items-center gap-3">
           {!isMobile && (
             <div className='flex flex-row items-center w-full justify-start gap-5'>
-              <DateRangePicker showRange={true} />
+              <DateRangePicker showRange={true} onChange={(date) => setParams({ ...params, ...date })} />
             </div>
           )}
           <Button onClick={exportInvoices} disabled={isExporting} isLoading={isExporting}>

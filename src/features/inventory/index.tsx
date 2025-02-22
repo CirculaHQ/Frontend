@@ -148,7 +148,10 @@ const Inventory = () => {
         <div className='flex flex-row items-center gap-3'>
           {!isMobile && (
             <div className='flex flex-row items-center w-full justify-start gap-5'>
-              <DateRangePicker showRange={true} />
+              <DateRangePicker
+                showRange={true}
+                onChange={(date) => setParams({ ...params, ...date })}
+              />
               <FilterTrigger options={materialFilterOptions} onSelect={handleSelectMaterial} />
             </div>
           )}
@@ -182,7 +185,10 @@ const Inventory = () => {
         </div>
         {isMobile && (
           <div className='flex flex-row items-center w-full justify-start gap-5 mt-4'>
-            <DateRangePicker showRange={true} />
+            <DateRangePicker
+              showRange={true}
+              onChange={(date) => setParams({ ...params, ...date })}
+            />
             <div className='flex flex-row items-center gap-1'>
               <span className='text-tertiary font-semibold text-sm'>All material</span>
               <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />

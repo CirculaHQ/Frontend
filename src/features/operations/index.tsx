@@ -20,7 +20,7 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
-import { useFetchInventoryBreakdown, useFetchMaterials } from '@/hooks/api/queries/inventory';
+import { useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
 import { useExportOperations, useFetchOperationsBreakdown, useFetchOperationTypes } from '@/hooks/api/queries/operations/useOperationsQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -31,6 +31,7 @@ import { useNavigate } from 'react-router-dom';
 const PRODUCED = 'Produced';
 const initialParams = {
   type: '',
+  batch_only: true
 };
 
 const Operations = () => {
@@ -101,7 +102,7 @@ const Operations = () => {
         </div>
         {isMobile && (
           <div className='flex flex-row items-center w-full justify-start gap-5 mt-4'>
-            <DateRangePicker showRange={true} />
+            <DateRangePicker showRange={true} onChange={(date) => setParams({ ...params, ...date })} />
             <div className='flex flex-row items-center gap-1'>
               <span className='text-tertiary font-semibold text-sm'>All material</span>
               <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
