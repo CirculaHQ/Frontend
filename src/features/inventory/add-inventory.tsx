@@ -18,10 +18,9 @@ import {
 import { CURRENCIES } from '@/config/common';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useAddInventory, useUpdateInventory } from '@/hooks/api/mutations/inventory';
-import { useFetchVendors } from '@/hooks/api/queries/contacts';
+import { useFetchCustomers, useFetchVendors } from '@/hooks/api/queries/contacts';
 import { useFetchMaterials, useFetchMaterialState, useFetchMaterialTypes } from '@/hooks/api/queries/inventory';
 import { useGetUserInfo } from '@/hooks/useGetUserInfo';
-import { generateRandomBackgroundColor, getInitials } from '@/utils/textFormatter';
 import { format } from 'date-fns';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
@@ -95,6 +94,7 @@ const AddInventory = () => {
   }
 
   const { data: vendors, isLoading: isLoadingVendors } = useFetchVendors(params);
+  const { data: customers, isLoading: isLoadingCustomers } = useFetchCustomers(params);
   const { data: materials, isLoading: isLoadingMaterials } = useFetchMaterials()
   const { data: materialTypes, isLoading: isLoadingMaterialTypes } = useFetchMaterialTypes(getMaterialId(inventoryDataToEdit?.material || formik.values.material))
   const { data: materialState, isLoading: isLoadingMaterialState } = useFetchMaterialState()
@@ -104,8 +104,8 @@ const AddInventory = () => {
       formik.setValues({
         type: inventoryDataToEdit.type || inventoryType,
         date_received: inventoryDataToEdit.date_received || '',
-        vendor: inventoryDataToEdit.vendor || '',
-        customer: inventoryDataToEdit.customer || '',
+        vendor: inventoryDataToEdit.vendor?.id || '',
+        customer: inventoryDataToEdit.customer?.id || '',
         material: inventoryDataToEdit.material || '',
         material_type: inventoryDataToEdit.material_type || '',
         material_state: inventoryDataToEdit.material_state || '',
@@ -146,15 +146,6 @@ const AddInventory = () => {
         <FormSection title={`Basic information`} description='Supporting text goes here'>
           <div className='w-full'>
             <Label className='mb-1.5'>Date received</Label>
-            {/* <DatePicker
-              date={formik.values.date_received ? new Date(formik.values.date_received) : undefined} // Initialize with Formik value if available
-              onDateChange={(newDate) => {
-                const formattedDate = newDate ? newDate.toISOString().split('T')[0] : ''; // Format to yyyy-MM-dd
-                formik.setFieldValue('date_received', formattedDate);
-              }}
-              placeholder='Select a date'
-            /> */}
-
             <DatePicker
               placeholder='Select a date'
               date={formik.values.date_received ? new Date(formik.values.date_received) : undefined}
@@ -185,14 +176,9 @@ const AddInventory = () => {
                         <Avatar className='w-6 h-6 rounded-full'>
                           <AvatarImage src={vendor?.photo} />
                           <AvatarFallback
-                            style={{ backgroundColor: generateRandomBackgroundColor() }}
-                            className='w-[24px] h-[24px] rounded-full text-white'
+                            className='w-6 h-6 rounded-full text-white'
                           >
-                            {getInitials(
-                              vendor?.business_name ?
-                                vendor?.business_name[0] :
-                                `${vendor?.first_name} ${vendor?.last_name}`
-                            )}
+                            <Icon name='avatar' className='w-8 h-8' />
                           </AvatarFallback>
                         </Avatar>
                         <span className='font-medium text-sm text-primary capitalize'>
@@ -248,16 +234,24 @@ const AddInventory = () => {
                     className='text-placeholder font-normal'
                   />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='James Hopper'>
-                    <div className='flex flex-row items-center gap-2 justify-start'>
-                      <Avatar className='w-6 h-6 rounded-full'>
-                        <AvatarImage src='https://github.com/shadcn.png' />
-                        <AvatarFallback>CN</AvatarFallback>
-                      </Avatar>
-                      <span className='text-sm text-primary'>James Hopper</span>
-                    </div>
-                  </SelectItem>
+                <SelectContent loading={isLoadingCustomers}>
+                  {customers?.results?.map((customer) => (
+                    <SelectItem key={customer?.id} value={customer?.id}>
+                      <div className='flex flex-row items-center gap-2 justify-start'>
+                        <Avatar className='w-6 h-6 rounded-full'>
+                          <AvatarImage src={customer?.photo} />
+                          <AvatarFallback
+                            className='w-6 h-6 rounded-full text-white'
+                          >
+                            <Icon name='avatar' className='w-8 h-8' />
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className='font-medium text-sm text-primary capitalize'>
+                          {customer?.business_name || `${customer?.first_name} ${customer?.last_name}`}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
                   <SelectItem value='2d77d70f-17e2-40af-a258-673b5d422e0f'>John Doe</SelectItem>
                   <SelectSeparator />
                   <div className='text-tertiary font-normal text-sm px-4 py-2'>

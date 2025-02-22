@@ -32,8 +32,8 @@ const InventoryDetails = () => {
     },
     'Specifications and details': {
       'Material state': inventory.material_state,
-      Amount: inventory.amount,
-      Quantity: inventory.quantity + 'kg',
+      Amount: `${inventory.currency} ${inventory.amount ? Number(inventory.amount).toLocaleString() : inventory.amount}`,
+      Quantity: inventory.quantity ? Number(inventory.quantity).toLocaleString() + 'kg' : inventory.quantity + 'kg',
       supportingText: 'Supporting text goes here',
     },
   };

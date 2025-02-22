@@ -86,21 +86,38 @@ const Invoices = () => {
         <span className="text-primary font-semibold text-lg">Your balance</span>
       </div>
       <div className="grid grid-cols-2 sm:flex flex-col md:flex-row items-center justify-between w-full mt-4 gap-6">
-        {currencies?.map((item: string) => (
+        {!currencies.length ? (
           <MetricCard
-            key={item}
-            icon={"flag"}
+            icon="flag"
             loading={isLoadingSummary}
-            currency={getCurrencySymbol(item)?.symbol}
-            paidAmount={summary[item]?.fulfilled.total}
-            paidCount={summary[item]?.fulfilled.count}
-            awaitingAmount={summary[item]?.pending.total}
-            awaitingCount={summary[item]?.pending.count}
-            overdueAmount={summary[item]?.overdue.total}
-            overdueCount={summary[item]?.overdue.count}
-            totalAmount={summary[item]?.total}
+            currency={getCurrencySymbol("NGN")?.symbol}
+            paidAmount={0}
+            paidCount={0}
+            awaitingAmount={0}
+            awaitingCount={0}
+            overdueAmount={0}
+            overdueCount={0}
+            totalAmount={0}
           />
-        ))}
+        ) : (
+          <>
+            {currencies?.map((item: string) => (
+              <MetricCard
+                key={item}
+                icon={"flag"}
+                loading={isLoadingSummary}
+                currency={getCurrencySymbol(item)?.symbol}
+                paidAmount={summary[item]?.fulfilled.total}
+                paidCount={summary[item]?.fulfilled.count}
+                awaitingAmount={summary[item]?.pending.total}
+                awaitingCount={summary[item]?.pending.count}
+                overdueAmount={summary[item]?.overdue.total}
+                overdueCount={summary[item]?.overdue.count}
+                totalAmount={summary[item]?.total}
+              />
+            ))}
+          </>
+        )}
       </div>
       <FilterModule onSearchChange={handleSearchChange} containerClass="mt-8" />
       <div className="mt-2">

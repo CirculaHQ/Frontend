@@ -3,7 +3,7 @@ import { QUERYKEYS } from '@/utils/query-keys';
 import { AxiosError } from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
 
-const DeleteInventory = async (id: { id: string }): Promise<any> => {
+const DeleteInventory = async ({ id }: { id: string }): Promise<any> => {
   return await request<any>(
     'DELETE',
     `/inventory/${id}`,

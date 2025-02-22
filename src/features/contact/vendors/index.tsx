@@ -24,7 +24,6 @@ import { useEditVendor } from '@/hooks/api/mutations/contacts';
 import { useExportVendors, useFetchVendors } from '@/hooks/api/queries/contacts';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Customer } from '@/types/customers';
-import { generateRandomBackgroundColor } from '@/utils/textFormatter';
 import { useNavigate } from 'react-router-dom';
 
 const initialParams = {
@@ -137,7 +136,6 @@ const Vendors = () => {
                       <Avatar className='w-8 h-8 rounded-full'>
                         <AvatarImage src={vendor?.photo} />
                         <AvatarFallback
-                          style={{ backgroundColor: generateRandomBackgroundColor() }}
                           className='w-8 h-8 rounded-full text-white'
                         >
                           <Icon name='avatar' className='w-8 h-8' />
@@ -207,7 +205,6 @@ const Vendors = () => {
                       <Avatar className='w-6 h-6 rounded-full'>
                         <AvatarImage src={vendor.photo} />
                         <AvatarFallback
-                          style={{ backgroundColor: generateRandomBackgroundColor() }}
                           className='w-6 h-6 rounded-full text-white'
                         >
                           <Icon name='avatar' className='w-6 h-6' />
