@@ -224,8 +224,8 @@ const Operations = () => {
                 <TableRow className='cursor-pointer' key={item.id} onClick={(e) => navigateToView(e, item.id)}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>{item.material}</span>
-                      <h4 className='font-normal text-sm text-tertiary'>{item.material_type}</h4>
+                      <span className='font-medium text-sm text-primary'>{item?.material}</span>
+                      <h4 className='font-normal text-sm text-tertiary'>{item?.material_type}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>
