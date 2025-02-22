@@ -45,7 +45,7 @@ const AddVendor = () => {
 
   const button = {
     loading: vendorId ? isEditingVendor : isAddingVendor,
-    name: vendorId ? 'Edit' : 'Add',
+    name: vendorId ? 'Save' : 'Add',
   };
 
   const [state, setState] = useState({
@@ -68,7 +68,7 @@ const AddVendor = () => {
       state: '',
       bank_name: '',
       country: '',
-      role: '',
+      role_in_value_chain: '',
       notes: '',
       address: '',
       date_of_birth: ''
@@ -121,7 +121,7 @@ const AddVendor = () => {
         state: data.state ?? '',
         bank_name: data.bank_name ?? '',
         country: data.country ?? '',
-        role: data.role ?? '',
+        role_in_value_chain: data.role_in_value_chain ?? '',
         notes: data.notes ?? '',
         address: data.address ?? '',
         date_of_birth: data?.date_of_birth ? formatDate(data.date_of_birth) : '',
@@ -302,15 +302,15 @@ const AddVendor = () => {
           <div className='w-full flex flex-col gap-1.5'>
             <Label>Role in value chain</Label>
             <Select
-              value={formik.values.role}
-              onValueChange={(value) => formik.setFieldValue('role', value)}
+              value={formik.values.role_in_value_chain}
+              onValueChange={(value) => formik.setFieldValue('role_in_value_chain', value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder='Select role' className='text-placeholder font-normal' />
               </SelectTrigger>
               <SelectContent>
                 {ROLE_IN_VALUE_CHAIN.map((item) => (
-                  <SelectItem key={item.name} value={item.name} className='capitalize'>{item.name}</SelectItem>
+                  <SelectItem key={item.name} value={item.value} className='capitalize'>{item.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

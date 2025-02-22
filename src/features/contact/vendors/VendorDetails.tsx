@@ -13,6 +13,7 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 import { useFetchVendor, useFetchVendorActivity } from '@/hooks/api/queries/contacts';
 import { BUSINESS } from '@/types';
 import { getRelativeTime } from '@/utils/dateFormatter';
+import { getRoleInValueChain } from '@/utils/objectFormatter';
 import { capitalizeFirstLetterOfEachWord } from '@/utils/textFormatter';
 import { format } from 'date-fns';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -41,7 +42,7 @@ const VendorDetails = () => {
       'Business name': capitalizeFirstLetterOfEachWord(name),
       'Phone number': data?.phone_number || 'N/A',
       'Email address': data?.email || 'N/A',
-      'Role in value chain': data?.role || 'N/A',
+      'Role in value chain': getRoleInValueChain(data?.role_in_value_chain) ?? 'N/A',
       supportingText: 'Supporting text goes here',
     },
     'Business address': {
@@ -60,7 +61,7 @@ const VendorDetails = () => {
       'Date of Birth': data?.date_of_birth ? format(data?.date_of_birth, "PP") : 'N/A',
       'Phone number': data?.phone_number || 'N/A',
       'Email address': data?.email || 'N/A',
-      'Role in value chain': data?.role || 'N/A',
+      'Role in value chain': getRoleInValueChain(data?.role_in_value_chain) ?? 'N/A',
       supportingText: 'Supporting text goes here',
     },
     'Personal address': {

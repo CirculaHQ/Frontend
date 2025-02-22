@@ -16,8 +16,11 @@ export const CURRENCIES = [
 ]
 
 export const ROLE_IN_VALUE_CHAIN = [
-    { name: 'supplier' },
-    { name: 'retailer' }
+    { name: 'waste picker', value: 'WASTE_PICKER' },
+    { name: 'aggregator', value: 'AGGREGATOR' },
+    { name: 'recycler', value: 'RECYCLER' },
+    { name: 'trader', value: 'TRADER' },
+    { name: 'manufacturer', value: 'MANUFACTURER' },
 ]
 
 export const chartDurationFilter = [
