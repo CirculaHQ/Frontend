@@ -166,9 +166,7 @@ const Operations = () => {
             <TableHeader>
               <TableRow>
                 <TableHead className='w-[100px]'>ID</TableHead>
-                <TableHead>Date</TableHead>
                 <TableHead>Material</TableHead>
-                <TableHead>Activity</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Produced</TableHead>
                 <TableHead>Wasted</TableHead>
@@ -178,23 +176,14 @@ const Operations = () => {
             <TableBody>
               {data?.results.map((item) => (
                 <TableRow className='cursor-pointer' key={item.id} onClick={(e) => navigateToView(e, item.id)}>
-                  <TableCell className='whitespace-nowrap'>{item.code}</TableCell>
-                  <TableCell className='w-[200px]'>
-                    <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>{item.start_time}</span>
-                      <h4 className='font-normal text-sm text-tertiary'>{item.start_date}</h4>
-                    </div>
-                  </TableCell>
-                  <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
+                  <TableCell className='whitespace-nowrap w-[200px]'>{item.code}</TableCell>
+                  <TableCell className='w-[250px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
                       <span className='font-medium text-sm text-primary'>{item.material}</span>
                       <h4 className='font-normal text-sm text-tertiary'>{item.material_type}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
-                    {item.operation_type}
-                  </TableCell>
-                  <TableCell className='w-[100px] text-tertiary font-normal text-sm'>
                     <Badge variant={item.status}>{item.status}</Badge>
                   </TableCell>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>

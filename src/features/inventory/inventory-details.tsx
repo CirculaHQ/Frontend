@@ -1,3 +1,4 @@
+import { PageLoader } from '@/components/loaders';
 import { ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Button,
@@ -16,7 +17,7 @@ const InventoryDetails = () => {
   const { id } = useParams<{ id: string }>();
   const { data: inventory, loading, error } = useFetchInventoryDetails(id ?? '');
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <PageLoader />;
   if (error) return <div>Error: {error}</div>;
   if (!inventory) return <div>Inventory not found</div>;
 
