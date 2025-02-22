@@ -39,15 +39,15 @@ export default function AddCustomer() {
     isUploading: false,
   });
   const customerId = searchParams.get('id') as string;
+  const accountType = searchParams.get('type') as string || INDIVIDUAL;
 
-  const { mutate: addCustomer, isLoading: isAddingCustomer } = useAddCustomer((e) => navigate(e));
-  const { mutate: editCustomer, isLoading: isEditingCustomer } = useEditCustomer((e) =>
+  const { mutateAsync: addCustomer, isLoading: isAddingCustomer } = useAddCustomer((e) => navigate(e));
+  const { mutateAsync: editCustomer, isLoading: isEditingCustomer } = useEditCustomer((e) =>
     navigate(e)
   );
   const { data, isLoading: isLoadingCustomer } = useFetchCustomer(customerId);
 
-  const isBusiness = data?.type === BUSINESS;
-  const customerType = data?.type ?? INDIVIDUAL;
+  const isBusiness = customerId ? (data?.type === BUSINESS) : (accountType === BUSINESS);
 
   const button = {
     loading: customerId ? isEditingCustomer : isAddingCustomer,
@@ -75,7 +75,12 @@ export default function AddCustomer() {
     },
     validationSchema: isBusiness ? AddCustomerSchema.Business : AddCustomerSchema.Individual,
     onSubmit: async (values) => {
-      let payload = { ...values, type: customerType as AccountType, user: userID } as Customer;
+      let payload = {
+        ...values,
+        type: accountType as AccountType,
+        user: userID,
+        date_of_birth: values.date_of_birth || null
+      } as Customer;
 
       if (state.selectedFile) {
         setState({ ...state, isUploading: true });
@@ -87,9 +92,11 @@ export default function AddCustomer() {
       }
 
       if (!customerId) {
-        addCustomer(payload);
+        const res = await addCustomer(payload);
+        navigate(appRoute.customerDetails(res?.id).path)
       } else {
-        editCustomer({ customerId, payload });
+        await editCustomer({ customerId, payload });
+        navigate(appRoute.customerDetails(customerId).path)
       }
     },
   });
@@ -122,10 +129,10 @@ export default function AddCustomer() {
     }
   }, [customerId, data]);
 
-  const ButtonComp = () => (
+  const renderButton = () => (
     <>
       <Button
-        disabled={button.loading}
+        disabled={button.loading || state.isUploading}
         type='button'
         variant='outline'
         onClick={() => navigate(appRoute.customers)}
@@ -149,11 +156,11 @@ export default function AddCustomer() {
     <div className='mx-auto'>
       <BackButton route={appRoute.customers} label='Back to customers' />
       <ModuleHeader
-        title={`${customerId ? 'Edit' : 'Add'} ${customerType} customer`}
+        title={`${customerId ? 'Edit' : 'Add'} ${accountType} customer`}
         className='mb-10'
       >
         <div className='flex flex-row items-center gap-3'>
-          <ButtonComp />
+          {renderButton()}
         </div>
       </ModuleHeader>
       <form onSubmit={formik.handleSubmit}>
@@ -385,7 +392,7 @@ export default function AddCustomer() {
           <Input
             id='bank-name'
             type='text'
-            //placeholder=''
+            placeholder='e.g. Access Bank'
             label='Bank name'
             name='bank_name'
             onChange={formik.handleChange}
@@ -434,7 +441,7 @@ export default function AddCustomer() {
           />
         </FormSection>
         <div className='flex justify-end gap-4 mt-8'>
-          <ButtonComp />
+          {renderButton()}
         </div>
       </form>
     </div>

@@ -26,6 +26,7 @@ export interface Customer {
     archived: boolean;
     user?: string;
     role?: string;
+    role_in_value_chain?: string;
 }
 
 export interface AddCustomerPayload {

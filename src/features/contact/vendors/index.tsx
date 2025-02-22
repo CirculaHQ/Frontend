@@ -1,5 +1,5 @@
 import { PageLoader } from '@/components/loaders';
-import { EmptyState, FilterModule, ModuleHeader, TextBadge } from '@/components/shared';
+import { EmptyState, FilterModule, FilterTrigger, ModuleHeader, TextBadge } from '@/components/shared';
 import {
   Avatar,
   AvatarFallback,
@@ -63,8 +63,18 @@ const Vendors = () => {
 
   const navigateToEditVendor = (e: any, vendor: Customer) => {
     e.stopPropagation()
-    navigate(`${appRoute.editVendor(vendor?.id)}`)
+    navigate(`${appRoute.editVendor(vendor?.id, vendor?.type)}`)
   }
+
+  const handleSelectType = (type: string) => {
+    setParams({ ...params, type })
+  }
+
+  const typeFilterOptions = [
+    { label: 'All types', value: '' },
+    { label: 'Business', value: 'business' },
+    { label: 'Individual', value: 'individual' }
+  ]
 
   if (isLoading) return <PageLoader />;
 
@@ -99,7 +109,13 @@ const Vendors = () => {
           </DropdownMenu>
         </div>
       </ModuleHeader>
-      <FilterModule onSearchChange={handleSearchChange} containerClass='mt-8' />
+      <FilterModule
+        onSearchChange={handleSearchChange}
+        includeTypes={false}
+        containerClass='mt-8'
+      >
+        <FilterTrigger options={typeFilterOptions} onSelect={handleSelectType} />
+      </FilterModule>
       <div className='mt-2'>
         {!isMobile ? (
           <Table>
@@ -166,7 +182,7 @@ const Vendors = () => {
                           Assign inventory
                         </DropdownMenuItem>
                         <DropdownMenuItem className='py-2 rounded-[8px]' onClick={(e) => archiveVendor(e, vendor)}>
-                          Archive
+                          {vendor.archived ? 'Unarchive' : 'Archive'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -225,7 +241,7 @@ const Vendors = () => {
                           Assign inventory
                         </DropdownMenuItem>
                         <DropdownMenuItem className='py-2 rounded-[8px]' onClick={(e) => archiveVendor(e, vendor)}>
-                          Archive
+                          {vendor.archived ? 'Unarchive' : 'Archive'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
