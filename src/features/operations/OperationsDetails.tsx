@@ -22,7 +22,7 @@ const OperationsDetails = () => {
   const currentTab = searchParams.get('tab') ?? 'Operation summary'
 
   const { data, isLoading } = useFetchOperation(operationId ?? '');
-  const { data: inventories, isLoading: isLoadingInnventories } = useFetchOperationInventories(operationId ?? '')
+  const { data: inventories, isLoading: isLoadingInventories } = useFetchOperationInventories(operationId ?? '')
 
   const tabs = [
     { name: 'Operation summary' },
@@ -33,20 +33,17 @@ const OperationsDetails = () => {
     setSearchParams({ tab });
   };
 
-  const enhanceDInventories = useMemo(() => {
+  const enhancedInventories = useMemo(() => {
     // Adds input quantity from the operations data to the respective inventory
     if (inventories?.length && data?.input_quantities?.length) {
       const updated = inventories.map((item, i) => {
-        return { 
-          ...item,
-          input_quantity: data?.input_quantities[i]
-        }
+        return { ...item, input_quantity: data?.input_quantities[i] }
       })
       return updated || []
     }
-  },[inventories, data])
+  }, [inventories, data])
 
-  if (isLoading) return <PageLoader />;
+  if (isLoading || isLoadingInventories) return <PageLoader />;
   if (!data) return <p>No data found!!!</p>
 
   return (
@@ -112,7 +109,7 @@ const OperationsDetails = () => {
         </TabsList>
         <TabsContent value={tabs[0].name}>
           <OperationSummary
-            inventories={enhanceDInventories}
+            inventories={enhancedInventories}
             operation={data}
           />
         </TabsContent>
