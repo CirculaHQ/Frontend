@@ -1,5 +1,5 @@
 import { PageLoader } from '@/components/loaders';
-import { EmptyState, FilterModule, LineDistribution, ModuleHeader, StatCard } from '@/components/shared';
+import { EmptyState, FilterModule, FilterTrigger, LineDistribution, ModuleHeader, StatCard } from '@/components/shared';
 import {
   Badge,
   Button,
@@ -20,12 +20,12 @@ import {
 } from '@/components/ui';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
-import { useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
+import { useFetchInventoryBreakdown, useFetchMaterials } from '@/hooks/api/queries/inventory';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
-import { useExportOperations, useFetchOperationsBreakdown } from '@/hooks/api/queries/operations/useOperationsQuery';
+import { useExportOperations, useFetchOperationsBreakdown, useFetchOperationTypes } from '@/hooks/api/queries/operations/useOperationsQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMaterialColor } from '@/utils/materials';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const PRODUCED = 'Produced';
@@ -36,10 +36,14 @@ const initialParams = {
 const Operations = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { params, handleSearchChange, currentPage, onPageChange } = useTableFilters({ ...initialParams })
+  const { params, handleSearchChange, currentPage, onPageChange, setParams } = useTableFilters({ ...initialParams })
   const [summary, setSummary] = useState(PRODUCED);
 
   const { data, isLoading } = useFetchOperations(params);
+  const { exportOperations, isLoading: isExporting } = useExportOperations();
+  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchInventoryBreakdown({})
+  // const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchOperationsBreakdown();
+  const { data: operationTypes, isLoading: isLoadingOperationTypes } = useFetchOperationTypes()
 
   const totalPages = data ? Math.ceil(data.count / params.limit) : 0;
 
@@ -47,10 +51,6 @@ const Operations = () => {
     e.stopPropagation();
     navigate(appRoute.operationDetails(operationId).path);
   };
-
-  const { exportOperations, isLoading: isExporting } = useExportOperations();
-  const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchInventoryBreakdown({})
-  // const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchOperationsBreakdown();
 
   const lineDistributionSegments = inventoryBreakdown
     ? Object.entries(inventoryBreakdown.materials).map(([material, quantity]) => ({
@@ -70,6 +70,16 @@ const Operations = () => {
     }))
     : [];
 
+  const handleSelectMaterial = (type: string) => {
+    setParams({ ...params, operation_type: type })
+  }
+
+  const materialFilterOptions = useMemo(() => {
+    const defaultRoles = { label: 'All types', value: '' }
+    const enhancedMaterials = operationTypes?.length ? operationTypes.map((role) => ({ label: role.name, value: role.name })) : []
+    return [defaultRoles, ...enhancedMaterials]
+  }, [operationTypes])
+
   if (isLoading || loadingInventoryBreakdown) return <PageLoader />;
 
   return (
@@ -79,10 +89,7 @@ const Operations = () => {
           {!isMobile && (
             <div className='flex flex-row items-center w-full justify-start gap-5'>
               <DateRangePicker showRange={true} />
-              <div className='flex flex-row items-center gap-1'>
-                <span className='text-tertiary font-semibold text-sm'>All material</span>
-                <Icon name='chevron-down' className='w-5 h-5 text-tertiary' />
-              </div>
+              <FilterTrigger options={materialFilterOptions} onSelect={handleSelectMaterial} />
             </div>
           )}
           <Button onClick={exportOperations} disabled={isExporting} isLoading={isExporting}>
@@ -180,8 +187,8 @@ const Operations = () => {
                   </TableCell>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>Clear Glass</span>
-                      <h4 className='font-normal text-sm text-tertiary'>Glass</h4>
+                      <span className='font-medium text-sm text-primary'>{item.material}</span>
+                      <h4 className='font-normal text-sm text-tertiary'>{item.material_type}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
@@ -217,8 +224,8 @@ const Operations = () => {
                 <TableRow className='cursor-pointer' key={item.id} onClick={(e) => navigateToView(e, item.id)}>
                   <TableCell className='w-[200px] text-tertiary font-normal text-sm'>
                     <div className='flex flex-col items-start'>
-                      <span className='font-medium text-sm text-primary'>Clear Glass</span>
-                      <h4 className='font-normal text-sm text-tertiary'>Glass</h4>
+                      <span className='font-medium text-sm text-primary'>{item?.material}</span>
+                      <h4 className='font-normal text-sm text-tertiary'>{item?.material_type}</h4>
                     </div>
                   </TableCell>
                   <TableCell className='w-[300px] text-tertiary font-normal text-sm'>

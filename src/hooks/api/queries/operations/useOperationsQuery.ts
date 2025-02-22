@@ -68,7 +68,7 @@ export const useFetchOperationInventories = (id: string) => {
     };
 
     return useQuery({
-        queryKey: [QUERYKEYS.FETCH_OPERATION_INVENTORIES],
+        queryKey: [QUERYKEYS.FETCH_OPERATION_INVENTORIES, id],
         refetchOnWindowFocus: false,
         queryFn: () => fetchOperationInventories(),
         select: (res) => res,
