@@ -22,7 +22,7 @@ import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
 import { useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
 import { useFetchOperations } from '@/hooks/api/queries/operations/useFetchOperations';
-import { useFetchOperationsBreakdown } from '@/hooks/api/queries/operations/useOperationsQuery';
+import { useExportOperations, useFetchOperationsBreakdown } from '@/hooks/api/queries/operations/useOperationsQuery';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMaterialColor } from '@/utils/materials';
 import { useState } from 'react';
@@ -48,6 +48,7 @@ const Operations = () => {
     navigate(appRoute.operationDetails(operationId).path);
   };
 
+  const { exportOperations, isLoading: isExporting } = useExportOperations();
   const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchInventoryBreakdown({})
   // const { data: inventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchOperationsBreakdown();
 
@@ -84,7 +85,7 @@ const Operations = () => {
               </div>
             </div>
           )}
-          <Button>
+          <Button onClick={exportOperations} disabled={isExporting} isLoading={isExporting}>
             Export report
           </Button>
           <Button variant='secondary' onClick={() => navigate(appRoute.add_operation)}>

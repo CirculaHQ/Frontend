@@ -67,9 +67,12 @@ const useExportVendors = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const exportVendors = async () => {
-    setIsLoading(true);
-    await request<Customer>('GET', `/vendor/export`, null, true, true, '', false, true);
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      await request<Customer>('GET', `/vendor/export`, null, true, true, '', false, true, `Vendors-`);
+    } finally{
+      setIsLoading(false);
+    }
   };
 
   return { isLoading, exportVendors };

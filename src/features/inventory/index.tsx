@@ -35,7 +35,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { appRoute } from '@/config/routeMgt/routePaths';
 import { useTableFilters } from '@/hooks';
 import { useDeleteInventory } from '@/hooks/api/mutations/inventory';
-import { useFetchInventory, useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
+import { useExportInventory, useFetchInventory, useFetchInventoryBreakdown } from '@/hooks/api/queries/inventory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getMaterialColor } from '@/utils/materials';
 import { capitalizeFirstLetter, generateRandomBackgroundColor } from '@/utils/textFormatter';
@@ -63,6 +63,7 @@ const Inventory = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
+  const { exportInventory, isLoading: isExporting } = useExportInventory();
   const { data, isLoading } = useFetchInventory({ stage: currentTab });
   const { data: totalInventoryBreakdown, isLoading: loadingInventoryBreakdown } = useFetchInventoryBreakdown({});
   const { data: rawInventoryBreakdown, isLoading: loadingRawInventoryBreakdown } = useFetchInventoryBreakdown({ stage: 'raw' });
@@ -142,7 +143,7 @@ const Inventory = () => {
               </div>
             </div>
           )}
-          <Button>Export</Button>
+          <Button onClick={exportInventory} disabled={isExporting} isLoading={isExporting}>Export report</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='secondary'>Update inventory</Button>
